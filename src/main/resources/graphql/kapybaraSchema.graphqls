@@ -1,0 +1,66 @@
+type Query{
+    getMenuInfoByTitle(title: String!): MenuInfoModel
+    getMenuInfoById(menuId: ID!): MenuInfoModel
+
+    getMainBotInfoByKey(key: String!): MainBotInfoModel
+
+    getButtonsByMenuTitle(menuTitle: String): [ButtonModel]
+}
+
+type Mutation {
+    addMainBotInfo(mainBotInfo: MainBotInfoInput!): MainBotInfoModel
+
+    addMenuInfo(menuInfo: MenuInfoInput!): MenuInfoModel
+    updateMenuInfo(title: String!, menuInfo: MenuInfoInput!): Boolean
+    deleteMenuInfoByTitle(title: String): Boolean
+
+    addButton(button: ButtonInput!): ButtonModel
+    updateButton(menuTitle: String!, label: String!, button: ButtonInput!): Boolean
+    deleteButton(menuTitle: String!, label: String!): Boolean
+}
+
+type MenuInfoModel {
+    menuId: Int
+    title: String
+    description: String
+    parentId: Int
+    dateCreated: String
+}
+
+type MainBotInfoModel{
+    idInfo: Int
+    key: String
+    value: String
+}
+
+type ButtonModel{
+     buttonId: Int 
+     menuId: Int 
+     label: String 
+     actionType: String 
+     actionData: String 
+     dateCreated: String
+     position: Int
+}
+
+input MainBotInfoInput{
+    idInfo: Int 
+    key: String
+    value: String
+}
+
+input MenuInfoInput{
+    menuId: Int
+    title: String
+    description: String
+    parentId: Int
+}
+
+input ButtonInput{
+    buttonId: Int
+    menuId: Int
+    label: String
+    actionType: String
+    actionData: String
+    position: Int
+}

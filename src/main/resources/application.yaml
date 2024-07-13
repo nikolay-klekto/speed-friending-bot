@@ -1,0 +1,57 @@
+server:
+  port: 8183
+  error:
+    include-stacktrace: never
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  datasource:
+    url: jdbc:postgresql://45.135.234.61:15432/speed_friending
+    username: username
+    password: password
+    schema: public
+    driverClassName: org.postgresql.Driver
+  r2dbc:
+    url: jdbc:postgresql://45.135.234.61:15432/speed_friending
+    username: username
+    password: password
+    driverClassName: org.postgresql.Driver
+  jooq:
+    sql-dialect: POSTGRESQL
+#    url: jdbc:postgresql://45.135.234.61:15432/speed_friending
+#    user: username
+#    password: password
+#    schema: public
+#    driver: org.postgresql.Driver
+  graphql:
+    enable: true
+    cors:
+      allowed-origins: true
+      printer:
+        enabled: true
+#  redis:
+#    host: 45.135.234.61
+#    port: 6379
+#    password: password
+  cache:
+    type: redis
+logging:
+  level:
+    springframework:
+      cache:
+        DEBUG
+    org:
+      jooq:
+        tools:
+          LoggerListener: debug
+
+jooq:
+  sql-dialect: POSTGRESQL
+  url: jdbc:postgresql://45.135.234.61:15432/speed_friending
+  user: username
+  password: password
+  schema: public
+  driver: org.postgresql.Driver
