@@ -14,7 +14,6 @@ import java.time.LocalDate
 @Suppress("UNCHECKED_CAST")
 data class MenuInfo(
     var menuId: Int? = null,
-    var title: String? = null,
     var description: String? = null,
     var parentId: Int? = null,
     var dateCreated: LocalDate? = null
@@ -25,7 +24,6 @@ data class MenuInfo(
         val sb = StringBuilder("MenuInfo (")
 
         sb.append(menuId)
-        sb.append(", ").append(title)
         sb.append(", ").append(description)
         sb.append(", ").append(parentId)
         sb.append(", ").append(dateCreated)

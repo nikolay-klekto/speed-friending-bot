@@ -13,14 +13,9 @@ class ButtonController(
     private val buttonRepository: ButtonRepository
 ) {
     @QueryMapping
-    fun getButtonsByMenuTitle(@Argument menuTitle: String): List<Buttons> {
-        return buttonRepository.getAllButtonsByMenuTitle(menuTitle)
+    fun getButtonsByMenuId(@Argument menuId: Int): List<Buttons> {
+        return buttonRepository.getAllButtonsByMenuId(menuId)
     }
-
-//    @QueryMapping
-//    fun getMenuInfoByTitle(@Argument title: String): Mono<MenuInfo?> {
-//        return buttonRepository.getMenuInfoByTitle(title)
-//    }
 
     @MutationMapping
     open fun addButton(@Argument button: Buttons): Mono<Buttons?> {
@@ -29,18 +24,18 @@ class ButtonController(
 
     @MutationMapping
     open fun updateButton(
-        @Argument menuTitle: String,
+        @Argument menuId: Int,
         @Argument label: String,
         @Argument button: Buttons
     ): Mono<Boolean> {
-        return buttonRepository.update(menuTitle, label, button)
+        return buttonRepository.update(menuId, label, button)
     }
 
     @MutationMapping
     open fun deleteButton(
-        @Argument menuTitle: String,
+        @Argument menuId: Int,
         @Argument label: String
     ): Mono<Boolean> {
-        return buttonRepository.delete(menuTitle, label)
+        return buttonRepository.delete(menuId, label)
     }
 }

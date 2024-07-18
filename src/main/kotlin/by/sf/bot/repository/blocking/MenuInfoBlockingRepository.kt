@@ -12,26 +12,16 @@ class MenuInfoBlockingRepository(
 ) {
 
     fun getMenuInfoById(menuId: Int): MenuInfo {
-        return dsl.select(MENU_INFO.MENU_ID, MENU_INFO.TITLE, MENU_INFO.DESCRIPTION).from(MENU_INFO)
+        return dsl.select(MENU_INFO.MENU_ID, MENU_INFO.DESCRIPTION).from(MENU_INFO)
             .where(MENU_INFO.MENU_ID.eq(menuId))
             .first()
             .map { it.into(MenuInfo::class.java) }
     }
 
-    fun getMenuInfoByTitle(menuTitle: String): MenuInfo? {
-        return dsl.select(MENU_INFO.MENU_ID, MENU_INFO.TITLE, MENU_INFO.DESCRIPTION).from(
-            MENU_INFO
-        )
-            .where(MENU_INFO.TITLE.eq(menuTitle))
-            .firstOrNull()
-            ?.map { it.into(MenuInfo::class.java) }
-
-    }
-
-    fun getAllMenuTitles(): List<String> {
-        return dsl.select(MENU_INFO.TITLE)
+    fun getAllMenuIds(): List<Int> {
+        return dsl.select(MENU_INFO.MENU_ID)
             .from(MENU_INFO)
-            .map{it.into(String::class.java)}
+            .map{it.into(Int::class.java)}
     }
 
     fun getAllMenuModels(): List<MenuInfo>{

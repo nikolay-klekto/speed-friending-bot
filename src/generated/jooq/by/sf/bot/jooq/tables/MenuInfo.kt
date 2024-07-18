@@ -18,7 +18,7 @@ import org.jooq.ForeignKey
 import org.jooq.Identity
 import org.jooq.Name
 import org.jooq.Record
-import org.jooq.Row5
+import org.jooq.Row4
 import org.jooq.Schema
 import org.jooq.Table
 import org.jooq.TableField
@@ -68,11 +68,6 @@ open class MenuInfo(
      * идентификатор меню
      */
     val MENU_ID: TableField<MenuInfoRecord, Int?> = createField(DSL.name("menu_id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "Уникальный идентификатор меню")
-
-    /**
-     * The column <code>public.menu_info.title</code>. Название меню
-     */
-    val TITLE: TableField<MenuInfoRecord, String?> = createField(DSL.name("title"), SQLDataType.VARCHAR, this, "Название меню")
 
     /**
      * The column <code>public.menu_info.description</code>. Описание меню
@@ -140,7 +135,7 @@ open class MenuInfo(
     override fun rename(name: Name): MenuInfo = MenuInfo(name, null)
 
     // -------------------------------------------------------------------------
-    // Row5 type methods
+    // Row4 type methods
     // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row5<Int?, String?, String?, Int?, LocalDate?> = super.fieldsRow() as Row5<Int?, String?, String?, Int?, LocalDate?>
+    override fun fieldsRow(): Row4<Int?, String?, Int?, LocalDate?> = super.fieldsRow() as Row4<Int?, String?, Int?, LocalDate?>
 }

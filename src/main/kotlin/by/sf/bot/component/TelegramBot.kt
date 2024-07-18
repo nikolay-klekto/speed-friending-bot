@@ -7,10 +7,8 @@ import by.sf.bot.repository.blocking.MenuInfoBlockingRepository
 import by.sf.bot.repository.blocking.UserBlockingRepository
 import by.sf.bot.repository.impl.ButtonRepository
 import by.sf.bot.repository.impl.MainBotInfoRepository
-import by.sf.bot.repository.impl.MenuInfoRepository
 import jakarta.annotation.PostConstruct
 import org.jooq.DSLContext
-import org.springframework.stereotype.Component
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.Update
@@ -31,7 +29,7 @@ class TelegramBot(
 
     private var botUsername: String = ""
     private var botToken: String = ""
-    private var menuWithButtonsCollection: HashMap<String, HashMap<Int, Buttons>> = hashMapOf()
+    private var menuWithButtonsCollection: HashMap<Int, HashMap<Int, Buttons>> = hashMapOf()
     private var menuInfoList: List<MenuInfo> = listOf()
 
     @PostConstruct
@@ -40,19 +38,19 @@ class TelegramBot(
         botToken = mainBotInfoRepository.getMainBotInfoByKey(BOT_TOKEN).block()?.value!!
         menuInfoList = menuInfoBlockingRepository.getAllMenuModels()
 
-        val listMenuTitles: List<String> = menuInfoBlockingRepository.getAllMenuTitles()
+        val listMenuIds: List<Int> = menuInfoBlockingRepository.getAllMenuIds()
 
-        listMenuTitles.forEach {menuTitle->
-            val currentButtons: List<Buttons> = buttonRepository.getAllButtonsByMenuTitle(menuTitle)
+        listMenuIds.forEach {menuId->
+            val currentButtons: List<Buttons> = buttonRepository.getAllButtonsByMenuId(menuId)
             currentButtons.forEach { currentButton->
-                if (menuWithButtonsCollection.containsKey(menuTitle)) {
+                if (menuWithButtonsCollection.containsKey(menuId)) {
                     // Вставляем данные во вложенную карту
-                    menuWithButtonsCollection[menuTitle]?.put(currentButton.position!!, currentButton)
+                    menuWithButtonsCollection[menuId]?.put(currentButton.position!!, currentButton)
                 } else {
                     // Создаем новую вложенную карту и вставляем данные
                     val innerMap = HashMap<Int, Buttons>()
                     innerMap[currentButton.position!!] = currentButton
-                    menuWithButtonsCollection[menuTitle] = innerMap
+                    menuWithButtonsCollection[menuId] = innerMap
                 }
             }
 
@@ -91,7 +89,7 @@ class TelegramBot(
         val message = update.message
         val chatId = message.chatId
 
-        val startButtons = menuWithButtonsCollection["start"]
+        val startButtons = menuWithButtonsCollection[START_PAGE_MENU_ID]
 
         when (message.text) {
             START_MESSAGE -> sendStartMessage(chatId)
@@ -112,7 +110,7 @@ class TelegramBot(
 
     private fun sendStartMessage(chatId: Long) {
         val currentMenuModel = menuInfoList.find { it.parentId == null }
-        val currentButtonList = menuWithButtonsCollection[currentMenuModel?.title]
+        val currentButtonList = menuWithButtonsCollection[currentMenuModel?.menuId]
 
         val text = currentMenuModel!!.description!!
         val keyboardMarkup = ReplyKeyboardMarkup()
@@ -148,7 +146,7 @@ class TelegramBot(
 
     private fun sendMenuInfo(chatId: Long, menuId: Int) {
         val currentMenuModel = menuInfoList.find { it.menuId == menuId }
-        val currentButtonList = menuWithButtonsCollection[currentMenuModel?.title]
+        val currentButtonList = menuWithButtonsCollection[currentMenuModel?.menuId]
         val text = currentMenuModel!!.description!!
         val inlineKeyboardMarkup = InlineKeyboardMarkup()
         val keyboard: MutableList<List<InlineKeyboardButton>> = ArrayList()
@@ -226,6 +224,7 @@ class TelegramBot(
     }
 
     companion object{
+        private const val START_PAGE_MENU_ID = 1
         private const val BOT_USERNAME: String = "botUsername"
         private const val BOT_TOKEN: String = "botToken"
         private const val START_MESSAGE: String = "/start"

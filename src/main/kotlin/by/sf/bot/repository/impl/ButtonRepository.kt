@@ -14,16 +14,10 @@ class ButtonRepository(
     private val dsl: DSLContext,
     private val buttonBlockingRepository: ButtonBlockingRepository
 ) {
-    fun getAllButtonsByMenuTitle(menuTitle: String): List<Buttons> {
+    fun getAllButtonsByMenuId(menuId: Int): List<Buttons> {
         return dsl.select(BUTTONS.asterisk())
             .from(BUTTONS)
-            .where(
-                BUTTONS.MENU_ID.eq(
-                    dsl.select(MENU_INFO.MENU_ID)
-                        .from(MENU_INFO)
-                        .where(MENU_INFO.TITLE.eq(menuTitle))
-                )
-            )
+            .where(BUTTONS.MENU_ID.eq(menuId))
             .map { it.into(Buttons::class.java) }
             .sortedBy { it.position }
     }
@@ -39,9 +33,9 @@ class ButtonRepository(
         }
     }
 
-    fun update(menuTitle: String, label: String, button: Buttons): Mono<Boolean> {
+    fun update(menuId: Int, label: String, button: Buttons): Mono<Boolean> {
         return Mono.fromSupplier {
-            val oldButton: Buttons = buttonBlockingRepository.getButtonByMenuAndLabel(menuTitle, label)
+            val oldButton: Buttons = buttonBlockingRepository.getButtonByMenuAndLabel(menuId, label)
                 ?: return@fromSupplier false
 
             return@fromSupplier dsl.update(BUTTONS)
@@ -56,13 +50,13 @@ class ButtonRepository(
         }
     }
 
-    fun delete(menuTitle: String, label: String): Mono<Boolean>{
+    fun delete(menuId: Int, label: String): Mono<Boolean>{
         return Mono.fromSupplier {
 
             dsl.deleteFrom(BUTTONS)
                 .where(BUTTONS.MENU_ID.eq(
                     dsl.select(MENU_INFO.MENU_ID).from(MENU_INFO)
-                        .where(MENU_INFO.TITLE.eq(menuTitle))
+                        .where(MENU_INFO.MENU_ID.eq(menuId))
 
                 )).and(BUTTONS.LABEL.eq(label))
                 .execute() ==1

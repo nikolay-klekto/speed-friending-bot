@@ -1,10 +1,9 @@
 type Query{
-    getMenuInfoByTitle(title: String!): MenuInfoModel
     getMenuInfoById(menuId: ID!): MenuInfoModel
 
     getMainBotInfoByKey(key: String!): MainBotInfoModel
 
-    getButtonsByMenuTitle(menuTitle: String): [ButtonModel]
+    getButtonsByMenuId(menuId: ID): [ButtonModel]
 }
 
 type Mutation {
@@ -12,11 +11,11 @@ type Mutation {
 
     addMenuInfo(menuInfo: MenuInfoInput!): MenuInfoModel
     updateMenuInfo(title: String!, menuInfo: MenuInfoInput!): Boolean
-    deleteMenuInfoByTitle(title: String): Boolean
+    deleteMenuInfoById(menuId: ID): Boolean
 
     addButton(button: ButtonInput!): ButtonModel
-    updateButton(menuTitle: String!, label: String!, button: ButtonInput!): Boolean
-    deleteButton(menuTitle: String!, label: String!): Boolean
+    updateButton(menuId: ID!, label: String!, button: ButtonInput!): Boolean
+    deleteButton(menuId: ID!, label: String!): Boolean
 
     addReminder(reminder: ReminderInput!): ReminderModel
     addRemindDate(remindDate: RemindDateInput!): RemindDateModel
@@ -25,7 +24,6 @@ type Mutation {
 
 type MenuInfoModel {
     menuId: Int
-    title: String
     description: String
     parentId: Int
     dateCreated: String
@@ -69,7 +67,6 @@ input MainBotInfoInput{
 
 input MenuInfoInput{
     menuId: Int
-    title: String
     description: String
     parentId: Int
 }

@@ -21,11 +21,6 @@ class MenuInfoController(
         return menuInfoService.getMenuInfo(menuId)
     }
 
-    @QueryMapping
-    fun getMenuInfoByTitle(@Argument title: String): Mono<MenuInfo?> {
-        return menuInfoService.getMenuInfoByTitle(title)
-    }
-
     @MutationMapping
     open fun addMenuInfo(@Argument menuInfo: MenuInfo): Mono<MenuInfo> {
         return menuInfoService.save(menuInfo)
@@ -33,14 +28,13 @@ class MenuInfoController(
 
     @MutationMapping
     open fun updateMenuInfo(
-        @Argument title: String,
         @Argument menuInfo: MenuInfo
     ): Mono<Boolean> {
-        return menuInfoService.update(title, menuInfo)
+        return menuInfoService.update(menuInfo)
     }
 
     @MutationMapping
-    open fun deleteMenuInfoByTitle(@Argument title: String): Mono<Boolean> {
-        return menuInfoService.delete(title)
+    open fun deleteMenuInfoById(@Argument menuId: Int): Mono<Boolean> {
+        return menuInfoService.delete(menuId)
     }
 }
