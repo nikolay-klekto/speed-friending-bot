@@ -18,7 +18,7 @@ import org.jooq.ForeignKey
 import org.jooq.Identity
 import org.jooq.Name
 import org.jooq.Record
-import org.jooq.Row3
+import org.jooq.Row4
 import org.jooq.Schema
 import org.jooq.Table
 import org.jooq.TableField
@@ -81,6 +81,11 @@ open class RemindDates(
      */
     val REMIND_DATE: TableField<RemindDatesRecord, LocalDate?> = createField(DSL.name("remind_date"), SQLDataType.LOCALDATE, this, "Дата, когда должно быть отправлено напоминание")
 
+    /**
+     * The column <code>public.remind_dates.title</code>.
+     */
+    val TITLE: TableField<RemindDatesRecord, String?> = createField(DSL.name("title"), SQLDataType.VARCHAR, this, "")
+
     private constructor(alias: Name, aliased: Table<RemindDatesRecord>?): this(alias, null, null, aliased, null)
     private constructor(alias: Name, aliased: Table<RemindDatesRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
 
@@ -130,7 +135,7 @@ open class RemindDates(
     override fun rename(name: Name): RemindDates = RemindDates(name, null)
 
     // -------------------------------------------------------------------------
-    // Row3 type methods
+    // Row4 type methods
     // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row3<Int?, Int?, LocalDate?> = super.fieldsRow() as Row3<Int?, Int?, LocalDate?>
+    override fun fieldsRow(): Row4<Int?, Int?, LocalDate?, String?> = super.fieldsRow() as Row4<Int?, Int?, LocalDate?, String?>
 }

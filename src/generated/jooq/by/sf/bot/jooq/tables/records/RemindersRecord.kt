@@ -10,8 +10,8 @@ import java.time.LocalDate
 
 import org.jooq.Field
 import org.jooq.Record1
-import org.jooq.Record5
-import org.jooq.Row5
+import org.jooq.Record4
+import org.jooq.Row4
 import org.jooq.impl.UpdatableRecordImpl
 
 
@@ -19,7 +19,7 @@ import org.jooq.impl.UpdatableRecordImpl
  * Таблица для хранения информации о напоминаниях
  */
 @Suppress("UNCHECKED_CAST")
-open class RemindersRecord() : UpdatableRecordImpl<RemindersRecord>(Reminders.REMINDERS), Record5<Int?, String?, String?, LocalDate?, LocalDate?> {
+open class RemindersRecord() : UpdatableRecordImpl<RemindersRecord>(Reminders.REMINDERS), Record4<Int?, String?, LocalDate?, LocalDate?> {
 
     var reminderId: Int?
         set(value): Unit = set(0, value)
@@ -29,17 +29,13 @@ open class RemindersRecord() : UpdatableRecordImpl<RemindersRecord>(Reminders.RE
         set(value): Unit = set(1, value)
         get(): String? = get(1) as String?
 
-    var description: String?
-        set(value): Unit = set(2, value)
-        get(): String? = get(2) as String?
-
     var eventDate: LocalDate?
-        set(value): Unit = set(3, value)
-        get(): LocalDate? = get(3) as LocalDate?
+        set(value): Unit = set(2, value)
+        get(): LocalDate? = get(2) as LocalDate?
 
     var dateCreated: LocalDate?
-        set(value): Unit = set(4, value)
-        get(): LocalDate? = get(4) as LocalDate?
+        set(value): Unit = set(3, value)
+        get(): LocalDate? = get(3) as LocalDate?
 
     // -------------------------------------------------------------------------
     // Primary key information
@@ -48,26 +44,23 @@ open class RemindersRecord() : UpdatableRecordImpl<RemindersRecord>(Reminders.RE
     override fun key(): Record1<Int?> = super.key() as Record1<Int?>
 
     // -------------------------------------------------------------------------
-    // Record5 type implementation
+    // Record4 type implementation
     // -------------------------------------------------------------------------
 
-    override fun fieldsRow(): Row5<Int?, String?, String?, LocalDate?, LocalDate?> = super.fieldsRow() as Row5<Int?, String?, String?, LocalDate?, LocalDate?>
-    override fun valuesRow(): Row5<Int?, String?, String?, LocalDate?, LocalDate?> = super.valuesRow() as Row5<Int?, String?, String?, LocalDate?, LocalDate?>
+    override fun fieldsRow(): Row4<Int?, String?, LocalDate?, LocalDate?> = super.fieldsRow() as Row4<Int?, String?, LocalDate?, LocalDate?>
+    override fun valuesRow(): Row4<Int?, String?, LocalDate?, LocalDate?> = super.valuesRow() as Row4<Int?, String?, LocalDate?, LocalDate?>
     override fun field1(): Field<Int?> = Reminders.REMINDERS.REMINDER_ID
     override fun field2(): Field<String?> = Reminders.REMINDERS.TITLE_DESCRIPTION
-    override fun field3(): Field<String?> = Reminders.REMINDERS.DESCRIPTION
-    override fun field4(): Field<LocalDate?> = Reminders.REMINDERS.EVENT_DATE
-    override fun field5(): Field<LocalDate?> = Reminders.REMINDERS.DATE_CREATED
+    override fun field3(): Field<LocalDate?> = Reminders.REMINDERS.EVENT_DATE
+    override fun field4(): Field<LocalDate?> = Reminders.REMINDERS.DATE_CREATED
     override fun component1(): Int? = reminderId
     override fun component2(): String? = titleDescription
-    override fun component3(): String? = description
-    override fun component4(): LocalDate? = eventDate
-    override fun component5(): LocalDate? = dateCreated
+    override fun component3(): LocalDate? = eventDate
+    override fun component4(): LocalDate? = dateCreated
     override fun value1(): Int? = reminderId
     override fun value2(): String? = titleDescription
-    override fun value3(): String? = description
-    override fun value4(): LocalDate? = eventDate
-    override fun value5(): LocalDate? = dateCreated
+    override fun value3(): LocalDate? = eventDate
+    override fun value4(): LocalDate? = dateCreated
 
     override fun value1(value: Int?): RemindersRecord {
         this.reminderId = value
@@ -79,37 +72,30 @@ open class RemindersRecord() : UpdatableRecordImpl<RemindersRecord>(Reminders.RE
         return this
     }
 
-    override fun value3(value: String?): RemindersRecord {
-        this.description = value
-        return this
-    }
-
-    override fun value4(value: LocalDate?): RemindersRecord {
+    override fun value3(value: LocalDate?): RemindersRecord {
         this.eventDate = value
         return this
     }
 
-    override fun value5(value: LocalDate?): RemindersRecord {
+    override fun value4(value: LocalDate?): RemindersRecord {
         this.dateCreated = value
         return this
     }
 
-    override fun values(value1: Int?, value2: String?, value3: String?, value4: LocalDate?, value5: LocalDate?): RemindersRecord {
+    override fun values(value1: Int?, value2: String?, value3: LocalDate?, value4: LocalDate?): RemindersRecord {
         this.value1(value1)
         this.value2(value2)
         this.value3(value3)
         this.value4(value4)
-        this.value5(value5)
         return this
     }
 
     /**
      * Create a detached, initialised RemindersRecord
      */
-    constructor(reminderId: Int? = null, titleDescription: String? = null, description: String? = null, eventDate: LocalDate? = null, dateCreated: LocalDate? = null): this() {
+    constructor(reminderId: Int? = null, titleDescription: String? = null, eventDate: LocalDate? = null, dateCreated: LocalDate? = null): this() {
         this.reminderId = reminderId
         this.titleDescription = titleDescription
-        this.description = description
         this.eventDate = eventDate
         this.dateCreated = dateCreated
     }
@@ -121,7 +107,6 @@ open class RemindersRecord() : UpdatableRecordImpl<RemindersRecord>(Reminders.RE
         if (value != null) {
             this.reminderId = value.reminderId
             this.titleDescription = value.titleDescription
-            this.description = value.description
             this.eventDate = value.eventDate
             this.dateCreated = value.dateCreated
         }

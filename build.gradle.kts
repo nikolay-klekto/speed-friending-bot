@@ -164,45 +164,45 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-java.sourceSets["main"].java {
-    srcDir("src/generated/jooq")
-}
-
-//jooq {
-//    version.set("3.16.7")
-//    edition.set(JooqEdition.OSS)
-//
-//    configurations {
-//        create("main") {
-//            jooqConfiguration.apply {
-//                jdbc.apply {
-//                    driver = "org.postgresql.Driver"
-//                    url = "jdbc:postgresql://45.135.234.61:15432/speed_friending"
-//                    user = "username"
-//                    password = "password"
-//                }
-//                generator.apply {
-//                    name = "org.jooq.codegen.KotlinGenerator"
-//                    database.apply {
-//                        name = "org.jooq.meta.postgres.PostgresDatabase"
-//                        inputSchema = "public"
-//
-//                    }
-//                    generate.apply {
-//                        isDeprecated = false
-//                        isRecords = true
-//                        isImmutablePojos = false
-//                        isFluentSetters = true
-//                        isPojos = true
-//                        withSequences(false)
-//                    }
-//                    target.apply {
-//                        packageName = "by.sf.bot.jooq"
-//                        directory = "src/generated/jooq"
-//                    }
-//                    strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
-//                }
-//            }
-//        }
-//    }
+//java.sourceSets["main"].java {
+//    srcDir("src/generated/jooq")
 //}
+
+jooq {
+    version.set("3.16.7")
+    edition.set(JooqEdition.OSS)
+
+    configurations {
+        create("main") {
+            jooqConfiguration.apply {
+                jdbc.apply {
+                    driver = "org.postgresql.Driver"
+                    url = "jdbc:postgresql://45.135.234.61:15432/speed_friending"
+                    user = "username"
+                    password = "password"
+                }
+                generator.apply {
+                    name = "org.jooq.codegen.KotlinGenerator"
+                    database.apply {
+                        name = "org.jooq.meta.postgres.PostgresDatabase"
+                        inputSchema = "public"
+
+                    }
+                    generate.apply {
+                        isDeprecated = false
+                        isRecords = true
+                        isImmutablePojos = false
+                        isFluentSetters = true
+                        isPojos = true
+                        withSequences(false)
+                    }
+                    target.apply {
+                        packageName = "by.sf.bot.jooq"
+                        directory = "src/generated/jooq"
+                    }
+                    strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
+                }
+            }
+        }
+    }
+}

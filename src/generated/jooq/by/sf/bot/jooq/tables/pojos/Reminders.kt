@@ -15,7 +15,6 @@ import java.time.LocalDate
 data class Reminders(
     var reminderId: Int? = null,
     var titleDescription: String? = null,
-    var description: String? = null,
     var eventDate: LocalDate? = null,
     var dateCreated: LocalDate? = null
 ): Serializable {
@@ -26,7 +25,6 @@ data class Reminders(
 
         sb.append(reminderId)
         sb.append(", ").append(titleDescription)
-        sb.append(", ").append(description)
         sb.append(", ").append(eventDate)
         sb.append(", ").append(dateCreated)
 

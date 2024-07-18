@@ -19,15 +19,15 @@ import org.jooq.impl.UpdatableRecordImpl
  * Таблица для хранения информации о пользователях
  */
 @Suppress("UNCHECKED_CAST")
-open class UsersRecord() : UpdatableRecordImpl<UsersRecord>(Users.USERS), Record5<Int?, Int?, String?, LocalDate?, Boolean?> {
+open class UsersRecord() : UpdatableRecordImpl<UsersRecord>(Users.USERS), Record5<Int?, Long?, String?, LocalDate?, Boolean?> {
 
     var userId: Int?
         set(value): Unit = set(0, value)
         get(): Int? = get(0) as Int?
 
-    var telegramId: Int?
+    var telegramId: Long?
         set(value): Unit = set(1, value)
-        get(): Int? = get(1) as Int?
+        get(): Long? = get(1) as Long?
 
     var username: String?
         set(value): Unit = set(2, value)
@@ -51,20 +51,20 @@ open class UsersRecord() : UpdatableRecordImpl<UsersRecord>(Users.USERS), Record
     // Record5 type implementation
     // -------------------------------------------------------------------------
 
-    override fun fieldsRow(): Row5<Int?, Int?, String?, LocalDate?, Boolean?> = super.fieldsRow() as Row5<Int?, Int?, String?, LocalDate?, Boolean?>
-    override fun valuesRow(): Row5<Int?, Int?, String?, LocalDate?, Boolean?> = super.valuesRow() as Row5<Int?, Int?, String?, LocalDate?, Boolean?>
+    override fun fieldsRow(): Row5<Int?, Long?, String?, LocalDate?, Boolean?> = super.fieldsRow() as Row5<Int?, Long?, String?, LocalDate?, Boolean?>
+    override fun valuesRow(): Row5<Int?, Long?, String?, LocalDate?, Boolean?> = super.valuesRow() as Row5<Int?, Long?, String?, LocalDate?, Boolean?>
     override fun field1(): Field<Int?> = Users.USERS.USER_ID
-    override fun field2(): Field<Int?> = Users.USERS.TELEGRAM_ID
+    override fun field2(): Field<Long?> = Users.USERS.TELEGRAM_ID
     override fun field3(): Field<String?> = Users.USERS.USERNAME
     override fun field4(): Field<LocalDate?> = Users.USERS.DATE_CREATED
     override fun field5(): Field<Boolean?> = Users.USERS.REMIND_STATUS
     override fun component1(): Int? = userId
-    override fun component2(): Int? = telegramId
+    override fun component2(): Long? = telegramId
     override fun component3(): String? = username
     override fun component4(): LocalDate? = dateCreated
     override fun component5(): Boolean? = remindStatus
     override fun value1(): Int? = userId
-    override fun value2(): Int? = telegramId
+    override fun value2(): Long? = telegramId
     override fun value3(): String? = username
     override fun value4(): LocalDate? = dateCreated
     override fun value5(): Boolean? = remindStatus
@@ -74,7 +74,7 @@ open class UsersRecord() : UpdatableRecordImpl<UsersRecord>(Users.USERS), Record
         return this
     }
 
-    override fun value2(value: Int?): UsersRecord {
+    override fun value2(value: Long?): UsersRecord {
         this.telegramId = value
         return this
     }
@@ -94,7 +94,7 @@ open class UsersRecord() : UpdatableRecordImpl<UsersRecord>(Users.USERS), Record
         return this
     }
 
-    override fun values(value1: Int?, value2: Int?, value3: String?, value4: LocalDate?, value5: Boolean?): UsersRecord {
+    override fun values(value1: Int?, value2: Long?, value3: String?, value4: LocalDate?, value5: Boolean?): UsersRecord {
         this.value1(value1)
         this.value2(value2)
         this.value3(value3)
@@ -106,7 +106,7 @@ open class UsersRecord() : UpdatableRecordImpl<UsersRecord>(Users.USERS), Record
     /**
      * Create a detached, initialised UsersRecord
      */
-    constructor(userId: Int? = null, telegramId: Int? = null, username: String? = null, dateCreated: LocalDate? = null, remindStatus: Boolean? = null): this() {
+    constructor(userId: Int? = null, telegramId: Long? = null, username: String? = null, dateCreated: LocalDate? = null, remindStatus: Boolean? = null): this() {
         this.userId = userId
         this.telegramId = telegramId
         this.username = username

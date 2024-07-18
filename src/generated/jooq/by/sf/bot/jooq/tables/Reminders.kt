@@ -15,7 +15,7 @@ import org.jooq.ForeignKey
 import org.jooq.Identity
 import org.jooq.Name
 import org.jooq.Record
-import org.jooq.Row5
+import org.jooq.Row4
 import org.jooq.Schema
 import org.jooq.Table
 import org.jooq.TableField
@@ -73,12 +73,6 @@ open class Reminders(
     val TITLE_DESCRIPTION: TableField<RemindersRecord, String?> = createField(DSL.name("title_description"), SQLDataType.VARCHAR, this, "Краткое описание напоминания")
 
     /**
-     * The column <code>public.reminders.description</code>. Полное описание
-     * напоминания
-     */
-    val DESCRIPTION: TableField<RemindersRecord, String?> = createField(DSL.name("description"), SQLDataType.VARCHAR, this, "Полное описание напоминания")
-
-    /**
      * The column <code>public.reminders.event_date</code>. Дата мероприятия, о
      * котором напоминается
      */
@@ -126,7 +120,7 @@ open class Reminders(
     override fun rename(name: Name): Reminders = Reminders(name, null)
 
     // -------------------------------------------------------------------------
-    // Row5 type methods
+    // Row4 type methods
     // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row5<Int?, String?, String?, LocalDate?, LocalDate?> = super.fieldsRow() as Row5<Int?, String?, String?, LocalDate?, LocalDate?>
+    override fun fieldsRow(): Row4<Int?, String?, LocalDate?, LocalDate?> = super.fieldsRow() as Row4<Int?, String?, LocalDate?, LocalDate?>
 }

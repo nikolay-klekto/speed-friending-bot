@@ -2,6 +2,7 @@ package by.sf.bot.configuration
 
 import by.sf.bot.component.TelegramBot
 import by.sf.bot.repository.blocking.MenuInfoBlockingRepository
+import by.sf.bot.repository.blocking.UserBlockingRepository
 import by.sf.bot.repository.impl.ButtonRepository
 import by.sf.bot.repository.impl.MainBotInfoRepository
 import by.sf.bot.repository.impl.MenuInfoRepository
@@ -31,14 +32,14 @@ class BotConfig {
         mainBotInfoRepository: MainBotInfoRepository,
         menuInfoBlockingRepository: MenuInfoBlockingRepository,
         buttonRepository: ButtonRepository,
-        menuInfoRepository: MenuInfoRepository,
+        userBlockingRepository: UserBlockingRepository,
         dsl: DSLContext
     ): TelegramBot {
         return TelegramBot(
             mainBotInfoRepository,
             menuInfoBlockingRepository,
             buttonRepository,
-            menuInfoRepository,
+            userBlockingRepository,
             dsl
         )
     }

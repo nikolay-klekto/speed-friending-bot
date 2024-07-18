@@ -70,7 +70,7 @@ open class Users(
      * The column <code>public.users.telegram_id</code>. Идентификатор
      * пользователя в Telegram
      */
-    val TELEGRAM_ID: TableField<UsersRecord, Int?> = createField(DSL.name("telegram_id"), SQLDataType.INTEGER, this, "Идентификатор пользователя в Telegram")
+    val TELEGRAM_ID: TableField<UsersRecord, Long?> = createField(DSL.name("telegram_id"), SQLDataType.BIGINT, this, "Идентификатор пользователя в Telegram")
 
     /**
      * The column <code>public.users.username</code>. Имя пользователя в
@@ -127,5 +127,5 @@ open class Users(
     // -------------------------------------------------------------------------
     // Row5 type methods
     // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row5<Int?, Int?, String?, LocalDate?, Boolean?> = super.fieldsRow() as Row5<Int?, Int?, String?, LocalDate?, Boolean?>
+    override fun fieldsRow(): Row5<Int?, Long?, String?, LocalDate?, Boolean?> = super.fieldsRow() as Row5<Int?, Long?, String?, LocalDate?, Boolean?>
 }

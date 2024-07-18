@@ -14,7 +14,7 @@ import java.time.LocalDate
 @Suppress("UNCHECKED_CAST")
 data class Users(
     var userId: Int? = null,
-    var telegramId: Int? = null,
+    var telegramId: Long? = null,
     var username: String? = null,
     var dateCreated: LocalDate? = null,
     var remindStatus: Boolean? = null

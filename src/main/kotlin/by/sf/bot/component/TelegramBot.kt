@@ -2,7 +2,9 @@ package by.sf.bot.component
 
 import by.sf.bot.jooq.tables.pojos.Buttons
 import by.sf.bot.jooq.tables.pojos.MenuInfo
+import by.sf.bot.jooq.tables.pojos.Users
 import by.sf.bot.repository.blocking.MenuInfoBlockingRepository
+import by.sf.bot.repository.blocking.UserBlockingRepository
 import by.sf.bot.repository.impl.ButtonRepository
 import by.sf.bot.repository.impl.MainBotInfoRepository
 import by.sf.bot.repository.impl.MenuInfoRepository
@@ -12,15 +14,18 @@ import org.springframework.stereotype.Component
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.Update
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow
+import java.time.LocalDate
 
 
 class TelegramBot(
     private val mainBotInfoRepository: MainBotInfoRepository,
     private val menuInfoBlockingRepository: MenuInfoBlockingRepository,
     private val buttonRepository: ButtonRepository,
-    private val menuInfoRepository: MenuInfoRepository,
+    private val userBlockingRepository: UserBlockingRepository,
     private val dsl: DSLContext
 ) : TelegramLongPollingBot() {
 
@@ -64,17 +69,37 @@ class TelegramBot(
     override fun getBotToken(): String = botToken
 
     override fun onUpdateReceived(update: Update) {
+        if (update.hasCallbackQuery()) {
+            val callbackQuery = update.callbackQuery
+            val callbackData = callbackQuery.data
+            val callbackChatId = callbackQuery.message.chatId
+
+            when (callbackData) {
+                REMINDER_MESSAGE_YES -> {
+                    sendReminderOptions(callbackChatId, true)
+                }
+                REMINDER_MESSAGE_NO -> {
+                    sendStartMessage(callbackChatId)
+                }
+                REMINDER_MESSAGE_DELETE -> {
+                    sendReminderOptions(callbackChatId, false)
+                }
+            }
+            return
+        }
+
         val message = update.message
         val chatId = message.chatId
 
         val startButtons = menuWithButtonsCollection["start"]
 
         when (message.text) {
-            startButtons?.get(1)?.label-> sendStartMessage(chatId)
-            startButtons?.get(2)?.label -> sendMenuInfo(chatId, 1)  // Пример menu_id
-            startButtons?.get(3)?.label -> sendParticipationForm(chatId)
-            startButtons?.get(4)?.label -> sendMenuInfo(chatId, 2)  // Пример menu_id
-            startButtons?.get(5)?.label -> sendReminderOptions(chatId)
+            START_MESSAGE -> sendStartMessage(chatId)
+            startButtons?.get(1)?.label-> sendMenuInfo(chatId, 2)
+            startButtons?.get(2)?.label -> sendMenuInfo(chatId, 3)  // Пример menu_id
+            startButtons?.get(3)?.label -> sendMenuInfo(chatId, 5)
+            startButtons?.get(4)?.label -> sendMenuInfo(chatId, 4)  // Пример menu_id
+//            startButtons?.get(5)?.label -> sendReminderOptions(chatId)
             startButtons?.get(6)?.label -> sendRandomCoffeeInfo(chatId)
             else -> sendMessage(chatId, "Неизвестная команда. Попробуйте снова.")
         }
@@ -92,15 +117,28 @@ class TelegramBot(
         val text = currentMenuModel!!.description!!
         val keyboardMarkup = ReplyKeyboardMarkup()
         val keyboard: MutableList<KeyboardRow> = ArrayList()
-        val row = KeyboardRow()
-        row.add(currentButtonList?.get(1)!!.label)
-        row.add(currentButtonList[2]!!.label)
-        row.add(currentButtonList[3]!!.label)
-        row.add(currentButtonList[4]!!.label)
-        row.add(currentButtonList[5]!!.label)
-        keyboard.add(row)
+
+        val row1 = KeyboardRow()
+        row1.add(currentButtonList?.get(1)!!.label)
+        row1.add(currentButtonList[2]!!.label)
+
+        val row2 = KeyboardRow()
+        row2.add(currentButtonList[5]!!.label)
+        row2.add(currentButtonList[4]!!.label)
+
+        val row3 = KeyboardRow()
+        row3.add(currentButtonList[3]!!.label)
+
+
+
+// Добавляем ряды в клавиатуру
+        keyboard.add(row1)
+        keyboard.add(row2)
+        keyboard.add(row3)
+
         keyboardMarkup.keyboard = keyboard
         keyboardMarkup.resizeKeyboard = true
+
         val message = SendMessage()
         message.chatId = chatId.toString()
         message.text = text
@@ -109,14 +147,36 @@ class TelegramBot(
     }
 
     private fun sendMenuInfo(chatId: Long, menuId: Int) {
-//        menuInfoService.getMenuInfo(menuId).flatMap { menuInfo ->
-//            buttonService.getButtonsByMenuId(menuId).collectList().flatMap { buttons ->
-//                val text = menuInfo?.description ?: "Информация не найдена"
-//                sendMessage(chatId, text)
-                // Добавьте код для отправки кнопок на основе данных из buttons
-//                Mono.empty<Void>()
-//            }
-//        }.subscribe()
+        val currentMenuModel = menuInfoList.find { it.menuId == menuId }
+        val currentButtonList = menuWithButtonsCollection[currentMenuModel?.title]
+        val text = currentMenuModel!!.description!!
+        val inlineKeyboardMarkup = InlineKeyboardMarkup()
+        val keyboard: MutableList<List<InlineKeyboardButton>> = ArrayList()
+
+        currentButtonList?.values?.forEach { button ->
+            val inlineKeyboardButton = InlineKeyboardButton()
+            inlineKeyboardButton.text = button.label!!
+
+            if (button.actionType == "url") {
+                inlineKeyboardButton.url = button.actionData
+            } else if (button.actionType == "callback") {
+                inlineKeyboardButton.callbackData = button.actionData
+            }
+
+            keyboard.add(listOf(inlineKeyboardButton))
+        }
+
+        if (keyboard.isNotEmpty()) {
+            inlineKeyboardMarkup.keyboard = keyboard
+        }
+        val message = SendMessage()
+        message.chatId = chatId.toString()
+        message.text = text
+        // Устанавливаем разметку клавиатуры только если она есть
+        if (keyboard.isNotEmpty()) {
+            message.replyMarkup = inlineKeyboardMarkup
+        }
+        execute(message)
     }
 
     private fun sendParticipationForm(chatId: Long) {
@@ -129,20 +189,48 @@ class TelegramBot(
 //        sendMessage(chatId, text)
     }
 
-    private fun sendReminderOptions(chatId: Long) {
-//        val text = "Нужно ли вам напомнить о встрече за 3 дня до мероприятия?"
+    private fun sendReminderOptions(chatId: Long, remindStatus: Boolean) {
+
+        val userExistStatus = userBlockingRepository.isUserExist(chatId)
+
+        if(userExistStatus){
+
+            val updateStatus = userBlockingRepository.update(chatId, remindStatus)
+
+            if(updateStatus){
+                if(remindStatus){
+//                    if()
+                    sendMessage(chatId, "Напоминание установлено!")
+                }else sendMessage(chatId, "Напоминание удалено!")
+
+            }else sendMessage(chatId, "Упс! Что-то пошло не так, свяжитесь пожалуйста с организатором!")
+
+        }else if(remindStatus){
+            val newUser = Users(
+                telegramId = chatId,
+                dateCreated = LocalDate.now(),
+                remindStatus = remindStatus
+            )
+            val saveStatus = userBlockingRepository.save(newUser)
+            if(saveStatus){
+                sendMessage(chatId, "Напоминание установлено!")
+            }else  sendMessage(chatId, "Упс! Что-то пошло не так, свяжитесь пожалуйста с организатором!")
+        }else sendMessage(chatId, "Success!")
 //        sendMessage(chatId, text)
-        // Добавьте кнопки "Да" и "Нет"
     }
 
     private fun sendRandomCoffeeInfo(chatId: Long) {
-//        val text = "Привет! Добро пожаловать в Random Coffee. Готовы найти друга по интересам?"
-//        sendMessage(chatId, text)
-        // Добавьте кнопки "Да" и "Нет"
+        val text = "Success!"
+
+        sendMessage(chatId, text)
     }
 
     companion object{
         private const val BOT_USERNAME: String = "botUsername"
         private const val BOT_TOKEN: String = "botToken"
+        private const val START_MESSAGE: String = "/start"
+        private const val REMINDER_MESSAGE_YES = "reminder_yes"
+        private const val REMINDER_MESSAGE_NO = "reminder_no"
+        private const val REMINDER_MESSAGE_DELETE = "reminder_delete"
     }
 }

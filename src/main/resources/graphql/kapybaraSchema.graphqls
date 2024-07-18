@@ -17,6 +17,10 @@ type Mutation {
     addButton(button: ButtonInput!): ButtonModel
     updateButton(menuTitle: String!, label: String!, button: ButtonInput!): Boolean
     deleteButton(menuTitle: String!, label: String!): Boolean
+
+    addReminder(reminder: ReminderInput!): ReminderModel
+    addRemindDate(remindDate: RemindDateInput!): RemindDateModel
+
 }
 
 type MenuInfoModel {
@@ -43,6 +47,20 @@ type ButtonModel{
      position: Int
 }
 
+type ReminderModel{
+    reminderId: Int
+    titleDescription: String
+    eventDate: String
+    dateCreated: String
+}
+
+type RemindDateModel{
+     id: Int 
+     reminderId: Int 
+     remindDate: String
+     title: String 
+}
+
 input MainBotInfoInput{
     idInfo: Int 
     key: String
@@ -63,4 +81,17 @@ input ButtonInput{
     actionType: String
     actionData: String
     position: Int
+}
+
+input ReminderInput{
+     reminderId: Int 
+     titleDescription: String
+     eventDate: String
+}
+
+input RemindDateInput{
+    id: Int
+    reminderId: Int
+    remindDate: String
+    title: String
 }

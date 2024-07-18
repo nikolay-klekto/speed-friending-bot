@@ -10,8 +10,8 @@ import java.time.LocalDate
 
 import org.jooq.Field
 import org.jooq.Record1
-import org.jooq.Record3
-import org.jooq.Row3
+import org.jooq.Record4
+import org.jooq.Row4
 import org.jooq.impl.UpdatableRecordImpl
 
 
@@ -19,7 +19,7 @@ import org.jooq.impl.UpdatableRecordImpl
  * Таблица для хранения дат напоминаний
  */
 @Suppress("UNCHECKED_CAST")
-open class RemindDatesRecord() : UpdatableRecordImpl<RemindDatesRecord>(RemindDates.REMIND_DATES), Record3<Int?, Int?, LocalDate?> {
+open class RemindDatesRecord() : UpdatableRecordImpl<RemindDatesRecord>(RemindDates.REMIND_DATES), Record4<Int?, Int?, LocalDate?, String?> {
 
     var id: Int?
         set(value): Unit = set(0, value)
@@ -33,6 +33,10 @@ open class RemindDatesRecord() : UpdatableRecordImpl<RemindDatesRecord>(RemindDa
         set(value): Unit = set(2, value)
         get(): LocalDate? = get(2) as LocalDate?
 
+    var title: String?
+        set(value): Unit = set(3, value)
+        get(): String? = get(3) as String?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -40,20 +44,23 @@ open class RemindDatesRecord() : UpdatableRecordImpl<RemindDatesRecord>(RemindDa
     override fun key(): Record1<Int?> = super.key() as Record1<Int?>
 
     // -------------------------------------------------------------------------
-    // Record3 type implementation
+    // Record4 type implementation
     // -------------------------------------------------------------------------
 
-    override fun fieldsRow(): Row3<Int?, Int?, LocalDate?> = super.fieldsRow() as Row3<Int?, Int?, LocalDate?>
-    override fun valuesRow(): Row3<Int?, Int?, LocalDate?> = super.valuesRow() as Row3<Int?, Int?, LocalDate?>
+    override fun fieldsRow(): Row4<Int?, Int?, LocalDate?, String?> = super.fieldsRow() as Row4<Int?, Int?, LocalDate?, String?>
+    override fun valuesRow(): Row4<Int?, Int?, LocalDate?, String?> = super.valuesRow() as Row4<Int?, Int?, LocalDate?, String?>
     override fun field1(): Field<Int?> = RemindDates.REMIND_DATES.ID
     override fun field2(): Field<Int?> = RemindDates.REMIND_DATES.REMINDER_ID
     override fun field3(): Field<LocalDate?> = RemindDates.REMIND_DATES.REMIND_DATE
+    override fun field4(): Field<String?> = RemindDates.REMIND_DATES.TITLE
     override fun component1(): Int? = id
     override fun component2(): Int? = reminderId
     override fun component3(): LocalDate? = remindDate
+    override fun component4(): String? = title
     override fun value1(): Int? = id
     override fun value2(): Int? = reminderId
     override fun value3(): LocalDate? = remindDate
+    override fun value4(): String? = title
 
     override fun value1(value: Int?): RemindDatesRecord {
         this.id = value
@@ -70,20 +77,27 @@ open class RemindDatesRecord() : UpdatableRecordImpl<RemindDatesRecord>(RemindDa
         return this
     }
 
-    override fun values(value1: Int?, value2: Int?, value3: LocalDate?): RemindDatesRecord {
+    override fun value4(value: String?): RemindDatesRecord {
+        this.title = value
+        return this
+    }
+
+    override fun values(value1: Int?, value2: Int?, value3: LocalDate?, value4: String?): RemindDatesRecord {
         this.value1(value1)
         this.value2(value2)
         this.value3(value3)
+        this.value4(value4)
         return this
     }
 
     /**
      * Create a detached, initialised RemindDatesRecord
      */
-    constructor(id: Int? = null, reminderId: Int? = null, remindDate: LocalDate? = null): this() {
+    constructor(id: Int? = null, reminderId: Int? = null, remindDate: LocalDate? = null, title: String? = null): this() {
         this.id = id
         this.reminderId = reminderId
         this.remindDate = remindDate
+        this.title = title
     }
 
     /**
@@ -94,6 +108,7 @@ open class RemindDatesRecord() : UpdatableRecordImpl<RemindDatesRecord>(RemindDa
             this.id = value.id
             this.reminderId = value.reminderId
             this.remindDate = value.remindDate
+            this.title = value.title
         }
     }
 }

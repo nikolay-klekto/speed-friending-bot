@@ -11,6 +11,13 @@ class MenuInfoBlockingRepository(
     private val dsl: DSLContext
 ) {
 
+    fun getMenuInfoById(menuId: Int): MenuInfo {
+        return dsl.select(MENU_INFO.MENU_ID, MENU_INFO.TITLE, MENU_INFO.DESCRIPTION).from(MENU_INFO)
+            .where(MENU_INFO.MENU_ID.eq(menuId))
+            .first()
+            .map { it.into(MenuInfo::class.java) }
+    }
+
     fun getMenuInfoByTitle(menuTitle: String): MenuInfo? {
         return dsl.select(MENU_INFO.MENU_ID, MENU_INFO.TITLE, MENU_INFO.DESCRIPTION).from(
             MENU_INFO
