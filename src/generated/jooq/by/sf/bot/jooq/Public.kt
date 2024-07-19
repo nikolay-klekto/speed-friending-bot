@@ -5,6 +5,7 @@ package by.sf.bot.jooq
 
 
 import by.sf.bot.jooq.tables.Buttons
+import by.sf.bot.jooq.tables.EventInfo
 import by.sf.bot.jooq.tables.MainBotInfo
 import by.sf.bot.jooq.tables.MenuInfo
 import by.sf.bot.jooq.tables.RandomCoffee
@@ -36,6 +37,11 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
      * Таблица для хранения информации о кнопках меню
      */
     val BUTTONS: Buttons get() = Buttons.BUTTONS
+
+    /**
+     * The table <code>public.event_info</code>.
+     */
+    val EVENT_INFO: EventInfo get() = EventInfo.EVENT_INFO
 
     /**
      * The table <code>public.main_bot_info</code>.
@@ -71,6 +77,7 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
 
     override fun getTables(): List<Table<*>> = listOf(
         Buttons.BUTTONS,
+        EventInfo.EVENT_INFO,
         MainBotInfo.MAIN_BOT_INFO,
         MenuInfo.MENU_INFO,
         RandomCoffee.RANDOM_COFFEE,

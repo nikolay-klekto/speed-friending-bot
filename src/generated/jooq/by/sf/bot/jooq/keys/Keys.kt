@@ -5,6 +5,7 @@ package by.sf.bot.jooq.keys
 
 
 import by.sf.bot.jooq.tables.Buttons
+import by.sf.bot.jooq.tables.EventInfo
 import by.sf.bot.jooq.tables.MainBotInfo
 import by.sf.bot.jooq.tables.MenuInfo
 import by.sf.bot.jooq.tables.RandomCoffee
@@ -12,6 +13,7 @@ import by.sf.bot.jooq.tables.RemindDates
 import by.sf.bot.jooq.tables.Reminders
 import by.sf.bot.jooq.tables.Users
 import by.sf.bot.jooq.tables.records.ButtonsRecord
+import by.sf.bot.jooq.tables.records.EventInfoRecord
 import by.sf.bot.jooq.tables.records.MainBotInfoRecord
 import by.sf.bot.jooq.tables.records.MenuInfoRecord
 import by.sf.bot.jooq.tables.records.RandomCoffeeRecord
@@ -31,6 +33,7 @@ import org.jooq.impl.Internal
 // -------------------------------------------------------------------------
 
 val BUTTONS_PKEY: UniqueKey<ButtonsRecord> = Internal.createUniqueKey(Buttons.BUTTONS, DSL.name("buttons_pkey"), arrayOf(Buttons.BUTTONS.BUTTON_ID), true)
+val EVENT_INFO_PKEY: UniqueKey<EventInfoRecord> = Internal.createUniqueKey(EventInfo.EVENT_INFO, DSL.name("event_info_pkey"), arrayOf(EventInfo.EVENT_INFO.EVENT_ID), true)
 val MAIN_BOT_INFO_PKEY: UniqueKey<MainBotInfoRecord> = Internal.createUniqueKey(MainBotInfo.MAIN_BOT_INFO, DSL.name("main_bot_info_pkey"), arrayOf(MainBotInfo.MAIN_BOT_INFO.ID_INFO), true)
 val MENU_INFO_PKEY: UniqueKey<MenuInfoRecord> = Internal.createUniqueKey(MenuInfo.MENU_INFO, DSL.name("menu_info_pkey"), arrayOf(MenuInfo.MENU_INFO.MENU_ID), true)
 val RANDOM_COFFEE_PKEY: UniqueKey<RandomCoffeeRecord> = Internal.createUniqueKey(RandomCoffee.RANDOM_COFFEE, DSL.name("random_coffee_pkey"), arrayOf(RandomCoffee.RANDOM_COFFEE.ID_NOTE), true)
