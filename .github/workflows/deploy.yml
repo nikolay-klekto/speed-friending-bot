@@ -1,4 +1,4 @@
-
+# deploy file
 name: Build and Deploy
 
 on:
@@ -41,7 +41,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: my-app-jar
-        path: build/libs/speedFriendingBot-0.0.1-SNAPSHOT.jar  # Путь к сгенерированному JAR файлу    
+        path: build/libs/speedFriendingBot-0.0.1-SNAPSHOT.jar  
         
   deploy:
     runs-on: ubuntu-latest
@@ -68,6 +68,6 @@ jobs:
        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       run: |
        ssh -o StrictHostKeyChecking=no root@${{ secrets.IP_DOMAIN }} << 'EOF'
-       cd /home/Nikolay/funScrut
+       cd /home/Nikolay/speedfriendingBot
        docker compose up -d --build
        EOF
