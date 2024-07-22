@@ -16,7 +16,7 @@ class NotificationService(
     private val telegramBot: TelegramBot
 ) {
 
-    @Scheduled(cron = "0 0 8 * * *")  // Каждый день в 8 утра
+    @Scheduled(cron = "0 0 8 * * *")  // Срабатывает каждый день в 8 утра
     fun sendReminders() {
 
         val todayRemindDatesList = remindDateRepository.getAllRemindDatesForToday()
