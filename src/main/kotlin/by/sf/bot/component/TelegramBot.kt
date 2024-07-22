@@ -110,7 +110,7 @@ class TelegramBot(
         }
     }
 
-    private fun sendMessage(chatId: Long, text: String) {
+    fun sendMessage(chatId: Long, text: String) {
         val message = SendMessage(chatId.toString(), text)
         execute(message)
     }
@@ -214,7 +214,6 @@ class TelegramBot(
 
             if(updateStatus){
                 if(reminders != null){
-//                    if()
                     sendMessage(chatId, "Напоминание установлено!")
                 }else sendMessage(chatId, "Напоминание удалено!")
 

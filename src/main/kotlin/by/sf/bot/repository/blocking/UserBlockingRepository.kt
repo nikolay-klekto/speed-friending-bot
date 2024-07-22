@@ -28,6 +28,21 @@ class UserBlockingRepository(
         
     }
 
+    fun getAllUsersChatIdByRemindStatus(eventsId: List<Int?>): List<Users>{
+        val resultList = dsl.select(USERS.asterisk()).from(USERS)
+            .where(USERS.REMINDERS.eq(REMIND_STATUS_FOR_ALL_EVENTS))
+            .map { it.into(Users::class.java) }
+
+        eventsId.forEach { currentEventId ->
+            resultList.plus(
+                dsl.select(USERS.asterisk()).from(USERS)
+                    .where(USERS.REMINDERS.eq(currentEventId.toString()))
+                    .map { it.into(Users::class.java) }
+            )
+        }
+        return resultList
+    }
+
     fun update(chatId: Long, reminders: String?): Boolean {
          return dsl.update(USERS)
                 .set(USERS.REMINDERS, reminders)
@@ -35,5 +50,10 @@ class UserBlockingRepository(
                 .where(USERS.TELEGRAM_ID.eq(chatId))
                 .execute() == 1
         }
+
+    companion object{
+        private const val REMIND_STATUS_FOR_ALL_EVENTS = "all"
+    }
+
     }
 

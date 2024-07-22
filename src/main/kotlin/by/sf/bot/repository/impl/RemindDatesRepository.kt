@@ -11,6 +11,13 @@ import java.time.LocalDate
 class RemindDatesRepository(
     private val dsl: DSLContext
 ) {
+
+    fun getAllRemindDatesForToday(): List<RemindDates>{
+        return dsl.select(REMIND_DATES.asterisk()).from(REMIND_DATES)
+            .where(REMIND_DATES.REMIND_DATE.eq(LocalDate.now()))
+            .map { it.into(RemindDates::class.java) }
+    }
+
     fun addRemindDate(remindDate: RemindDates): Mono<RemindDates> {
         return Mono.fromSupplier {
             remindDate.dateCreated = LocalDate.now()
