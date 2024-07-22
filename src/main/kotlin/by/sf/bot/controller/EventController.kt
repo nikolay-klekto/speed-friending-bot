@@ -1,7 +1,6 @@
 package by.sf.bot.controller
 
-import by.sf.bot.jooq.tables.pojos.EventInfo
-import by.sf.bot.jooq.tables.pojos.MainBotInfo
+import by.sf.bot.jooq.tables.pojos.Events
 import by.sf.bot.repository.impl.EventInfoRepository
 import org.springframework.graphql.data.method.annotation.Argument
 import org.springframework.graphql.data.method.annotation.MutationMapping
@@ -14,7 +13,7 @@ class EventController(
 ) {
 
     @MutationMapping
-    open fun addEvent(@Argument eventModel: EventInfo): Mono<EventInfo> {
+    open fun addEvent(@Argument eventModel: Events): Mono<Events> {
         return eventInfoRepository.save(eventModel)
     }
 

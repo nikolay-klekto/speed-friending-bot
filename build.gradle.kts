@@ -164,6 +164,10 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    archiveFileName.set("speedFriendingBot-${version}.jar")
+}
+
 //java.sourceSets["main"].java {
 //    srcDir("src/generated/jooq")
 //}

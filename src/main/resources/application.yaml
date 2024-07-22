@@ -1,5 +1,5 @@
 server:
-  port: 8183
+  port: 8187
   error:
     include-stacktrace: never
 

@@ -28,9 +28,9 @@ class UserBlockingRepository(
         
     }
 
-    fun update(chatId: Long, remindStatus: Boolean): Boolean {
+    fun update(chatId: Long, reminders: String?): Boolean {
          return dsl.update(USERS)
-                .set(USERS.REMIND_STATUS, remindStatus)
+                .set(USERS.REMINDERS, reminders)
                 .set(USERS.DATE_CREATED, LocalDate.now())
                 .where(USERS.TELEGRAM_ID.eq(chatId))
                 .execute() == 1

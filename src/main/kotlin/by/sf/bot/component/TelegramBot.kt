@@ -73,14 +73,21 @@ class TelegramBot(
             val callbackChatId = callbackQuery.message.chatId
 
             when (callbackData) {
-                REMINDER_MESSAGE_YES -> {
-                    sendReminderOptions(callbackChatId, true)
-                }
-                REMINDER_MESSAGE_NO -> {
-                    sendStartMessage(callbackChatId)
+                REMINDER_MESSAGE_ALL -> {
+                    sendReminderOptions(callbackChatId, "all")
                 }
                 REMINDER_MESSAGE_DELETE -> {
-                    sendReminderOptions(callbackChatId, false)
+                    sendReminderOptions(callbackChatId, null)
+                }
+                "6" -> sendMenuInfo(callbackChatId, 6)
+                "7" -> sendMenuInfo(callbackChatId, 7)
+                "3" -> sendMenuInfo(callbackChatId, 3)
+                "9" -> sendMenuInfo(callbackChatId, 9)
+                "10" -> sendMenuInfo(callbackChatId, 10)
+                "11" -> sendMenuInfo(callbackChatId, 11)
+                else ->{
+                    val reminders = callbackData.split("_event_id:")[2]
+                    sendReminderOptions(callbackChatId, reminders)
                 }
             }
             return
@@ -95,10 +102,10 @@ class TelegramBot(
             START_MESSAGE -> sendStartMessage(chatId)
             startButtons?.get(1)?.label-> sendMenuInfo(chatId, 2)
             startButtons?.get(2)?.label -> sendMenuInfo(chatId, 3)  // Пример menu_id
-            startButtons?.get(3)?.label -> sendMenuInfo(chatId, 5)
-            startButtons?.get(4)?.label -> sendMenuInfo(chatId, 4)  // Пример menu_id
+            startButtons?.get(3)?.label -> sendMenuInfo(chatId, 4)
+            startButtons?.get(4)?.label -> sendMenuInfo(chatId, 12)  // Пример menu_id
 //            startButtons?.get(5)?.label -> sendReminderOptions(chatId)
-            startButtons?.get(6)?.label -> sendRandomCoffeeInfo(chatId)
+//            startButtons?.get(6)?.label -> sendRandomCoffeeInfo(chatId)
             else -> sendMessage(chatId, "Неизвестная команда. Попробуйте снова.")
         }
     }
@@ -121,7 +128,7 @@ class TelegramBot(
         row1.add(currentButtonList[2]!!.label)
 
         val row2 = KeyboardRow()
-        row2.add(currentButtonList[5]!!.label)
+//        row2.add(currentButtonList[5]!!.label)
         row2.add(currentButtonList[4]!!.label)
 
         val row3 = KeyboardRow()
@@ -155,13 +162,21 @@ class TelegramBot(
             val inlineKeyboardButton = InlineKeyboardButton()
             inlineKeyboardButton.text = button.label!!
 
-            if (button.actionType == "url") {
-                inlineKeyboardButton.url = button.actionData
-            } else if (button.actionType == "callback") {
-                inlineKeyboardButton.callbackData = button.actionData
+            // Добавляем проверку на тип действия и наличие данных
+            when (button.actionType) {
+                "url" -> {
+                    if (!button.actionData.isNullOrEmpty()) {
+                        inlineKeyboardButton.url = button.actionData
+                        keyboard.add(listOf(inlineKeyboardButton))
+                    }
+                }
+                "callback" -> {
+                    if (!button.actionData.isNullOrEmpty()) {
+                        inlineKeyboardButton.callbackData = button.actionData
+                        keyboard.add(listOf(inlineKeyboardButton))
+                    }
+                }
             }
-
-            keyboard.add(listOf(inlineKeyboardButton))
         }
 
         if (keyboard.isNotEmpty()) {
@@ -170,10 +185,12 @@ class TelegramBot(
         val message = SendMessage()
         message.chatId = chatId.toString()
         message.text = text
-        // Устанавливаем разметку клавиатуры только если она есть
+
+// Устанавливаем разметку клавиатуры только если она есть
         if (keyboard.isNotEmpty()) {
             message.replyMarkup = inlineKeyboardMarkup
         }
+
         execute(message)
     }
 
@@ -187,27 +204,27 @@ class TelegramBot(
 //        sendMessage(chatId, text)
     }
 
-    private fun sendReminderOptions(chatId: Long, remindStatus: Boolean) {
+    private fun sendReminderOptions(chatId: Long, reminders: String?) {
 
         val userExistStatus = userBlockingRepository.isUserExist(chatId)
 
         if(userExistStatus){
 
-            val updateStatus = userBlockingRepository.update(chatId, remindStatus)
+            val updateStatus = userBlockingRepository.update(chatId, reminders)
 
             if(updateStatus){
-                if(remindStatus){
+                if(reminders != null){
 //                    if()
                     sendMessage(chatId, "Напоминание установлено!")
                 }else sendMessage(chatId, "Напоминание удалено!")
 
             }else sendMessage(chatId, "Упс! Что-то пошло не так, свяжитесь пожалуйста с организатором!")
 
-        }else if(remindStatus){
+        }else if(reminders != null){
             val newUser = Users(
                 telegramId = chatId,
                 dateCreated = LocalDate.now(),
-                remindStatus = remindStatus
+                reminders = reminders
             )
             val saveStatus = userBlockingRepository.save(newUser)
             if(saveStatus){
@@ -229,7 +246,7 @@ class TelegramBot(
         private const val BOT_TOKEN: String = "botToken"
         private const val START_MESSAGE: String = "/start"
         private const val REMINDER_MESSAGE_YES = "reminder_yes"
-        private const val REMINDER_MESSAGE_NO = "reminder_no"
+        private const val REMINDER_MESSAGE_ALL = "reminder_all"
         private const val REMINDER_MESSAGE_DELETE = "reminder_delete"
     }
 }

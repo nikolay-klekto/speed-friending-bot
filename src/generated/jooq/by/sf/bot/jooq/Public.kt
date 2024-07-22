@@ -5,12 +5,11 @@ package by.sf.bot.jooq
 
 
 import by.sf.bot.jooq.tables.Buttons
-import by.sf.bot.jooq.tables.EventInfo
+import by.sf.bot.jooq.tables.Events
 import by.sf.bot.jooq.tables.MainBotInfo
 import by.sf.bot.jooq.tables.MenuInfo
 import by.sf.bot.jooq.tables.RandomCoffee
 import by.sf.bot.jooq.tables.RemindDates
-import by.sf.bot.jooq.tables.Reminders
 import by.sf.bot.jooq.tables.Users
 
 import kotlin.collections.List
@@ -39,9 +38,9 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
     val BUTTONS: Buttons get() = Buttons.BUTTONS
 
     /**
-     * The table <code>public.event_info</code>.
+     * The table <code>public.events</code>.
      */
-    val EVENT_INFO: EventInfo get() = EventInfo.EVENT_INFO
+    val EVENTS: Events get() = Events.EVENTS
 
     /**
      * The table <code>public.main_bot_info</code>.
@@ -59,14 +58,9 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
     val RANDOM_COFFEE: RandomCoffee get() = RandomCoffee.RANDOM_COFFEE
 
     /**
-     * Таблица для хранения дат напоминаний
+     * The table <code>public.remind_dates</code>.
      */
     val REMIND_DATES: RemindDates get() = RemindDates.REMIND_DATES
-
-    /**
-     * Таблица для хранения информации о напоминаниях
-     */
-    val REMINDERS: Reminders get() = Reminders.REMINDERS
 
     /**
      * Таблица для хранения информации о пользователях
@@ -77,12 +71,11 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
 
     override fun getTables(): List<Table<*>> = listOf(
         Buttons.BUTTONS,
-        EventInfo.EVENT_INFO,
+        Events.EVENTS,
         MainBotInfo.MAIN_BOT_INFO,
         MenuInfo.MENU_INFO,
         RandomCoffee.RANDOM_COFFEE,
         RemindDates.REMIND_DATES,
-        Reminders.REMINDERS,
         Users.USERS
     )
 }

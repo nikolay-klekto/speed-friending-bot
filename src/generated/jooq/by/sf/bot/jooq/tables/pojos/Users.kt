@@ -17,7 +17,7 @@ data class Users(
     var telegramId: Long? = null,
     var username: String? = null,
     var dateCreated: LocalDate? = null,
-    var remindStatus: Boolean? = null
+    var reminders: String? = null
 ): Serializable {
 
 
@@ -28,7 +28,7 @@ data class Users(
         sb.append(", ").append(telegramId)
         sb.append(", ").append(username)
         sb.append(", ").append(dateCreated)
-        sb.append(", ").append(remindStatus)
+        sb.append(", ").append(reminders)
 
         sb.append(")")
         return sb.toString()

@@ -5,20 +5,18 @@ package by.sf.bot.jooq.keys
 
 
 import by.sf.bot.jooq.tables.Buttons
-import by.sf.bot.jooq.tables.EventInfo
+import by.sf.bot.jooq.tables.Events
 import by.sf.bot.jooq.tables.MainBotInfo
 import by.sf.bot.jooq.tables.MenuInfo
 import by.sf.bot.jooq.tables.RandomCoffee
 import by.sf.bot.jooq.tables.RemindDates
-import by.sf.bot.jooq.tables.Reminders
 import by.sf.bot.jooq.tables.Users
 import by.sf.bot.jooq.tables.records.ButtonsRecord
-import by.sf.bot.jooq.tables.records.EventInfoRecord
+import by.sf.bot.jooq.tables.records.EventsRecord
 import by.sf.bot.jooq.tables.records.MainBotInfoRecord
 import by.sf.bot.jooq.tables.records.MenuInfoRecord
 import by.sf.bot.jooq.tables.records.RandomCoffeeRecord
 import by.sf.bot.jooq.tables.records.RemindDatesRecord
-import by.sf.bot.jooq.tables.records.RemindersRecord
 import by.sf.bot.jooq.tables.records.UsersRecord
 
 import org.jooq.ForeignKey
@@ -33,12 +31,11 @@ import org.jooq.impl.Internal
 // -------------------------------------------------------------------------
 
 val BUTTONS_PKEY: UniqueKey<ButtonsRecord> = Internal.createUniqueKey(Buttons.BUTTONS, DSL.name("buttons_pkey"), arrayOf(Buttons.BUTTONS.BUTTON_ID), true)
-val EVENT_INFO_PKEY: UniqueKey<EventInfoRecord> = Internal.createUniqueKey(EventInfo.EVENT_INFO, DSL.name("event_info_pkey"), arrayOf(EventInfo.EVENT_INFO.EVENT_ID), true)
+val EVENTS_PKEY: UniqueKey<EventsRecord> = Internal.createUniqueKey(Events.EVENTS, DSL.name("events_pkey"), arrayOf(Events.EVENTS.EVENT_ID), true)
 val MAIN_BOT_INFO_PKEY: UniqueKey<MainBotInfoRecord> = Internal.createUniqueKey(MainBotInfo.MAIN_BOT_INFO, DSL.name("main_bot_info_pkey"), arrayOf(MainBotInfo.MAIN_BOT_INFO.ID_INFO), true)
 val MENU_INFO_PKEY: UniqueKey<MenuInfoRecord> = Internal.createUniqueKey(MenuInfo.MENU_INFO, DSL.name("menu_info_pkey"), arrayOf(MenuInfo.MENU_INFO.MENU_ID), true)
 val RANDOM_COFFEE_PKEY: UniqueKey<RandomCoffeeRecord> = Internal.createUniqueKey(RandomCoffee.RANDOM_COFFEE, DSL.name("random_coffee_pkey"), arrayOf(RandomCoffee.RANDOM_COFFEE.ID_NOTE), true)
 val REMIND_DATES_PKEY: UniqueKey<RemindDatesRecord> = Internal.createUniqueKey(RemindDates.REMIND_DATES, DSL.name("remind_dates_pkey"), arrayOf(RemindDates.REMIND_DATES.ID), true)
-val REMINDERS_PKEY: UniqueKey<RemindersRecord> = Internal.createUniqueKey(Reminders.REMINDERS, DSL.name("reminders_pkey"), arrayOf(Reminders.REMINDERS.REMINDER_ID), true)
 val USERS_PKEY: UniqueKey<UsersRecord> = Internal.createUniqueKey(Users.USERS, DSL.name("users_pkey"), arrayOf(Users.USERS.USER_ID), true)
 
 // -------------------------------------------------------------------------
@@ -47,4 +44,4 @@ val USERS_PKEY: UniqueKey<UsersRecord> = Internal.createUniqueKey(Users.USERS, D
 
 val MENU_INFO__MENU_INFO_PARENT_ID_FKEY: ForeignKey<MenuInfoRecord, MenuInfoRecord> = Internal.createForeignKey(MenuInfo.MENU_INFO, DSL.name("menu_info_parent_id_fkey"), arrayOf(MenuInfo.MENU_INFO.PARENT_ID), by.sf.bot.jooq.keys.MENU_INFO_PKEY, arrayOf(MenuInfo.MENU_INFO.MENU_ID), true)
 val RANDOM_COFFEE__RANDOM_COFFEE_USER_ID_FKEY: ForeignKey<RandomCoffeeRecord, UsersRecord> = Internal.createForeignKey(RandomCoffee.RANDOM_COFFEE, DSL.name("random_coffee_user_id_fkey"), arrayOf(RandomCoffee.RANDOM_COFFEE.USER_ID), by.sf.bot.jooq.keys.USERS_PKEY, arrayOf(Users.USERS.USER_ID), true)
-val REMIND_DATES__REMIND_DATES_REMINDER_ID_FKEY: ForeignKey<RemindDatesRecord, RemindersRecord> = Internal.createForeignKey(RemindDates.REMIND_DATES, DSL.name("remind_dates_reminder_id_fkey"), arrayOf(RemindDates.REMIND_DATES.REMINDER_ID), by.sf.bot.jooq.keys.REMINDERS_PKEY, arrayOf(Reminders.REMINDERS.REMINDER_ID), true)
+val REMIND_DATES__REMIND_DATES_EVENT_ID_FKEY: ForeignKey<RemindDatesRecord, EventsRecord> = Internal.createForeignKey(RemindDates.REMIND_DATES, DSL.name("remind_dates_event_id_fkey"), arrayOf(RemindDates.REMIND_DATES.EVENT_ID), by.sf.bot.jooq.keys.EVENTS_PKEY, arrayOf(Events.EVENTS.EVENT_ID), true)

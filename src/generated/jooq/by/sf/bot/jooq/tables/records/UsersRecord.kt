@@ -19,7 +19,7 @@ import org.jooq.impl.UpdatableRecordImpl
  * Таблица для хранения информации о пользователях
  */
 @Suppress("UNCHECKED_CAST")
-open class UsersRecord() : UpdatableRecordImpl<UsersRecord>(Users.USERS), Record5<Int?, Long?, String?, LocalDate?, Boolean?> {
+open class UsersRecord() : UpdatableRecordImpl<UsersRecord>(Users.USERS), Record5<Int?, Long?, String?, LocalDate?, String?> {
 
     var userId: Int?
         set(value): Unit = set(0, value)
@@ -37,9 +37,9 @@ open class UsersRecord() : UpdatableRecordImpl<UsersRecord>(Users.USERS), Record
         set(value): Unit = set(3, value)
         get(): LocalDate? = get(3) as LocalDate?
 
-    var remindStatus: Boolean?
+    var reminders: String?
         set(value): Unit = set(4, value)
-        get(): Boolean? = get(4) as Boolean?
+        get(): String? = get(4) as String?
 
     // -------------------------------------------------------------------------
     // Primary key information
@@ -51,23 +51,23 @@ open class UsersRecord() : UpdatableRecordImpl<UsersRecord>(Users.USERS), Record
     // Record5 type implementation
     // -------------------------------------------------------------------------
 
-    override fun fieldsRow(): Row5<Int?, Long?, String?, LocalDate?, Boolean?> = super.fieldsRow() as Row5<Int?, Long?, String?, LocalDate?, Boolean?>
-    override fun valuesRow(): Row5<Int?, Long?, String?, LocalDate?, Boolean?> = super.valuesRow() as Row5<Int?, Long?, String?, LocalDate?, Boolean?>
+    override fun fieldsRow(): Row5<Int?, Long?, String?, LocalDate?, String?> = super.fieldsRow() as Row5<Int?, Long?, String?, LocalDate?, String?>
+    override fun valuesRow(): Row5<Int?, Long?, String?, LocalDate?, String?> = super.valuesRow() as Row5<Int?, Long?, String?, LocalDate?, String?>
     override fun field1(): Field<Int?> = Users.USERS.USER_ID
     override fun field2(): Field<Long?> = Users.USERS.TELEGRAM_ID
     override fun field3(): Field<String?> = Users.USERS.USERNAME
     override fun field4(): Field<LocalDate?> = Users.USERS.DATE_CREATED
-    override fun field5(): Field<Boolean?> = Users.USERS.REMIND_STATUS
+    override fun field5(): Field<String?> = Users.USERS.REMINDERS
     override fun component1(): Int? = userId
     override fun component2(): Long? = telegramId
     override fun component3(): String? = username
     override fun component4(): LocalDate? = dateCreated
-    override fun component5(): Boolean? = remindStatus
+    override fun component5(): String? = reminders
     override fun value1(): Int? = userId
     override fun value2(): Long? = telegramId
     override fun value3(): String? = username
     override fun value4(): LocalDate? = dateCreated
-    override fun value5(): Boolean? = remindStatus
+    override fun value5(): String? = reminders
 
     override fun value1(value: Int?): UsersRecord {
         this.userId = value
@@ -89,12 +89,12 @@ open class UsersRecord() : UpdatableRecordImpl<UsersRecord>(Users.USERS), Record
         return this
     }
 
-    override fun value5(value: Boolean?): UsersRecord {
-        this.remindStatus = value
+    override fun value5(value: String?): UsersRecord {
+        this.reminders = value
         return this
     }
 
-    override fun values(value1: Int?, value2: Long?, value3: String?, value4: LocalDate?, value5: Boolean?): UsersRecord {
+    override fun values(value1: Int?, value2: Long?, value3: String?, value4: LocalDate?, value5: String?): UsersRecord {
         this.value1(value1)
         this.value2(value2)
         this.value3(value3)
@@ -106,12 +106,12 @@ open class UsersRecord() : UpdatableRecordImpl<UsersRecord>(Users.USERS), Record
     /**
      * Create a detached, initialised UsersRecord
      */
-    constructor(userId: Int? = null, telegramId: Long? = null, username: String? = null, dateCreated: LocalDate? = null, remindStatus: Boolean? = null): this() {
+    constructor(userId: Int? = null, telegramId: Long? = null, username: String? = null, dateCreated: LocalDate? = null, reminders: String? = null): this() {
         this.userId = userId
         this.telegramId = telegramId
         this.username = username
         this.dateCreated = dateCreated
-        this.remindStatus = remindStatus
+        this.reminders = reminders
     }
 
     /**
@@ -123,7 +123,7 @@ open class UsersRecord() : UpdatableRecordImpl<UsersRecord>(Users.USERS), Record
             this.telegramId = value.telegramId
             this.username = value.username
             this.dateCreated = value.dateCreated
-            this.remindStatus = value.remindStatus
+            this.reminders = value.reminders
         }
     }
 }

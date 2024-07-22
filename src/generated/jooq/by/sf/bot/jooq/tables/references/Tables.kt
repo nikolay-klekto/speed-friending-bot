@@ -5,12 +5,11 @@ package by.sf.bot.jooq.tables.references
 
 
 import by.sf.bot.jooq.tables.Buttons
-import by.sf.bot.jooq.tables.EventInfo
+import by.sf.bot.jooq.tables.Events
 import by.sf.bot.jooq.tables.MainBotInfo
 import by.sf.bot.jooq.tables.MenuInfo
 import by.sf.bot.jooq.tables.RandomCoffee
 import by.sf.bot.jooq.tables.RemindDates
-import by.sf.bot.jooq.tables.Reminders
 import by.sf.bot.jooq.tables.Users
 
 
@@ -21,9 +20,9 @@ import by.sf.bot.jooq.tables.Users
 val BUTTONS: Buttons = Buttons.BUTTONS
 
 /**
- * The table <code>public.event_info</code>.
+ * The table <code>public.events</code>.
  */
-val EVENT_INFO: EventInfo = EventInfo.EVENT_INFO
+val EVENTS: Events = Events.EVENTS
 
 /**
  * The table <code>public.main_bot_info</code>.
@@ -41,14 +40,9 @@ val MENU_INFO: MenuInfo = MenuInfo.MENU_INFO
 val RANDOM_COFFEE: RandomCoffee = RandomCoffee.RANDOM_COFFEE
 
 /**
- * Таблица для хранения дат напоминаний
+ * The table <code>public.remind_dates</code>.
  */
 val REMIND_DATES: RemindDates = RemindDates.REMIND_DATES
-
-/**
- * Таблица для хранения информации о напоминаниях
- */
-val REMINDERS: Reminders = Reminders.REMINDERS
 
 /**
  * Таблица для хранения информации о пользователях

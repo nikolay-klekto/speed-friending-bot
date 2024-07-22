@@ -84,10 +84,10 @@ open class Users(
     val DATE_CREATED: TableField<UsersRecord, LocalDate?> = createField(DSL.name("date_created"), SQLDataType.LOCALDATE, this, "Дата создания записи")
 
     /**
-     * The column <code>public.users.remind_status</code>. Статус напоминания
-     * (true - активен, false - неактивен)
+     * The column <code>public.users.reminders</code>. Статус напоминания (true
+     * - активен, false - неактивен)
      */
-    val REMIND_STATUS: TableField<UsersRecord, Boolean?> = createField(DSL.name("remind_status"), SQLDataType.BOOLEAN, this, "Статус напоминания (true - активен, false - неактивен)")
+    val REMINDERS: TableField<UsersRecord, String?> = createField(DSL.name("reminders"), SQLDataType.VARCHAR, this, "Статус напоминания (true - активен, false - неактивен)")
 
     private constructor(alias: Name, aliased: Table<UsersRecord>?): this(alias, null, null, aliased, null)
     private constructor(alias: Name, aliased: Table<UsersRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
@@ -127,5 +127,5 @@ open class Users(
     // -------------------------------------------------------------------------
     // Row5 type methods
     // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row5<Int?, Long?, String?, LocalDate?, Boolean?> = super.fieldsRow() as Row5<Int?, Long?, String?, LocalDate?, Boolean?>
+    override fun fieldsRow(): Row5<Int?, Long?, String?, LocalDate?, String?> = super.fieldsRow() as Row5<Int?, Long?, String?, LocalDate?, String?>
 }

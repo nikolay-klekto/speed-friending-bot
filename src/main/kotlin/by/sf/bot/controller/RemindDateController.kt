@@ -1,7 +1,6 @@
 package by.sf.bot.controller
 
 import by.sf.bot.jooq.tables.pojos.RemindDates
-import by.sf.bot.jooq.tables.pojos.Reminders
 import by.sf.bot.repository.impl.RemindDatesRepository
 import org.springframework.graphql.data.method.annotation.Argument
 import org.springframework.graphql.data.method.annotation.MutationMapping
