@@ -4,6 +4,8 @@ type Query{
     getMainBotInfoByKey(key: String!): MainBotInfoModel
 
     getButtonsByMenuId(menuId: ID): [ButtonModel]
+
+    getAllRandomCoffeeAccounts:[RandomCoffeeModel]
 }
 
 type Mutation {
@@ -21,6 +23,10 @@ type Mutation {
 
     addEvent(eventModel: EventsInput!): EventsModel
     deleteEvent(eventId: Int!): Boolean
+
+    addRandomCoffeeModel(randomCoffee: RandomCoffeeModelInput!): RandomCoffeeModel
+    updateRandomCoffeeModel(randomCoffee: RandomCoffeeModelInput!): Boolean
+    deleteRandomCoffeeModelById(idNote: ID!): Boolean
 
 }
 
@@ -62,6 +68,17 @@ type EventsModel {
     dateCreated: String
 }
 
+type RandomCoffeeModel {
+     idNote: ID
+     userId: ID
+     username: String
+     age: String
+     occupation: String
+     hobby: String
+     wouldLikeToVisit: String
+     dateCreated: String
+}
+
 input MainBotInfoInput{
     idInfo: Int
     key: String
@@ -95,4 +112,14 @@ input EventsInput {
     eventDate: String
     description: String
     dateCreated: String
+}
+
+input RandomCoffeeModelInput {
+    idNote: ID
+    userId: ID
+    username: String
+    age: String
+    occupation: String
+    hobby: String
+    wouldLikeToVisit: String
 }

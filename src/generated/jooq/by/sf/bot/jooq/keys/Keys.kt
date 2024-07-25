@@ -43,5 +43,5 @@ val USERS_PKEY: UniqueKey<UsersRecord> = Internal.createUniqueKey(Users.USERS, D
 // -------------------------------------------------------------------------
 
 val MENU_INFO__MENU_INFO_PARENT_ID_FKEY: ForeignKey<MenuInfoRecord, MenuInfoRecord> = Internal.createForeignKey(MenuInfo.MENU_INFO, DSL.name("menu_info_parent_id_fkey"), arrayOf(MenuInfo.MENU_INFO.PARENT_ID), by.sf.bot.jooq.keys.MENU_INFO_PKEY, arrayOf(MenuInfo.MENU_INFO.MENU_ID), true)
-val RANDOM_COFFEE__RANDOM_COFFEE_USER_ID_FKEY: ForeignKey<RandomCoffeeRecord, UsersRecord> = Internal.createForeignKey(RandomCoffee.RANDOM_COFFEE, DSL.name("random_coffee_user_id_fkey"), arrayOf(RandomCoffee.RANDOM_COFFEE.USER_ID), by.sf.bot.jooq.keys.USERS_PKEY, arrayOf(Users.USERS.USER_ID), true)
+val RANDOM_COFFEE__FK_USER: ForeignKey<RandomCoffeeRecord, UsersRecord> = Internal.createForeignKey(RandomCoffee.RANDOM_COFFEE, DSL.name("fk_user"), arrayOf(RandomCoffee.RANDOM_COFFEE.USER_ID), by.sf.bot.jooq.keys.USERS_PKEY, arrayOf(Users.USERS.USER_ID), true)
 val REMIND_DATES__REMIND_DATES_EVENT_ID_FKEY: ForeignKey<RemindDatesRecord, EventsRecord> = Internal.createForeignKey(RemindDates.REMIND_DATES, DSL.name("remind_dates_event_id_fkey"), arrayOf(RemindDates.REMIND_DATES.EVENT_ID), by.sf.bot.jooq.keys.EVENTS_PKEY, arrayOf(Events.EVENTS.EVENT_ID), true)

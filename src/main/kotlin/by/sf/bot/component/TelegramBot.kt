@@ -2,13 +2,16 @@ package by.sf.bot.component
 
 import by.sf.bot.jooq.tables.pojos.Buttons
 import by.sf.bot.jooq.tables.pojos.MenuInfo
+import by.sf.bot.jooq.tables.pojos.RandomCoffee
 import by.sf.bot.jooq.tables.pojos.Users
+import by.sf.bot.models.SurveyData
+import by.sf.bot.models.SurveyState
 import by.sf.bot.repository.blocking.MenuInfoBlockingRepository
 import by.sf.bot.repository.blocking.UserBlockingRepository
 import by.sf.bot.repository.impl.ButtonRepository
 import by.sf.bot.repository.impl.MainBotInfoRepository
+import by.sf.bot.repository.impl.RandomCoffeeRepository
 import jakarta.annotation.PostConstruct
-import org.jooq.DSLContext
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.Update
@@ -24,7 +27,7 @@ class TelegramBot(
     private val menuInfoBlockingRepository: MenuInfoBlockingRepository,
     private val buttonRepository: ButtonRepository,
     private val userBlockingRepository: UserBlockingRepository,
-    private val dsl: DSLContext
+    private val randomCoffeeRepository: RandomCoffeeRepository
 ) : TelegramLongPollingBot() {
 
     private var botUsername: String = ""
@@ -40,9 +43,9 @@ class TelegramBot(
 
         val listMenuIds: List<Int> = menuInfoBlockingRepository.getAllMenuIds()
 
-        listMenuIds.forEach {menuId->
+        listMenuIds.forEach { menuId ->
             val currentButtons: List<Buttons> = buttonRepository.getAllButtonsByMenuId(menuId)
-            currentButtons.forEach { currentButton->
+            currentButtons.forEach { currentButton ->
                 if (menuWithButtonsCollection.containsKey(menuId)) {
                     // Вставляем данные во вложенную карту
                     menuWithButtonsCollection[menuId]?.put(currentButton.position!!, currentButton)
@@ -59,7 +62,7 @@ class TelegramBot(
         // Другие данные, которые нужно загрузить
     }
 
-    fun loadDataFromDatabase(){
+    fun loadDataFromDatabase() {
 
     }
 
@@ -76,18 +79,26 @@ class TelegramBot(
                 REMINDER_MESSAGE_ALL -> {
                     sendReminderOptions(callbackChatId, "all")
                 }
+
                 REMINDER_MESSAGE_DELETE -> {
                     sendReminderOptions(callbackChatId, null)
                 }
+
                 "6" -> sendMenuInfo(callbackChatId, 6)
                 "7" -> sendMenuInfo(callbackChatId, 7)
                 "3" -> sendMenuInfo(callbackChatId, 3)
                 "9" -> sendMenuInfo(callbackChatId, 9)
                 "10" -> sendMenuInfo(callbackChatId, 10)
                 "11" -> sendMenuInfo(callbackChatId, 11)
-                else ->{
-                    val reminders = callbackData.split("_event_id:")[2]
-                    sendReminderOptions(callbackChatId, reminders)
+                "13" -> startSurvey(callbackChatId)
+
+                else -> {
+                    if(callbackData.startsWith("reminder_yes")){
+                        val reminders = callbackData.split("_event_id:")[1]
+                        sendReminderOptions(callbackChatId, reminders)
+                    }else{
+                        handleCallbackQuery(callbackChatId, callbackData)
+                    }
                 }
             }
             return
@@ -100,13 +111,13 @@ class TelegramBot(
 
         when (message.text) {
             START_MESSAGE -> sendStartMessage(chatId)
-            startButtons?.get(1)?.label-> sendMenuInfo(chatId, 2)
+            startButtons?.get(1)?.label -> sendMenuInfo(chatId, 2)
             startButtons?.get(2)?.label -> sendMenuInfo(chatId, 3)  // Пример menu_id
             startButtons?.get(3)?.label -> sendMenuInfo(chatId, 4)
             startButtons?.get(4)?.label -> sendMenuInfo(chatId, 12)  // Пример menu_id
 //            startButtons?.get(5)?.label -> sendReminderOptions(chatId)
 //            startButtons?.get(6)?.label -> sendRandomCoffeeInfo(chatId)
-            else -> sendMessage(chatId, "Неизвестная команда. Попробуйте снова.")
+            else -> handleUserResponse(chatId, message.text)
         }
     }
 
@@ -133,7 +144,6 @@ class TelegramBot(
 
         val row3 = KeyboardRow()
         row3.add(currentButtonList[3]!!.label)
-
 
 
 // Добавляем ряды в клавиатуру
@@ -170,6 +180,7 @@ class TelegramBot(
                         keyboard.add(listOf(inlineKeyboardButton))
                     }
                 }
+
                 "callback" -> {
                     if (!button.actionData.isNullOrEmpty()) {
                         inlineKeyboardButton.callbackData = button.actionData
@@ -208,28 +219,28 @@ class TelegramBot(
 
         val userExistStatus = userBlockingRepository.isUserExist(chatId)
 
-        if(userExistStatus){
+        if (userExistStatus) {
 
             val updateStatus = userBlockingRepository.update(chatId, reminders)
 
-            if(updateStatus){
-                if(reminders != null){
+            if (updateStatus) {
+                if (reminders != null) {
                     sendMessage(chatId, "Напоминание установлено!")
-                }else sendMessage(chatId, "Напоминание удалено!")
+                } else sendMessage(chatId, "Напоминание удалено!")
 
-            }else sendMessage(chatId, "Упс! Что-то пошло не так, свяжитесь пожалуйста с организатором!")
+            } else sendMessage(chatId, "Упс! Что-то пошло не так, свяжитесь пожалуйста с организатором!")
 
-        }else if(reminders != null){
+        } else if (reminders != null) {
             val newUser = Users(
                 telegramId = chatId,
                 dateCreated = LocalDate.now(),
                 reminders = reminders
             )
             val saveStatus = userBlockingRepository.save(newUser)
-            if(saveStatus){
+            if (saveStatus) {
                 sendMessage(chatId, "Напоминание установлено!")
-            }else  sendMessage(chatId, "Упс! Что-то пошло не так, свяжитесь пожалуйста с организатором!")
-        }else sendMessage(chatId, "Success!")
+            } else sendMessage(chatId, "Упс! Что-то пошло не так, свяжитесь пожалуйста с организатором!")
+        } else sendMessage(chatId, "Success!")
 //        sendMessage(chatId, text)
     }
 
@@ -239,7 +250,268 @@ class TelegramBot(
         sendMessage(chatId, text)
     }
 
-    companion object{
+    private fun startSurvey(chatId: Long) {
+        userStates[chatId] = SurveyState.ASK_NAME
+        userSurveyData[chatId] = SurveyData()
+
+        sendMessage(chatId, "Введите ваше имя:")
+    }
+
+    private fun handleUserResponse(chatId: Long, response: String) {
+        val state = userStates[chatId] ?: return
+
+
+        when (state) {
+            SurveyState.ASK_NAME -> {
+                userSurveyData[chatId]?.name = response
+                userStates[chatId] = SurveyState.ASK_AGE
+                sendAgeSelection(chatId)
+            }
+
+            SurveyState.ASK_AGE -> {
+                userSurveyData[chatId]?.age = response
+                userStates[chatId] = SurveyState.ASK_OCCUPATION
+                sendOccupationSelection(chatId)
+            }
+
+            SurveyState.ASK_OCCUPATION -> {
+                userSurveyData[chatId]?.occupation = response
+                userStates[chatId] = SurveyState.ASK_HOBBIES
+                sendHobbiesSelection(chatId)
+            }
+
+            SurveyState.ASK_HOBBIES -> {
+                if (response == "Готово") {
+                    userStates[chatId] = SurveyState.ASK_VISIT
+                    sendVisitSelection(chatId)
+                } else {
+                    userSurveyData[chatId]?.hobbies?.add(response)
+                    sendHobbiesSelection(chatId)
+                }
+            }
+
+            SurveyState.ASK_VISIT -> {
+                if (response == "done") {
+                    completeSurvey(chatId)
+                } else {
+                    userSurveyData[chatId]?.visit?.add(response)
+                    sendVisitSelection(chatId) // Пользователь может выбрать еще одно место или нажать "Готово"
+                }
+            }
+        }
+    }
+
+    private fun completeSurvey(chatId: Long) {
+        val surveyData = userSurveyData[chatId]
+
+        userStates.remove(chatId)
+        if (!userBlockingRepository.isUserExist(chatId)) {
+            userBlockingRepository.save(
+                Users(
+                    telegramId = chatId
+                )
+            )
+        }
+        val userId = userBlockingRepository.getUserIdByChatId(chatId)
+
+        val newRandomCoffee = RandomCoffee(
+            userId = userId,
+            username = surveyData?.name,
+            age = surveyData?.age,
+            occupation = surveyData?.occupation,
+            hobby = surveyData?.hobbies.toString(),
+            wouldLikeToVisit = surveyData?.visit.toString()
+        )
+        if(!randomCoffeeRepository.isRandomCoffeeModelExist(userId)){
+            randomCoffeeRepository.saveBlock(newRandomCoffee)
+        }
+
+        randomCoffeeRepository.updateBlock(newRandomCoffee)
+
+        sendMessage(chatId, "Спасибо! Ваша анкета сохранена.")
+    }
+
+    private fun sendAgeSelection(chatId: Long) {
+        val message = SendMessage()
+        message.chatId = chatId.toString()
+        message.text = "Ваш возраст:"
+
+        val inlineKeyboardMarkup = InlineKeyboardMarkup()
+        val rows: MutableList<List<InlineKeyboardButton>> = ArrayList()
+
+        val ageCategories = listOf("18-21", "22-24", "25-100")
+        ageCategories.forEach { age ->
+            val button = InlineKeyboardButton()
+            button.text = age
+            button.callbackData = age
+
+            val row: MutableList<InlineKeyboardButton> = ArrayList()
+            row.add(button)
+            rows.add(row)
+        }
+
+        inlineKeyboardMarkup.keyboard = rows
+        message.replyMarkup = inlineKeyboardMarkup
+
+        execute(message)
+    }
+
+    private fun sendOccupationSelection(chatId: Long) {
+        val message = SendMessage()
+        message.chatId = chatId.toString()
+        message.text = "Сфера деятельности:"
+
+        val inlineKeyboardMarkup = InlineKeyboardMarkup()
+        val rows: MutableList<List<InlineKeyboardButton>> = ArrayList()
+
+        val occupations = listOf(
+            "Экономика и бизнес", "Наука и технологии", "Образование и культура",
+            "Здравоохранение и медицина", "Гос управление и право", "Экология и сельское хозяйство"
+        )
+        occupations.forEach { occupation ->
+            val button = InlineKeyboardButton()
+            button.text = occupation
+            button.callbackData = occupation
+
+            val row: MutableList<InlineKeyboardButton> = ArrayList()
+            row.add(button)
+            rows.add(row)
+        }
+
+        inlineKeyboardMarkup.keyboard = rows
+        message.replyMarkup = inlineKeyboardMarkup
+
+        execute(message)
+    }
+
+    private fun sendHobbiesSelection(chatId: Long) {
+        val message = SendMessage()
+        message.chatId = chatId.toString()
+        message.text = "Хобби: (выберите одно или несколько и нажмите 'Готово')"
+
+        val inlineKeyboardMarkup = InlineKeyboardMarkup()
+        val rows: MutableList<List<InlineKeyboardButton>> = ArrayList()
+
+        val hobbies = listOf("Спорт", "Настольные игры", "Книги")
+        hobbies.forEach { hobby ->
+            val button = InlineKeyboardButton()
+            button.text = hobby
+            button.callbackData = hobby
+
+            val row: MutableList<InlineKeyboardButton> = ArrayList()
+            row.add(button)
+            rows.add(row)
+        }
+
+        // Добавляем кнопку "Готово"
+        val doneButton = InlineKeyboardButton()
+        doneButton.text = "Готово"
+        doneButton.callbackData = "done"
+        val doneRow: MutableList<InlineKeyboardButton> = ArrayList()
+        doneRow.add(doneButton)
+        rows.add(doneRow)
+
+        inlineKeyboardMarkup.keyboard = rows
+        message.replyMarkup = inlineKeyboardMarkup
+
+        execute(message)
+    }
+
+    private fun sendVisitSelection(chatId: Long) {
+        val message = SendMessage()
+        message.chatId = chatId.toString()
+        message.text = "Хочу посетить: (выберите одно или несколько и нажмите 'Готово')"
+
+        val inlineKeyboardMarkup = InlineKeyboardMarkup()
+        val rows: MutableList<List<InlineKeyboardButton>> = ArrayList()
+
+        val visitOptions = listOf("Музей", "Кино", "Рок-фестиваль")
+        visitOptions.forEach { option ->
+            val button = InlineKeyboardButton()
+            button.text = option
+            button.callbackData = option
+
+            val row: MutableList<InlineKeyboardButton> = ArrayList()
+            row.add(button)
+            rows.add(row)
+        }
+
+        // Добавляем кнопку "Готово"
+        val doneButton = InlineKeyboardButton()
+        doneButton.text = "Готово"
+        doneButton.callbackData = "done"
+        val doneRow: MutableList<InlineKeyboardButton> = ArrayList()
+        doneRow.add(doneButton)
+        rows.add(doneRow)
+
+        inlineKeyboardMarkup.keyboard = rows
+        message.replyMarkup = inlineKeyboardMarkup
+
+        execute(message)
+    }
+
+    private fun sendVisitOptions(chatId: Long) {
+        val options = listOf("Музей", "Кино", "Рок-фестиваль")
+        sendOptions(chatId, "Хочу посетить:", options)
+    }
+
+    private fun sendOptions(chatId: Long, text: String, options: List<String>) {
+        val keyboardMarkup = ReplyKeyboardMarkup()
+        val keyboard: MutableList<KeyboardRow> = ArrayList()
+        options.forEach {
+            val row = KeyboardRow()
+            row.add(it)
+            keyboard.add(row)
+        }
+        keyboardMarkup.keyboard = keyboard
+        keyboardMarkup.resizeKeyboard = true
+        val message = SendMessage()
+        message.chatId = chatId.toString()
+        message.text = text
+        message.replyMarkup = keyboardMarkup
+        execute(message)
+    }
+
+    private fun handleCallbackQuery(chatId: Long, data: String) {
+        val state = userStates[chatId] ?: return
+
+        when (state) {
+            SurveyState.ASK_AGE -> {
+                userSurveyData[chatId]?.age = data
+                userStates[chatId] = SurveyState.ASK_OCCUPATION
+                sendOccupationSelection(chatId)
+            }
+            SurveyState.ASK_OCCUPATION -> {
+                userSurveyData[chatId]?.occupation = data
+                userStates[chatId] = SurveyState.ASK_HOBBIES
+                sendHobbiesSelection(chatId)
+            }
+            SurveyState.ASK_HOBBIES -> {
+                if (data == "done") {
+                    userStates[chatId] = SurveyState.ASK_VISIT
+                    sendVisitSelection(chatId)
+                } else {
+                    userSurveyData[chatId]?.hobbies?.add(data)
+                    sendHobbiesSelection(chatId) // Пользователь может выбрать еще одно хобби или нажать "Готово"
+                }
+            }
+            SurveyState.ASK_VISIT -> {
+                if (data == "done") {
+                    completeSurvey(chatId)
+                } else {
+                    userSurveyData[chatId]?.visit?.add(data)
+                    sendVisitSelection(chatId) // Пользователь может выбрать еще одно место или нажать "Готово"
+                }
+            }
+            else -> {
+                sendMessage(chatId, "Something went wrong!")
+            }
+        }
+    }
+
+    companion object {
+        val userStates = mutableMapOf<Long, SurveyState>()
+        val userSurveyData = mutableMapOf<Long, SurveyData>()
         private const val START_PAGE_MENU_ID = 1
         private const val BOT_USERNAME: String = "botUsername"
         private const val BOT_TOKEN: String = "botToken"

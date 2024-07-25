@@ -35,7 +35,7 @@ val MAIN_BOT_INFO: MainBotInfo = MainBotInfo.MAIN_BOT_INFO
 val MENU_INFO: MenuInfo = MenuInfo.MENU_INFO
 
 /**
- * Таблица для хранения информации об участниках Random Coffee
+ * The table <code>public.random_coffee</code>.
  */
 val RANDOM_COFFEE: RandomCoffee = RandomCoffee.RANDOM_COFFEE
 

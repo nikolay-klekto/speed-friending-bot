@@ -53,7 +53,7 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
     val MENU_INFO: MenuInfo get() = MenuInfo.MENU_INFO
 
     /**
-     * Таблица для хранения информации об участниках Random Coffee
+     * The table <code>public.random_coffee</code>.
      */
     val RANDOM_COFFEE: RandomCoffee get() = RandomCoffee.RANDOM_COFFEE
 
