@@ -77,24 +77,24 @@ class TelegramBot(
 
             when (callbackData) {
                 REMINDER_MESSAGE_ALL -> {
-                    sendReminderOptions(callbackChatId, "all")
+                    sendReminderOptions(callbackChatId, MESSAGE_ALL)
                 }
 
                 REMINDER_MESSAGE_DELETE -> {
                     sendReminderOptions(callbackChatId, null)
                 }
 
-                "6" -> sendMenuInfo(callbackChatId, 6)
-                "7" -> sendMenuInfo(callbackChatId, 7)
-                "3" -> sendMenuInfo(callbackChatId, 3)
-                "9" -> sendMenuInfo(callbackChatId, 9)
-                "10" -> sendMenuInfo(callbackChatId, 10)
-                "11" -> sendMenuInfo(callbackChatId, 11)
-                "13" -> startSurvey(callbackChatId)
+                CALLBACK_DATA_MENU_ID_6 -> sendMenuInfo(callbackChatId, 6)
+                CALLBACK_DATA_MENU_ID_7 -> sendMenuInfo(callbackChatId, 7)
+                CALLBACK_DATA_MENU_ID_3 -> sendMenuInfo(callbackChatId, 3)
+                CALLBACK_DATA_MENU_ID_9 -> sendMenuInfo(callbackChatId, 9)
+                CALLBACK_DATA_MENU_ID_10 -> sendMenuInfo(callbackChatId, 10)
+                CALLBACK_DATA_MENU_ID_11 -> sendMenuInfo(callbackChatId, 11)
+                CALLBACK_DATA_MENU_ID_13 -> startSurvey(callbackChatId)
 
                 else -> {
-                    if(callbackData.startsWith("reminder_yes")){
-                        val reminders = callbackData.split("_event_id:")[1]
+                    if(callbackData.startsWith(REMINDER_MESSAGE_YES)){
+                        val reminders = callbackData.split(REMINDER_MESSAGE_DELIMITER)[1]
                         sendReminderOptions(callbackChatId, reminders)
                     }else{
                         handleCallbackQuery(callbackChatId, callbackData)
@@ -112,11 +112,9 @@ class TelegramBot(
         when (message.text) {
             START_MESSAGE -> sendStartMessage(chatId)
             startButtons?.get(1)?.label -> sendMenuInfo(chatId, 2)
-            startButtons?.get(2)?.label -> sendMenuInfo(chatId, 3)  // Пример menu_id
+            startButtons?.get(2)?.label -> sendMenuInfo(chatId, 3)
             startButtons?.get(3)?.label -> sendMenuInfo(chatId, 4)
-            startButtons?.get(4)?.label -> sendMenuInfo(chatId, 12)  // Пример menu_id
-//            startButtons?.get(5)?.label -> sendReminderOptions(chatId)
-//            startButtons?.get(6)?.label -> sendRandomCoffeeInfo(chatId)
+            startButtons?.get(4)?.label -> sendMenuInfo(chatId, 12)
             else -> handleUserResponse(chatId, message.text)
         }
     }
@@ -139,7 +137,6 @@ class TelegramBot(
         row1.add(currentButtonList[2]!!.label)
 
         val row2 = KeyboardRow()
-//        row2.add(currentButtonList[5]!!.label)
         row2.add(currentButtonList[4]!!.label)
 
         val row3 = KeyboardRow()
@@ -174,14 +171,14 @@ class TelegramBot(
 
             // Добавляем проверку на тип действия и наличие данных
             when (button.actionType) {
-                "url" -> {
+                ACTION_TYPE_URL -> {
                     if (!button.actionData.isNullOrEmpty()) {
                         inlineKeyboardButton.url = button.actionData
                         keyboard.add(listOf(inlineKeyboardButton))
                     }
                 }
 
-                "callback" -> {
+                ACTION_TYPE_CALLBACK -> {
                     if (!button.actionData.isNullOrEmpty()) {
                         inlineKeyboardButton.callbackData = button.actionData
                         keyboard.add(listOf(inlineKeyboardButton))
@@ -205,16 +202,6 @@ class TelegramBot(
         execute(message)
     }
 
-    private fun sendParticipationForm(chatId: Long) {
-//        val text = "Заполняя данную анкету вы автоматически попадаете в лист тех людей, которым мы напишем лично, чтобы пригласить/уточнить о планах.\n\nhttps://forms.gle/fizJkaNjUa6yea477"
-//        sendMessage(chatId, text)
-    }
-
-    private fun sendEventDetails(chatId: Long) {
-//        val text = "Долой 5 минут общения за столиком, звонок будильника и смену партнеров! Вот как проходят наши мероприятия:\n\n1. В день мероприятия мы ждем вас по указанному адресу. Видео как добраться мы пришлем, но если потеряетесь, смело пишите, заберем и поможем.\n2. В гардеробе можете оставить вещи, взять тапочки и пройти дальше на регистрацию.\n3. После регистрации, мы выдаем каждому участнику бейдж с именем, чтобы облегчить первый контакт.\n4. Ждем пару минут, рассказываем про нас и помещение и начинаем активную программу мероприятия.\n5. Активности под руководством ведущего, помогают начать общение и найти тему разговора.\n6. В середине программы вас ждет кофе-брейк, чтобы взять чашку кофе/чая и набраться сил перед продолжением программы.\n7. В конце мероприятия есть время на обмен контактами с теми, с кем вы хотели бы продолжить общение. Но если нужно будет убежать раньше, мы создаем чат со всеми участниками и поможем поддержать общение после ивента.\n8. На протяжении всего Speed Friending у нас работает фотограф, так что смело обращайтесь к ней за снимками на память и сохранением приятных моментов.\n\nКаждое мероприятие Speed Friending создано, чтобы комфортно и легко завести новые знакомства в атмосфере дружбы и поддержки.\n\nЗаписывайтесь в анкете кнопка “заполнить анкету” и “написать организатору”"
-//        sendMessage(chatId, text)
-    }
-
     private fun sendReminderOptions(chatId: Long, reminders: String?) {
 
         val userExistStatus = userBlockingRepository.isUserExist(chatId)
@@ -225,10 +212,10 @@ class TelegramBot(
 
             if (updateStatus) {
                 if (reminders != null) {
-                    sendMessage(chatId, "Напоминание установлено!")
-                } else sendMessage(chatId, "Напоминание удалено!")
+                    sendMessage(chatId, REMIND_MESSAGE_STATUS_SUCCESS)
+                } else sendMessage(chatId, REMIND_MESSAGE_STATUS_DELETE)
 
-            } else sendMessage(chatId, "Упс! Что-то пошло не так, свяжитесь пожалуйста с организатором!")
+            } else sendMessage(chatId, REMIND_MESSAGE_STATUS_ERROR)
 
         } else if (reminders != null) {
             val newUser = Users(
@@ -238,23 +225,16 @@ class TelegramBot(
             )
             val saveStatus = userBlockingRepository.save(newUser)
             if (saveStatus) {
-                sendMessage(chatId, "Напоминание установлено!")
-            } else sendMessage(chatId, "Упс! Что-то пошло не так, свяжитесь пожалуйста с организатором!")
-        } else sendMessage(chatId, "Success!")
-//        sendMessage(chatId, text)
-    }
-
-    private fun sendRandomCoffeeInfo(chatId: Long) {
-        val text = "Success!"
-
-        sendMessage(chatId, text)
+                sendMessage(chatId, REMIND_MESSAGE_STATUS_SUCCESS)
+            } else sendMessage(chatId, REMIND_MESSAGE_STATUS_ERROR)
+        } else sendMessage(chatId, REMIND_MESSAGE_STATUS_SUCCESS)
     }
 
     private fun startSurvey(chatId: Long) {
         userStates[chatId] = SurveyState.ASK_NAME
         userSurveyData[chatId] = SurveyData()
 
-        sendMessage(chatId, "Введите ваше имя:")
+        sendMessage(chatId, RANDOM_COFFEE_INPUT_MESSAGE_NAME)
     }
 
     private fun handleUserResponse(chatId: Long, response: String) {
@@ -281,7 +261,7 @@ class TelegramBot(
             }
 
             SurveyState.ASK_HOBBIES -> {
-                if (response == "Готово") {
+                if (response == RANDOM_COFFEE_CALLBACK_MESSAGE_DONE_RUSSIA) {
                     userStates[chatId] = SurveyState.ASK_VISIT
                     sendVisitSelection(chatId)
                 } else {
@@ -291,7 +271,7 @@ class TelegramBot(
             }
 
             SurveyState.ASK_VISIT -> {
-                if (response == "done") {
+                if (response == RANDOM_COFFEE_CALLBACK_MESSAGE_DONE) {
                     completeSurvey(chatId)
                 } else {
                     userSurveyData[chatId]?.visit?.add(response)
@@ -328,13 +308,13 @@ class TelegramBot(
 
         randomCoffeeRepository.updateBlock(newRandomCoffee)
 
-        sendMessage(chatId, "Спасибо! Ваша анкета сохранена.")
+        sendMessage(chatId, RANDOM_COFFEE_SAVING_FORM_SUCCESS)
     }
 
     private fun sendAgeSelection(chatId: Long) {
         val message = SendMessage()
         message.chatId = chatId.toString()
-        message.text = "Ваш возраст:"
+        message.text = RANDOM_COFFEE_INPUT_MESSAGE_AGE
 
         val inlineKeyboardMarkup = InlineKeyboardMarkup()
         val rows: MutableList<List<InlineKeyboardButton>> = ArrayList()
@@ -359,7 +339,7 @@ class TelegramBot(
     private fun sendOccupationSelection(chatId: Long) {
         val message = SendMessage()
         message.chatId = chatId.toString()
-        message.text = "Сфера деятельности:"
+        message.text = RANDOM_COFFEE_INPUT_MESSAGE_OCCUPATION
 
         val inlineKeyboardMarkup = InlineKeyboardMarkup()
         val rows: MutableList<List<InlineKeyboardButton>> = ArrayList()
@@ -387,7 +367,7 @@ class TelegramBot(
     private fun sendHobbiesSelection(chatId: Long) {
         val message = SendMessage()
         message.chatId = chatId.toString()
-        message.text = "Хобби: (выберите одно или несколько и нажмите 'Готово')"
+        message.text = RANDOM_COFFEE_INPUT_MESSAGE_HOBBY
 
         val inlineKeyboardMarkup = InlineKeyboardMarkup()
         val rows: MutableList<List<InlineKeyboardButton>> = ArrayList()
@@ -405,8 +385,8 @@ class TelegramBot(
 
         // Добавляем кнопку "Готово"
         val doneButton = InlineKeyboardButton()
-        doneButton.text = "Готово"
-        doneButton.callbackData = "done"
+        doneButton.text = RANDOM_COFFEE_CALLBACK_MESSAGE_DONE_RUSSIA
+        doneButton.callbackData = RANDOM_COFFEE_CALLBACK_MESSAGE_DONE
         val doneRow: MutableList<InlineKeyboardButton> = ArrayList()
         doneRow.add(doneButton)
         rows.add(doneRow)
@@ -420,7 +400,7 @@ class TelegramBot(
     private fun sendVisitSelection(chatId: Long) {
         val message = SendMessage()
         message.chatId = chatId.toString()
-        message.text = "Хочу посетить: (выберите одно или несколько и нажмите 'Готово')"
+        message.text = RANDOM_COFFEE_INPUT_MESSAGE_WOULD_LIKE_TO_VISIT
 
         val inlineKeyboardMarkup = InlineKeyboardMarkup()
         val rows: MutableList<List<InlineKeyboardButton>> = ArrayList()
@@ -438,8 +418,8 @@ class TelegramBot(
 
         // Добавляем кнопку "Готово"
         val doneButton = InlineKeyboardButton()
-        doneButton.text = "Готово"
-        doneButton.callbackData = "done"
+        doneButton.text = RANDOM_COFFEE_CALLBACK_MESSAGE_DONE_RUSSIA
+        doneButton.callbackData = RANDOM_COFFEE_CALLBACK_MESSAGE_DONE
         val doneRow: MutableList<InlineKeyboardButton> = ArrayList()
         doneRow.add(doneButton)
         rows.add(doneRow)
@@ -447,28 +427,6 @@ class TelegramBot(
         inlineKeyboardMarkup.keyboard = rows
         message.replyMarkup = inlineKeyboardMarkup
 
-        execute(message)
-    }
-
-    private fun sendVisitOptions(chatId: Long) {
-        val options = listOf("Музей", "Кино", "Рок-фестиваль")
-        sendOptions(chatId, "Хочу посетить:", options)
-    }
-
-    private fun sendOptions(chatId: Long, text: String, options: List<String>) {
-        val keyboardMarkup = ReplyKeyboardMarkup()
-        val keyboard: MutableList<KeyboardRow> = ArrayList()
-        options.forEach {
-            val row = KeyboardRow()
-            row.add(it)
-            keyboard.add(row)
-        }
-        keyboardMarkup.keyboard = keyboard
-        keyboardMarkup.resizeKeyboard = true
-        val message = SendMessage()
-        message.chatId = chatId.toString()
-        message.text = text
-        message.replyMarkup = keyboardMarkup
         execute(message)
     }
 
@@ -487,7 +445,7 @@ class TelegramBot(
                 sendHobbiesSelection(chatId)
             }
             SurveyState.ASK_HOBBIES -> {
-                if (data == "done") {
+                if (data == RANDOM_COFFEE_CALLBACK_MESSAGE_DONE) {
                     userStates[chatId] = SurveyState.ASK_VISIT
                     sendVisitSelection(chatId)
                 } else {
@@ -496,7 +454,7 @@ class TelegramBot(
                 }
             }
             SurveyState.ASK_VISIT -> {
-                if (data == "done") {
+                if (data == RANDOM_COFFEE_CALLBACK_MESSAGE_DONE) {
                     completeSurvey(chatId)
                 } else {
                     userSurveyData[chatId]?.visit?.add(data)
@@ -504,7 +462,7 @@ class TelegramBot(
                 }
             }
             else -> {
-                sendMessage(chatId, "Something went wrong!")
+                sendMessage(chatId, RANDOM_COFFEE_HANDLING_CALLBACK_QUERY_ERROR)
             }
         }
     }
@@ -519,5 +477,31 @@ class TelegramBot(
         private const val REMINDER_MESSAGE_YES = "reminder_yes"
         private const val REMINDER_MESSAGE_ALL = "reminder_all"
         private const val REMINDER_MESSAGE_DELETE = "reminder_delete"
+        private const val MESSAGE_ALL = "all"
+        private const val REMINDER_MESSAGE_DELIMITER = "_event_id:"
+        private const val CALLBACK_DATA_MENU_ID_3 ="menu_id:3"
+        private const val CALLBACK_DATA_MENU_ID_6 ="menu_id:6"
+        private const val CALLBACK_DATA_MENU_ID_7 ="menu_id:7"
+        private const val CALLBACK_DATA_MENU_ID_9 ="menu_id:9"
+        private const val CALLBACK_DATA_MENU_ID_10 ="menu_id:10"
+        private const val CALLBACK_DATA_MENU_ID_11 ="menu_id:11"
+        private const val CALLBACK_DATA_MENU_ID_13 ="menu_id:13"
+        private const val ACTION_TYPE_URL = "url"
+        private const val ACTION_TYPE_CALLBACK = "callback"
+        private const val REMIND_MESSAGE_STATUS_SUCCESS = "Напоминание установлено!"
+        private const val REMIND_MESSAGE_STATUS_DELETE = "Напоминание удалено!"
+        private const val REMIND_MESSAGE_STATUS_ERROR =
+            "Упс! Что-то пошло не так, свяжитесь пожалуйста с организатором!"
+        private const val RANDOM_COFFEE_INPUT_MESSAGE_NAME = "Введите ваше имя"
+        private const val RANDOM_COFFEE_CALLBACK_MESSAGE_DONE = "done"
+        private const val RANDOM_COFFEE_CALLBACK_MESSAGE_DONE_RUSSIA = "Готово"
+        private const val RANDOM_COFFEE_SAVING_FORM_SUCCESS = "Спасибо! Ваша анкета сохранена."
+        private const val RANDOM_COFFEE_INPUT_MESSAGE_AGE = "Ваш возраст:"
+        private const val RANDOM_COFFEE_INPUT_MESSAGE_OCCUPATION = "Сфера деятельности:"
+        private const val RANDOM_COFFEE_INPUT_MESSAGE_HOBBY = "Хобби: (выберите одно или несколько и нажмите 'Готово')"
+        private const val RANDOM_COFFEE_INPUT_MESSAGE_WOULD_LIKE_TO_VISIT =
+            "Хочу посетить: (выберите одно или несколько и нажмите 'Готово')"
+        private const val RANDOM_COFFEE_HANDLING_CALLBACK_QUERY_ERROR = "Something went wrong!"
+
     }
 }
