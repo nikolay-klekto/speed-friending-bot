@@ -16,10 +16,6 @@ data class RandomCoffee(
     var idNote: Int? = null,
     var userId: Int? = null,
     var username: String? = null,
-    var age: String? = null,
-    var occupation: String? = null,
-    var hobby: String? = null,
-    var wouldLikeToVisit: String? = null,
     var dateCreated: LocalDate? = null
 ): Serializable {
 
@@ -30,10 +26,6 @@ data class RandomCoffee(
         sb.append(idNote)
         sb.append(", ").append(userId)
         sb.append(", ").append(username)
-        sb.append(", ").append(age)
-        sb.append(", ").append(occupation)
-        sb.append(", ").append(hobby)
-        sb.append(", ").append(wouldLikeToVisit)
         sb.append(", ").append(dateCreated)
 
         sb.append(")")

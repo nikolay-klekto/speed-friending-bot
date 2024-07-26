@@ -61,13 +61,6 @@ class RandomCoffeeRepository(
 
             return@fromSupplier dsl.update(RANDOM_COFFEE)
                 .set(RANDOM_COFFEE.USERNAME, randomCoffeeModel.username ?: oldRandomCoffeeModel.username)
-                .set(RANDOM_COFFEE.AGE, randomCoffeeModel.age ?: oldRandomCoffeeModel.age)
-                .set(RANDOM_COFFEE.OCCUPATION, randomCoffeeModel.occupation ?: oldRandomCoffeeModel.occupation)
-                .set(RANDOM_COFFEE.HOBBY, randomCoffeeModel.hobby ?: oldRandomCoffeeModel.hobby)
-                .set(
-                    RANDOM_COFFEE.WOULD_LIKE_TO_VISIT,
-                    randomCoffeeModel.wouldLikeToVisit ?: oldRandomCoffeeModel.wouldLikeToVisit
-                )
                 .set(RANDOM_COFFEE.DATE_CREATED, LocalDate.now())
                 .where(RANDOM_COFFEE.USER_ID.eq(randomCoffeeModel.userId))
                 .execute() == 1
@@ -80,13 +73,6 @@ class RandomCoffeeRepository(
 
             return dsl.update(RANDOM_COFFEE)
                 .set(RANDOM_COFFEE.USERNAME, randomCoffeeModel.username ?: oldRandomCoffeeModel.username)
-                .set(RANDOM_COFFEE.AGE, randomCoffeeModel.age ?: oldRandomCoffeeModel.age)
-                .set(RANDOM_COFFEE.OCCUPATION, randomCoffeeModel.occupation ?: oldRandomCoffeeModel.occupation)
-                .set(RANDOM_COFFEE.HOBBY, randomCoffeeModel.hobby ?: oldRandomCoffeeModel.hobby)
-                .set(
-                    RANDOM_COFFEE.WOULD_LIKE_TO_VISIT,
-                    randomCoffeeModel.wouldLikeToVisit ?: oldRandomCoffeeModel.wouldLikeToVisit
-                )
                 .set(RANDOM_COFFEE.DATE_CREATED, LocalDate.now())
                 .where(RANDOM_COFFEE.USER_ID.eq(randomCoffeeModel.userId))
                 .execute() == 1

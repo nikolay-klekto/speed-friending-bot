@@ -1,9 +1,6 @@
 package by.sf.bot.component
 
-import by.sf.bot.jooq.tables.pojos.Buttons
-import by.sf.bot.jooq.tables.pojos.MenuInfo
-import by.sf.bot.jooq.tables.pojos.RandomCoffee
-import by.sf.bot.jooq.tables.pojos.Users
+import by.sf.bot.jooq.tables.pojos.*
 import by.sf.bot.models.SurveyData
 import by.sf.bot.models.SurveyState
 import by.sf.bot.repository.blocking.MenuInfoBlockingRepository
@@ -11,6 +8,7 @@ import by.sf.bot.repository.blocking.UserBlockingRepository
 import by.sf.bot.repository.impl.ButtonRepository
 import by.sf.bot.repository.impl.MainBotInfoRepository
 import by.sf.bot.repository.impl.RandomCoffeeRepository
+import by.sf.bot.repository.impl.RandomCoffeeVariantsRepository
 import jakarta.annotation.PostConstruct
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
@@ -27,13 +25,18 @@ class TelegramBot(
     private val menuInfoBlockingRepository: MenuInfoBlockingRepository,
     private val buttonRepository: ButtonRepository,
     private val userBlockingRepository: UserBlockingRepository,
-    private val randomCoffeeRepository: RandomCoffeeRepository
+    private val randomCoffeeRepository: RandomCoffeeRepository,
+    private val randomCoffeeVariantsRepository: RandomCoffeeVariantsRepository
 ) : TelegramLongPollingBot() {
 
     private var botUsername: String = ""
     private var botToken: String = ""
     private var menuWithButtonsCollection: HashMap<Int, HashMap<Int, Buttons>> = hashMapOf()
     private var menuInfoList: List<MenuInfo> = listOf()
+    private var allAgeOptions = listOf<String>()
+    private var allVisitOptions = listOf<String>()
+    private var allOccupationsOptions = listOf<String>()
+    private var allHobbiesOptions = listOf<String>()
 
     @PostConstruct
     fun init() {
@@ -59,7 +62,11 @@ class TelegramBot(
 
         }
 
-        // Другие данные, которые нужно загрузить
+        allAgeOptions = randomCoffeeVariantsRepository.getAllAgeVariants()
+        allVisitOptions = randomCoffeeVariantsRepository.getAllPlacesVariants()
+        allOccupationsOptions = randomCoffeeVariantsRepository.getAllOccupationsVariants()
+        allHobbiesOptions = randomCoffeeVariantsRepository.getAllHobbyVariants()
+
     }
 
     fun loadDataFromDatabase() {
@@ -296,17 +303,41 @@ class TelegramBot(
 
         val newRandomCoffee = RandomCoffee(
             userId = userId,
-            username = surveyData?.name,
-            age = surveyData?.age,
-            occupation = surveyData?.occupation,
-            hobby = surveyData?.hobbies.toString(),
-            wouldLikeToVisit = surveyData?.visit.toString()
+            username = surveyData?.name
         )
         if(!randomCoffeeRepository.isRandomCoffeeModelExist(userId)){
             randomCoffeeRepository.saveBlock(newRandomCoffee)
         }
 
         randomCoffeeRepository.updateBlock(newRandomCoffee)
+
+        // Сохранение возраста
+        val ageId = surveyData?.age?.let { randomCoffeeVariantsRepository.getAgeIdByRange(it) }
+        ageId?.let {
+            randomCoffeeVariantsRepository.saveCoffeeAge(RandomCoffeeAge(randomCoffeeId = newRandomCoffee.idNote, ageId = it))
+        }
+
+        // Сохранение сферы деятельности
+        val occupationId = surveyData?.occupation?.let { randomCoffeeVariantsRepository.getOccupationIdByName(it) }
+        occupationId?.let {
+            randomCoffeeVariantsRepository.saveCoffeeOccupation(RandomCoffeeOccupation(randomCoffeeId = newRandomCoffee.idNote, occupationId = it))
+        }
+
+        // Сохранение хобби
+        surveyData?.hobbies?.forEach { hobby ->
+            val hobbyId = randomCoffeeVariantsRepository.getHobbyIdByName(hobby)
+            hobbyId?.let {
+                randomCoffeeVariantsRepository.saveCoffeeHobby(RandomCoffeeHobby(randomCoffeeId = newRandomCoffee.idNote, hobbyId = it))
+            }
+        }
+
+        // Сохранение мест, которые хотел бы посетить
+        surveyData?.visit?.forEach { place ->
+            val placeId = randomCoffeeVariantsRepository.getPlaceIdByName(place)
+            placeId?.let {
+                randomCoffeeVariantsRepository.saveCoffeePlace(RandomCoffeePlace(randomCoffeeId = newRandomCoffee.idNote, placeId = it))
+            }
+        }
 
         sendMessage(chatId, RANDOM_COFFEE_SAVING_FORM_SUCCESS)
     }
@@ -319,8 +350,8 @@ class TelegramBot(
         val inlineKeyboardMarkup = InlineKeyboardMarkup()
         val rows: MutableList<List<InlineKeyboardButton>> = ArrayList()
 
-        val ageCategories = listOf("18-21", "22-24", "25-100")
-        ageCategories.forEach { age ->
+
+        allAgeOptions.forEach { age ->
             val button = InlineKeyboardButton()
             button.text = age
             button.callbackData = age
@@ -344,11 +375,7 @@ class TelegramBot(
         val inlineKeyboardMarkup = InlineKeyboardMarkup()
         val rows: MutableList<List<InlineKeyboardButton>> = ArrayList()
 
-        val occupations = listOf(
-            "Экономика и бизнес", "Наука и технологии", "Образование и культура",
-            "Здравоохранение и медицина", "Гос управление и право", "Экология и сельское хозяйство"
-        )
-        occupations.forEach { occupation ->
+        allOccupationsOptions.forEach { occupation ->
             val button = InlineKeyboardButton()
             button.text = occupation
             button.callbackData = occupation
@@ -372,8 +399,7 @@ class TelegramBot(
         val inlineKeyboardMarkup = InlineKeyboardMarkup()
         val rows: MutableList<List<InlineKeyboardButton>> = ArrayList()
 
-        val hobbies = listOf("Спорт", "Настольные игры", "Книги")
-        hobbies.forEach { hobby ->
+        allHobbiesOptions.forEach { hobby ->
             val button = InlineKeyboardButton()
             button.text = hobby
             button.callbackData = hobby
@@ -405,8 +431,7 @@ class TelegramBot(
         val inlineKeyboardMarkup = InlineKeyboardMarkup()
         val rows: MutableList<List<InlineKeyboardButton>> = ArrayList()
 
-        val visitOptions = listOf("Музей", "Кино", "Рок-фестиваль")
-        visitOptions.forEach { option ->
+        allVisitOptions.forEach { option ->
             val button = InlineKeyboardButton()
             button.text = option
             button.callbackData = option

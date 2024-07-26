@@ -18,7 +18,7 @@ import org.jooq.ForeignKey
 import org.jooq.Identity
 import org.jooq.Name
 import org.jooq.Record
-import org.jooq.Row8
+import org.jooq.Row4
 import org.jooq.Schema
 import org.jooq.Table
 import org.jooq.TableField
@@ -79,26 +79,6 @@ open class RandomCoffee(
     val USERNAME: TableField<RandomCoffeeRecord, String?> = createField(DSL.name("username"), SQLDataType.VARCHAR, this, "")
 
     /**
-     * The column <code>public.random_coffee.age</code>.
-     */
-    val AGE: TableField<RandomCoffeeRecord, String?> = createField(DSL.name("age"), SQLDataType.VARCHAR, this, "")
-
-    /**
-     * The column <code>public.random_coffee.occupation</code>.
-     */
-    val OCCUPATION: TableField<RandomCoffeeRecord, String?> = createField(DSL.name("occupation"), SQLDataType.VARCHAR, this, "")
-
-    /**
-     * The column <code>public.random_coffee.hobby</code>.
-     */
-    val HOBBY: TableField<RandomCoffeeRecord, String?> = createField(DSL.name("hobby"), SQLDataType.VARCHAR, this, "")
-
-    /**
-     * The column <code>public.random_coffee.would_like_to_visit</code>.
-     */
-    val WOULD_LIKE_TO_VISIT: TableField<RandomCoffeeRecord, String?> = createField(DSL.name("would_like_to_visit"), SQLDataType.VARCHAR, this, "")
-
-    /**
      * The column <code>public.random_coffee.date_created</code>.
      */
     val DATE_CREATED: TableField<RandomCoffeeRecord, LocalDate?> = createField(DSL.name("date_created"), SQLDataType.LOCALDATE, this, "")
@@ -152,7 +132,7 @@ open class RandomCoffee(
     override fun rename(name: Name): RandomCoffee = RandomCoffee(name, null)
 
     // -------------------------------------------------------------------------
-    // Row8 type methods
+    // Row4 type methods
     // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row8<Int?, Int?, String?, String?, String?, String?, String?, LocalDate?> = super.fieldsRow() as Row8<Int?, Int?, String?, String?, String?, String?, String?, LocalDate?>
+    override fun fieldsRow(): Row4<Int?, Int?, String?, LocalDate?> = super.fieldsRow() as Row4<Int?, Int?, String?, LocalDate?>
 }

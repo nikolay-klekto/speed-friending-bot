@@ -4,11 +4,19 @@
 package by.sf.bot.jooq
 
 
+import by.sf.bot.jooq.tables.Ages
 import by.sf.bot.jooq.tables.Buttons
 import by.sf.bot.jooq.tables.Events
+import by.sf.bot.jooq.tables.Hobbies
 import by.sf.bot.jooq.tables.MainBotInfo
 import by.sf.bot.jooq.tables.MenuInfo
+import by.sf.bot.jooq.tables.Occupations
+import by.sf.bot.jooq.tables.PlacesToVisit
 import by.sf.bot.jooq.tables.RandomCoffee
+import by.sf.bot.jooq.tables.RandomCoffeeAge
+import by.sf.bot.jooq.tables.RandomCoffeeHobby
+import by.sf.bot.jooq.tables.RandomCoffeeOccupation
+import by.sf.bot.jooq.tables.RandomCoffeePlace
 import by.sf.bot.jooq.tables.RemindDates
 import by.sf.bot.jooq.tables.Users
 
@@ -33,6 +41,11 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
     }
 
     /**
+     * The table <code>public.ages</code>.
+     */
+    val AGES: Ages get() = Ages.AGES
+
+    /**
      * Таблица для хранения информации о кнопках меню
      */
     val BUTTONS: Buttons get() = Buttons.BUTTONS
@@ -41,6 +54,11 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
      * The table <code>public.events</code>.
      */
     val EVENTS: Events get() = Events.EVENTS
+
+    /**
+     * The table <code>public.hobbies</code>.
+     */
+    val HOBBIES: Hobbies get() = Hobbies.HOBBIES
 
     /**
      * The table <code>public.main_bot_info</code>.
@@ -53,9 +71,39 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
     val MENU_INFO: MenuInfo get() = MenuInfo.MENU_INFO
 
     /**
+     * The table <code>public.occupations</code>.
+     */
+    val OCCUPATIONS: Occupations get() = Occupations.OCCUPATIONS
+
+    /**
+     * The table <code>public.places_to_visit</code>.
+     */
+    val PLACES_TO_VISIT: PlacesToVisit get() = PlacesToVisit.PLACES_TO_VISIT
+
+    /**
      * The table <code>public.random_coffee</code>.
      */
     val RANDOM_COFFEE: RandomCoffee get() = RandomCoffee.RANDOM_COFFEE
+
+    /**
+     * The table <code>public.random_coffee_age</code>.
+     */
+    val RANDOM_COFFEE_AGE: RandomCoffeeAge get() = RandomCoffeeAge.RANDOM_COFFEE_AGE
+
+    /**
+     * The table <code>public.random_coffee_hobby</code>.
+     */
+    val RANDOM_COFFEE_HOBBY: RandomCoffeeHobby get() = RandomCoffeeHobby.RANDOM_COFFEE_HOBBY
+
+    /**
+     * The table <code>public.random_coffee_occupation</code>.
+     */
+    val RANDOM_COFFEE_OCCUPATION: RandomCoffeeOccupation get() = RandomCoffeeOccupation.RANDOM_COFFEE_OCCUPATION
+
+    /**
+     * The table <code>public.random_coffee_place</code>.
+     */
+    val RANDOM_COFFEE_PLACE: RandomCoffeePlace get() = RandomCoffeePlace.RANDOM_COFFEE_PLACE
 
     /**
      * The table <code>public.remind_dates</code>.
@@ -70,11 +118,19 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
     override fun getCatalog(): Catalog = DefaultCatalog.DEFAULT_CATALOG
 
     override fun getTables(): List<Table<*>> = listOf(
+        Ages.AGES,
         Buttons.BUTTONS,
         Events.EVENTS,
+        Hobbies.HOBBIES,
         MainBotInfo.MAIN_BOT_INFO,
         MenuInfo.MENU_INFO,
+        Occupations.OCCUPATIONS,
+        PlacesToVisit.PLACES_TO_VISIT,
         RandomCoffee.RANDOM_COFFEE,
+        RandomCoffeeAge.RANDOM_COFFEE_AGE,
+        RandomCoffeeHobby.RANDOM_COFFEE_HOBBY,
+        RandomCoffeeOccupation.RANDOM_COFFEE_OCCUPATION,
+        RandomCoffeePlace.RANDOM_COFFEE_PLACE,
         RemindDates.REMIND_DATES,
         Users.USERS
     )
