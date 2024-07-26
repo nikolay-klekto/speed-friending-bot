@@ -20,6 +20,11 @@ class RandomCoffeeRepository(
             .map { it.into(RandomCoffee::class.java) }
     }
 
+    fun getAllRandomCoffeeAccountsBlock(): List<RandomCoffee> {
+        return dsl.select(RANDOM_COFFEE.asterisk()).from(RANDOM_COFFEE)
+                .map { it.into(RandomCoffee::class.java) }
+    }
+
     fun getAllRandomCoffeeAccounts(): Flux<RandomCoffee> {
         return Flux.from {
             dsl.select(RANDOM_COFFEE.asterisk()).from(RANDOM_COFFEE)
