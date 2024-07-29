@@ -54,4 +54,3 @@ class MatchingService(
         return compatibility
     }
 }
-}

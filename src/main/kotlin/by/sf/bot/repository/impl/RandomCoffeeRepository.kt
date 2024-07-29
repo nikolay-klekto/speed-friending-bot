@@ -1,6 +1,10 @@
 package by.sf.bot.repository.impl
 
 import by.sf.bot.jooq.tables.RandomCoffee.Companion.RANDOM_COFFEE
+import by.sf.bot.jooq.tables.RandomCoffeeAge.Companion.RANDOM_COFFEE_AGE
+import by.sf.bot.jooq.tables.RandomCoffeeHobby.Companion.RANDOM_COFFEE_HOBBY
+import by.sf.bot.jooq.tables.RandomCoffeeOccupation.Companion.RANDOM_COFFEE_OCCUPATION
+import by.sf.bot.jooq.tables.RandomCoffeePlace.Companion.RANDOM_COFFEE_PLACE
 import by.sf.bot.jooq.tables.pojos.RandomCoffee
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
@@ -72,22 +76,42 @@ class RandomCoffeeRepository(
         }
     }
 
-    fun updateBlock(randomCoffeeModel: RandomCoffee): Boolean {
+    fun updateBlock(randomCoffeeModel: RandomCoffee): Int {
 
             val oldRandomCoffeeModel: RandomCoffee = getRandomCoffeeModelById(randomCoffeeModel.userId!!)
 
-            return dsl.update(RANDOM_COFFEE)
+            val result =  dsl.update(RANDOM_COFFEE)
                 .set(RANDOM_COFFEE.USERNAME, randomCoffeeModel.username ?: oldRandomCoffeeModel.username)
                 .set(RANDOM_COFFEE.DATE_CREATED, LocalDate.now())
                 .where(RANDOM_COFFEE.USER_ID.eq(randomCoffeeModel.userId))
                 .execute() == 1
+
+        if(result){
+            return oldRandomCoffeeModel.idNote!!
+        }else throw Exception("Не удалось обновить random coffee с idNote: ${oldRandomCoffeeModel.idNote}")
     }
 
     fun delete(idNote: Int): Mono<Boolean> {
         return Mono.fromSupplier {
-            dsl.deleteFrom(RANDOM_COFFEE)
-                .where(RANDOM_COFFEE.ID_NOTE.eq(idNote))
+            val result1  = dsl.deleteFrom(RANDOM_COFFEE_AGE)
+                .where(RANDOM_COFFEE_AGE.RANDOM_COFFEE_ID.eq(idNote))
                 .execute() == 1
+
+            val result2  = dsl.deleteFrom(RANDOM_COFFEE_HOBBY)
+                .where(RANDOM_COFFEE_HOBBY.RANDOM_COFFEE_ID.eq(idNote))
+                .execute()
+
+            val result3  = dsl.deleteFrom(RANDOM_COFFEE_OCCUPATION)
+                .where(RANDOM_COFFEE_OCCUPATION.RANDOM_COFFEE_ID.eq(idNote))
+                .execute()
+
+            val result4  = dsl.deleteFrom(RANDOM_COFFEE_PLACE)
+                .where(RANDOM_COFFEE_PLACE.RANDOM_COFFEE_ID.eq(idNote))
+                .execute()
+
+            return@fromSupplier dsl.deleteFrom(RANDOM_COFFEE)
+                .where(RANDOM_COFFEE.ID_NOTE.eq(idNote))
+                .execute() == 1 && result1
         }
     }
 }

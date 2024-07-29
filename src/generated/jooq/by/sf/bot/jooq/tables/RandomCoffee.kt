@@ -18,7 +18,7 @@ import org.jooq.ForeignKey
 import org.jooq.Identity
 import org.jooq.Name
 import org.jooq.Record
-import org.jooq.Row4
+import org.jooq.Row5
 import org.jooq.Schema
 import org.jooq.Table
 import org.jooq.TableField
@@ -83,6 +83,11 @@ open class RandomCoffee(
      */
     val DATE_CREATED: TableField<RandomCoffeeRecord, LocalDate?> = createField(DSL.name("date_created"), SQLDataType.LOCALDATE, this, "")
 
+    /**
+     * The column <code>public.random_coffee.telegram_username</code>.
+     */
+    val TELEGRAM_USERNAME: TableField<RandomCoffeeRecord, String?> = createField(DSL.name("telegram_username"), SQLDataType.VARCHAR, this, "")
+
     private constructor(alias: Name, aliased: Table<RandomCoffeeRecord>?): this(alias, null, null, aliased, null)
     private constructor(alias: Name, aliased: Table<RandomCoffeeRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
 
@@ -132,7 +137,7 @@ open class RandomCoffee(
     override fun rename(name: Name): RandomCoffee = RandomCoffee(name, null)
 
     // -------------------------------------------------------------------------
-    // Row4 type methods
+    // Row5 type methods
     // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row4<Int?, Int?, String?, LocalDate?> = super.fieldsRow() as Row4<Int?, Int?, String?, LocalDate?>
+    override fun fieldsRow(): Row5<Int?, Int?, String?, LocalDate?, String?> = super.fieldsRow() as Row5<Int?, Int?, String?, LocalDate?, String?>
 }

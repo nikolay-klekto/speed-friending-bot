@@ -104,7 +104,7 @@ class TelegramBot(
                         val reminders = callbackData.split(REMINDER_MESSAGE_DELIMITER)[1]
                         sendReminderOptions(callbackChatId, reminders)
                     }else{
-                        handleCallbackQuery(callbackChatId, callbackData)
+                        handleCallbackQuery(callbackChatId, callbackData, update.callbackQuery.from.userName)
                     }
                 }
             }
@@ -113,6 +113,7 @@ class TelegramBot(
 
         val message = update.message
         val chatId = message.chatId
+        val username = message.from?.userName
 
         val startButtons = menuWithButtonsCollection[START_PAGE_MENU_ID]
 
@@ -122,7 +123,7 @@ class TelegramBot(
             startButtons?.get(2)?.label -> sendMenuInfo(chatId, 3)
             startButtons?.get(3)?.label -> sendMenuInfo(chatId, 4)
             startButtons?.get(4)?.label -> sendMenuInfo(chatId, 12)
-            else -> handleUserResponse(chatId, message.text)
+            else -> handleUserResponse(chatId, message.text, message.from.userName)
         }
     }
 
@@ -244,7 +245,7 @@ class TelegramBot(
         sendMessage(chatId, RANDOM_COFFEE_INPUT_MESSAGE_NAME)
     }
 
-    private fun handleUserResponse(chatId: Long, response: String) {
+    private fun handleUserResponse(chatId: Long, response: String, telegramUsername: String?) {
         val state = userStates[chatId] ?: return
 
 
@@ -279,7 +280,7 @@ class TelegramBot(
 
             SurveyState.ASK_VISIT -> {
                 if (response == RANDOM_COFFEE_CALLBACK_MESSAGE_DONE) {
-                    completeSurvey(chatId)
+                    completeSurvey(chatId, telegramUsername)
                 } else {
                     userSurveyData[chatId]?.visit?.add(response)
                     sendVisitSelection(chatId) // Пользователь может выбрать еще одно место или нажать "Готово"
@@ -288,7 +289,7 @@ class TelegramBot(
         }
     }
 
-    private fun completeSurvey(chatId: Long) {
+    private fun completeSurvey(chatId: Long, telegramUsername: String?) {
         val surveyData = userSurveyData[chatId]
 
         userStates.remove(chatId)
@@ -303,31 +304,48 @@ class TelegramBot(
 
         val newRandomCoffee = RandomCoffee(
             userId = userId,
-            username = surveyData?.name
+            username = surveyData?.name,
+            telegramUsername = telegramUsername
         )
+
+        var newRandomCoffeeIdNote: Int = 0
+
         if(!randomCoffeeRepository.isRandomCoffeeModelExist(userId)){
-            randomCoffeeRepository.saveBlock(newRandomCoffee)
+            newRandomCoffeeIdNote = randomCoffeeRepository.saveBlock(newRandomCoffee).idNote!!
+        }else{
+        newRandomCoffeeIdNote = randomCoffeeRepository.updateBlock(newRandomCoffee)
         }
 
-        randomCoffeeRepository.updateBlock(newRandomCoffee)
 
         // Сохранение возраста
         val ageId = surveyData?.age?.let { randomCoffeeVariantsRepository.getAgeIdByRange(it) }
         ageId?.let {
-            randomCoffeeVariantsRepository.saveCoffeeAge(RandomCoffeeAge(randomCoffeeId = newRandomCoffee.idNote, ageId = it))
+            randomCoffeeVariantsRepository.saveCoffeeAge(
+                RandomCoffeeAge(
+                    randomCoffeeId = newRandomCoffeeIdNote,
+                    ageId = it)
+            )
         }
 
         // Сохранение сферы деятельности
         val occupationId = surveyData?.occupation?.let { randomCoffeeVariantsRepository.getOccupationIdByName(it) }
         occupationId?.let {
-            randomCoffeeVariantsRepository.saveCoffeeOccupation(RandomCoffeeOccupation(randomCoffeeId = newRandomCoffee.idNote, occupationId = it))
+            randomCoffeeVariantsRepository.saveCoffeeOccupation(
+                RandomCoffeeOccupation(
+                    randomCoffeeId = newRandomCoffeeIdNote,
+                    occupationId = it)
+            )
         }
 
         // Сохранение хобби
         surveyData?.hobbies?.forEach { hobby ->
             val hobbyId = randomCoffeeVariantsRepository.getHobbyIdByName(hobby)
             hobbyId?.let {
-                randomCoffeeVariantsRepository.saveCoffeeHobby(RandomCoffeeHobby(randomCoffeeId = newRandomCoffee.idNote, hobbyId = it))
+                randomCoffeeVariantsRepository.saveCoffeeHobby(
+                    RandomCoffeeHobby(
+                        randomCoffeeId = newRandomCoffeeIdNote,
+                        hobbyId = it)
+                )
             }
         }
 
@@ -335,7 +353,11 @@ class TelegramBot(
         surveyData?.visit?.forEach { place ->
             val placeId = randomCoffeeVariantsRepository.getPlaceIdByName(place)
             placeId?.let {
-                randomCoffeeVariantsRepository.saveCoffeePlace(RandomCoffeePlace(randomCoffeeId = newRandomCoffee.idNote, placeId = it))
+                randomCoffeeVariantsRepository.saveCoffeePlace(
+                    RandomCoffeePlace(
+                        randomCoffeeId = newRandomCoffeeIdNote,
+                        placeId = it)
+                )
             }
         }
 
@@ -455,7 +477,7 @@ class TelegramBot(
         execute(message)
     }
 
-    private fun handleCallbackQuery(chatId: Long, data: String) {
+    private fun handleCallbackQuery(chatId: Long, data: String, telegramUsername: String?) {
         val state = userStates[chatId] ?: return
 
         when (state) {
@@ -480,7 +502,7 @@ class TelegramBot(
             }
             SurveyState.ASK_VISIT -> {
                 if (data == RANDOM_COFFEE_CALLBACK_MESSAGE_DONE) {
-                    completeSurvey(chatId)
+                    completeSurvey(chatId, telegramUsername)
                 } else {
                     userSurveyData[chatId]?.visit?.add(data)
                     sendVisitSelection(chatId) // Пользователь может выбрать еще одно место или нажать "Готово"
