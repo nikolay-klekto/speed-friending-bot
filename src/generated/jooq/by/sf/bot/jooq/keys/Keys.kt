@@ -18,6 +18,7 @@ import by.sf.bot.jooq.tables.RandomCoffeeHobby
 import by.sf.bot.jooq.tables.RandomCoffeeOccupation
 import by.sf.bot.jooq.tables.RandomCoffeePlace
 import by.sf.bot.jooq.tables.RemindDates
+import by.sf.bot.jooq.tables.UserMatches
 import by.sf.bot.jooq.tables.Users
 import by.sf.bot.jooq.tables.records.AgesRecord
 import by.sf.bot.jooq.tables.records.ButtonsRecord
@@ -33,6 +34,7 @@ import by.sf.bot.jooq.tables.records.RandomCoffeeOccupationRecord
 import by.sf.bot.jooq.tables.records.RandomCoffeePlaceRecord
 import by.sf.bot.jooq.tables.records.RandomCoffeeRecord
 import by.sf.bot.jooq.tables.records.RemindDatesRecord
+import by.sf.bot.jooq.tables.records.UserMatchesRecord
 import by.sf.bot.jooq.tables.records.UsersRecord
 
 import org.jooq.ForeignKey
@@ -60,6 +62,7 @@ val RANDOM_COFFEE_HOBBY_PKEY: UniqueKey<RandomCoffeeHobbyRecord> = Internal.crea
 val RANDOM_COFFEE_OCCUPATION_PKEY: UniqueKey<RandomCoffeeOccupationRecord> = Internal.createUniqueKey(RandomCoffeeOccupation.RANDOM_COFFEE_OCCUPATION, DSL.name("random_coffee_occupation_pkey"), arrayOf(RandomCoffeeOccupation.RANDOM_COFFEE_OCCUPATION.RANDOM_COFFEE_ID, RandomCoffeeOccupation.RANDOM_COFFEE_OCCUPATION.OCCUPATION_ID), true)
 val RANDOM_COFFEE_PLACE_PKEY: UniqueKey<RandomCoffeePlaceRecord> = Internal.createUniqueKey(RandomCoffeePlace.RANDOM_COFFEE_PLACE, DSL.name("random_coffee_place_pkey"), arrayOf(RandomCoffeePlace.RANDOM_COFFEE_PLACE.RANDOM_COFFEE_ID, RandomCoffeePlace.RANDOM_COFFEE_PLACE.PLACE_ID), true)
 val REMIND_DATES_PKEY: UniqueKey<RemindDatesRecord> = Internal.createUniqueKey(RemindDates.REMIND_DATES, DSL.name("remind_dates_pkey"), arrayOf(RemindDates.REMIND_DATES.ID), true)
+val USER_MATCHES_PKEY: UniqueKey<UserMatchesRecord> = Internal.createUniqueKey(UserMatches.USER_MATCHES, DSL.name("user_matches_pkey"), arrayOf(UserMatches.USER_MATCHES.USER_ID), true)
 val USERS_PKEY: UniqueKey<UsersRecord> = Internal.createUniqueKey(Users.USERS, DSL.name("users_pkey"), arrayOf(Users.USERS.USER_ID), true)
 
 // -------------------------------------------------------------------------
@@ -77,3 +80,4 @@ val RANDOM_COFFEE_OCCUPATION__RANDOM_COFFEE_OCCUPATION_RANDOM_COFFEE_ID_FKEY: Fo
 val RANDOM_COFFEE_PLACE__RANDOM_COFFEE_PLACE_PLACE_ID_FKEY: ForeignKey<RandomCoffeePlaceRecord, PlacesToVisitRecord> = Internal.createForeignKey(RandomCoffeePlace.RANDOM_COFFEE_PLACE, DSL.name("random_coffee_place_place_id_fkey"), arrayOf(RandomCoffeePlace.RANDOM_COFFEE_PLACE.PLACE_ID), by.sf.bot.jooq.keys.PLACES_TO_VISIT_PKEY, arrayOf(PlacesToVisit.PLACES_TO_VISIT.PLACE_ID), true)
 val RANDOM_COFFEE_PLACE__RANDOM_COFFEE_PLACE_RANDOM_COFFEE_ID_FKEY: ForeignKey<RandomCoffeePlaceRecord, RandomCoffeeRecord> = Internal.createForeignKey(RandomCoffeePlace.RANDOM_COFFEE_PLACE, DSL.name("random_coffee_place_random_coffee_id_fkey"), arrayOf(RandomCoffeePlace.RANDOM_COFFEE_PLACE.RANDOM_COFFEE_ID), by.sf.bot.jooq.keys.RANDOM_COFFEE_PKEY, arrayOf(RandomCoffee.RANDOM_COFFEE.ID_NOTE), true)
 val REMIND_DATES__REMIND_DATES_EVENT_ID_FKEY: ForeignKey<RemindDatesRecord, EventsRecord> = Internal.createForeignKey(RemindDates.REMIND_DATES, DSL.name("remind_dates_event_id_fkey"), arrayOf(RemindDates.REMIND_DATES.EVENT_ID), by.sf.bot.jooq.keys.EVENTS_PKEY, arrayOf(Events.EVENTS.EVENT_ID), true)
+val USER_MATCHES__USER_MATCHES_USER_ID_FKEY: ForeignKey<UserMatchesRecord, UsersRecord> = Internal.createForeignKey(UserMatches.USER_MATCHES, DSL.name("user_matches_user_id_fkey"), arrayOf(UserMatches.USER_MATCHES.USER_ID), by.sf.bot.jooq.keys.USERS_PKEY, arrayOf(Users.USERS.USER_ID), true)

@@ -18,6 +18,7 @@ import by.sf.bot.jooq.tables.RandomCoffeeHobby
 import by.sf.bot.jooq.tables.RandomCoffeeOccupation
 import by.sf.bot.jooq.tables.RandomCoffeePlace
 import by.sf.bot.jooq.tables.RemindDates
+import by.sf.bot.jooq.tables.UserMatches
 import by.sf.bot.jooq.tables.Users
 
 
@@ -91,6 +92,11 @@ val RANDOM_COFFEE_PLACE: RandomCoffeePlace = RandomCoffeePlace.RANDOM_COFFEE_PLA
  * The table <code>public.remind_dates</code>.
  */
 val REMIND_DATES: RemindDates = RemindDates.REMIND_DATES
+
+/**
+ * The table <code>public.user_matches</code>.
+ */
+val USER_MATCHES: UserMatches = UserMatches.USER_MATCHES
 
 /**
  * Таблица для хранения информации о пользователях

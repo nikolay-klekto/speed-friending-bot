@@ -18,6 +18,7 @@ import by.sf.bot.jooq.tables.RandomCoffeeHobby
 import by.sf.bot.jooq.tables.RandomCoffeeOccupation
 import by.sf.bot.jooq.tables.RandomCoffeePlace
 import by.sf.bot.jooq.tables.RemindDates
+import by.sf.bot.jooq.tables.UserMatches
 import by.sf.bot.jooq.tables.Users
 
 import kotlin.collections.List
@@ -111,6 +112,11 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
     val REMIND_DATES: RemindDates get() = RemindDates.REMIND_DATES
 
     /**
+     * The table <code>public.user_matches</code>.
+     */
+    val USER_MATCHES: UserMatches get() = UserMatches.USER_MATCHES
+
+    /**
      * Таблица для хранения информации о пользователях
      */
     val USERS: Users get() = Users.USERS
@@ -132,6 +138,7 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
         RandomCoffeeOccupation.RANDOM_COFFEE_OCCUPATION,
         RandomCoffeePlace.RANDOM_COFFEE_PLACE,
         RemindDates.REMIND_DATES,
+        UserMatches.USER_MATCHES,
         Users.USERS
     )
 }

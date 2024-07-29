@@ -32,7 +32,8 @@ class BotConfig {
         buttonRepository: ButtonRepository,
         userBlockingRepository: UserBlockingRepository,
         randomCoffeeRepository: RandomCoffeeRepository,
-        randomCoffeeVariantsRepository: RandomCoffeeVariantsRepository
+        randomCoffeeVariantsRepository: RandomCoffeeVariantsRepository,
+        matchRepository: MatchRepository
     ): TelegramBot {
         return TelegramBot(
             mainBotInfoRepository,
@@ -40,7 +41,8 @@ class BotConfig {
             buttonRepository,
             userBlockingRepository,
             randomCoffeeRepository,
-            randomCoffeeVariantsRepository
+            randomCoffeeVariantsRepository,
+            matchRepository
         )
     }
 }

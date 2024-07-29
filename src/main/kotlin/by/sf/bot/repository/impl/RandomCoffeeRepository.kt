@@ -1,12 +1,18 @@
 package by.sf.bot.repository.impl
 
+import by.sf.bot.jooq.tables.Ages.Companion.AGES
+import by.sf.bot.jooq.tables.Hobbies.Companion.HOBBIES
+import by.sf.bot.jooq.tables.Occupations.Companion.OCCUPATIONS
+import by.sf.bot.jooq.tables.PlacesToVisit.Companion.PLACES_TO_VISIT
 import by.sf.bot.jooq.tables.RandomCoffee.Companion.RANDOM_COFFEE
 import by.sf.bot.jooq.tables.RandomCoffeeAge.Companion.RANDOM_COFFEE_AGE
 import by.sf.bot.jooq.tables.RandomCoffeeHobby.Companion.RANDOM_COFFEE_HOBBY
 import by.sf.bot.jooq.tables.RandomCoffeeOccupation.Companion.RANDOM_COFFEE_OCCUPATION
 import by.sf.bot.jooq.tables.RandomCoffeePlace.Companion.RANDOM_COFFEE_PLACE
 import by.sf.bot.jooq.tables.pojos.RandomCoffee
+import by.sf.bot.models.FullUserDataModel
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -16,6 +22,39 @@ import java.time.LocalDate
 class RandomCoffeeRepository(
     private val dsl: DSLContext
 ) {
+
+    fun getFullUserData(userId: Int): FullUserDataModel? {
+        val result = dsl.select(
+            RANDOM_COFFEE.USERNAME,
+            RANDOM_COFFEE.TELEGRAM_USERNAME,
+            AGES.AGE_RANGE,
+            OCCUPATIONS.OCCUPATION,
+            DSL.field("STRING_AGG(${HOBBIES.HOBBY}, ',')").`as`("hobbies"),
+            DSL.field("STRING_AGG(${PLACES_TO_VISIT.PLACE}, ',')").`as`("visit")
+        )
+            .from(RANDOM_COFFEE)
+            .leftJoin(RANDOM_COFFEE_AGE).on(RANDOM_COFFEE.ID_NOTE.eq(RANDOM_COFFEE_AGE.RANDOM_COFFEE_ID))
+            .leftJoin(AGES).on(RANDOM_COFFEE_AGE.AGE_ID.eq(AGES.AGE_ID))
+            .leftJoin(RANDOM_COFFEE_OCCUPATION).on(RANDOM_COFFEE.ID_NOTE.eq(RANDOM_COFFEE_OCCUPATION.RANDOM_COFFEE_ID))
+            .leftJoin(OCCUPATIONS).on(RANDOM_COFFEE_OCCUPATION.OCCUPATION_ID.eq(OCCUPATIONS.OCCUPATION_ID))
+            .leftJoin(RANDOM_COFFEE_HOBBY).on(RANDOM_COFFEE.ID_NOTE.eq(RANDOM_COFFEE_HOBBY.RANDOM_COFFEE_ID))
+            .leftJoin(HOBBIES).on(RANDOM_COFFEE_HOBBY.HOBBY_ID.eq(HOBBIES.HOBBY_ID))
+            .leftJoin(RANDOM_COFFEE_PLACE).on(RANDOM_COFFEE.ID_NOTE.eq(RANDOM_COFFEE_PLACE.RANDOM_COFFEE_ID))
+            .leftJoin(PLACES_TO_VISIT).on(RANDOM_COFFEE_PLACE.PLACE_ID.eq(RANDOM_COFFEE_PLACE.PLACE_ID))
+            .where(RANDOM_COFFEE.ID_NOTE.eq(userId))
+            .groupBy(RANDOM_COFFEE.USERNAME, RANDOM_COFFEE.TELEGRAM_USERNAME, AGES.AGE_RANGE, OCCUPATIONS.OCCUPATION)
+            .fetchOne() ?: return null
+
+        return FullUserDataModel(
+            name = result.getValue(RANDOM_COFFEE.USERNAME),
+            telegramUsername = result.getValue(RANDOM_COFFEE.TELEGRAM_USERNAME),
+            age = result.getValue(AGES.AGE_RANGE),
+            occupation = result.getValue(OCCUPATIONS.OCCUPATION),
+            hobbies = result.getValue("hobbies").toString().split(",").toMutableList(),
+            visit = result.getValue("visit").toString().split(",").toMutableList()
+        )
+    }
+
 
     fun getRandomCoffeeModelById(userId: Int): RandomCoffee {
         return dsl.select(RANDOM_COFFEE.asterisk()).from(RANDOM_COFFEE)
