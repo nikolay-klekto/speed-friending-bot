@@ -69,10 +69,6 @@ class TelegramBot(
 
     }
 
-    fun loadDataFromDatabase() {
-
-    }
-
     override fun getBotUsername(): String = botUsername
     override fun getBotToken(): String = botToken
 
@@ -113,7 +109,6 @@ class TelegramBot(
 
         val message = update.message
         val chatId = message.chatId
-        val username = message.from?.userName
 
         val startButtons = menuWithButtonsCollection[START_PAGE_MENU_ID]
 
@@ -252,6 +247,12 @@ class TelegramBot(
         when (state) {
             SurveyState.ASK_NAME -> {
                 userSurveyData[chatId]?.name = response
+                userStates[chatId] = SurveyState.ASK_TELEGRAM_USERNAME
+                sendMessage(chatId, RANDOM_COFFEE_INPUT_MESSAGE_TELEGRAM_USERNAME)
+            }
+
+            SurveyState.ASK_TELEGRAM_USERNAME ->{
+                userSurveyData[chatId]?.telegramUsername = response
                 userStates[chatId] = SurveyState.ASK_AGE
                 sendAgeSelection(chatId)
             }
@@ -305,15 +306,15 @@ class TelegramBot(
         val newRandomCoffee = RandomCoffee(
             userId = userId,
             username = surveyData?.name,
-            telegramUsername = telegramUsername
+            telegramUsername = surveyData?.telegramUsername
         )
 
         var newRandomCoffeeIdNote: Int = 0
 
-        if(!randomCoffeeRepository.isRandomCoffeeModelExist(userId)){
-            newRandomCoffeeIdNote = randomCoffeeRepository.saveBlock(newRandomCoffee).idNote!!
+        newRandomCoffeeIdNote = if(!randomCoffeeRepository.isRandomCoffeeModelExist(userId)){
+            randomCoffeeRepository.saveBlock(newRandomCoffee).idNote!!
         }else{
-        newRandomCoffeeIdNote = randomCoffeeRepository.updateBlock(newRandomCoffee)
+            randomCoffeeRepository.updateBlock(newRandomCoffee)
         }
 
 
@@ -486,6 +487,7 @@ class TelegramBot(
                 userStates[chatId] = SurveyState.ASK_OCCUPATION
                 sendOccupationSelection(chatId)
             }
+
             SurveyState.ASK_OCCUPATION -> {
                 userSurveyData[chatId]?.occupation = data
                 userStates[chatId] = SurveyState.ASK_HOBBIES
@@ -540,6 +542,7 @@ class TelegramBot(
         private const val REMIND_MESSAGE_STATUS_ERROR =
             "Упс! Что-то пошло не так, свяжитесь пожалуйста с организатором!"
         private const val RANDOM_COFFEE_INPUT_MESSAGE_NAME = "Введите ваше имя"
+        private const val RANDOM_COFFEE_INPUT_MESSAGE_TELEGRAM_USERNAME = "Введите пожалуйста ссылку на ваш телеграм"
         private const val RANDOM_COFFEE_CALLBACK_MESSAGE_DONE = "done"
         private const val RANDOM_COFFEE_CALLBACK_MESSAGE_DONE_RUSSIA = "Готово"
         private const val RANDOM_COFFEE_SAVING_FORM_SUCCESS = "Спасибо! Ваша анкета сохранена."
