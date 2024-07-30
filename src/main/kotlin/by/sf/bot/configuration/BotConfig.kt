@@ -4,6 +4,7 @@ import by.sf.bot.component.TelegramBot
 import by.sf.bot.repository.blocking.MenuInfoBlockingRepository
 import by.sf.bot.repository.blocking.UserBlockingRepository
 import by.sf.bot.repository.impl.*
+import by.sf.bot.service.AsyncMatchingService
 import by.sf.bot.service.MatchingService
 import by.sf.bot.service.NotificationService
 import org.jooq.DSLContext
@@ -37,6 +38,7 @@ class BotConfig {
         randomCoffeeVariantsRepository: RandomCoffeeVariantsRepository,
         matchRepository: MatchRepository,
         matchingService: MatchingService,
+        asyncMatchingService: AsyncMatchingService
     ): TelegramBot {
         return TelegramBot(
             mainBotInfoRepository,
@@ -46,7 +48,8 @@ class BotConfig {
             randomCoffeeRepository,
             randomCoffeeVariantsRepository,
             matchRepository,
-            matchingService
+            matchingService,
+            asyncMatchingService
         )
     }
 }

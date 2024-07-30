@@ -13,11 +13,12 @@ class UserBlockingRepository(
     private val dsl: DSLContext
 ) {
 
-    fun save(user: Users): Boolean {
+    fun save(user: Users): Int? {
         val newUserRecord = dsl.newRecord(USERS)
         newUserRecord.from(user)
         newUserRecord.reset(USERS.USER_ID)
-        return newUserRecord.store() == 1
+        newUserRecord.store()
+        return newUserRecord.userId
     }
 
     fun isUserExist(chatId: Long): Boolean{

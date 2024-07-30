@@ -8,13 +8,11 @@ import by.sf.bot.models.SurveyState
 import by.sf.bot.repository.blocking.MenuInfoBlockingRepository
 import by.sf.bot.repository.blocking.UserBlockingRepository
 import by.sf.bot.repository.impl.*
+import by.sf.bot.service.AsyncMatchingService
 import by.sf.bot.service.MatchingService
 import by.sf.bot.service.NotificationService
 import jakarta.annotation.PostConstruct
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
@@ -34,7 +32,8 @@ class TelegramBot(
     private val randomCoffeeRepository: RandomCoffeeRepository,
     private val randomCoffeeVariantsRepository: RandomCoffeeVariantsRepository,
     private val matchRepository: MatchRepository,
-    private val matchingService: MatchingService
+    private val matchingService: MatchingService,
+    private val asyncMatchingService: AsyncMatchingService
 ) : TelegramLongPollingBot() {
 
     private var botUsername: String = ""
@@ -131,7 +130,7 @@ class TelegramBot(
                             val reminders = callbackData.split(REMINDER_MESSAGE_DELIMITER)[1]
                             sendReminderOptions(callbackChatId, reminders)
                         } else {
-                            handleCallbackQuery(callbackChatId, callbackData, update.callbackQuery.from.userName)
+                            handleCallbackQuery(callbackChatId, callbackData)
                         }
                     }
                 }
@@ -149,7 +148,7 @@ class TelegramBot(
                 startButtons?.get(2)?.label -> sendMenuInfo(chatId, 3)
                 startButtons?.get(3)?.label -> sendMenuInfo(chatId, 4)
                 startButtons?.get(4)?.label -> sendMenuInfo(chatId, 12)
-                else -> handleUserResponse(chatId, message.text, message.from.userName)
+                else -> handleUserResponse(chatId, message.text)
             }
         }
 
@@ -263,8 +262,8 @@ class TelegramBot(
                     dateCreated = LocalDate.now(),
                     reminders = reminders
                 )
-                val saveStatus = userBlockingRepository.save(newUser)
-                if (saveStatus) {
+                val userId = userBlockingRepository.save(newUser)
+                if (userId != null) {
                     sendMessage(chatId, REMIND_MESSAGE_STATUS_SUCCESS)
                 } else sendMessage(chatId, REMIND_MESSAGE_STATUS_ERROR)
             } else sendMessage(chatId, REMIND_MESSAGE_STATUS_SUCCESS)
@@ -277,7 +276,7 @@ class TelegramBot(
             sendMessage(chatId, RANDOM_COFFEE_INPUT_MESSAGE_NAME)
         }
 
-        private fun handleUserResponse(chatId: Long, response: String, telegramUsername: String?) {
+        private fun handleUserResponse(chatId: Long, response: String) {
             val state = userStates[chatId] ?: return
 
 
@@ -318,8 +317,7 @@ class TelegramBot(
 
                 SurveyState.ASK_VISIT -> {
                     if (response == RANDOM_COFFEE_CALLBACK_MESSAGE_DONE) {
-
-                        completeSurvey(chatId, telegramUsername)
+                        completeSurvey(chatId)
                     } else {
                         userSurveyData[chatId]?.visit?.add(response)
                         sendVisitSelection(chatId) // Пользователь может выбрать еще одно место или нажать "Готово"
@@ -328,18 +326,24 @@ class TelegramBot(
             }
         }
 
-        private fun completeSurvey(chatId: Long, telegramUsername: String?) {
+        @OptIn(DelicateCoroutinesApi::class)
+        private fun completeSurvey(chatId: Long) {
+
+            sendMessage(chatId, RANDOM_COFFEE_SAVING_FORM_SUCCESS)
+
             val surveyData = userSurveyData[chatId]
 
             userStates.remove(chatId)
-            if (!userBlockingRepository.isUserExist(chatId)) {
-                userBlockingRepository.save(
+
+            var userId: Int? = userBlockingRepository.getUserIdByChatId(chatId)
+
+            if (userId == null) {
+                userId = userBlockingRepository.save(
                     Users(
                         telegramId = chatId
                     )
                 )
             }
-            val userId = userBlockingRepository.getUserIdByChatId(chatId)
 
             val newRandomCoffee = RandomCoffee(
                 userId = userId,
@@ -347,10 +351,13 @@ class TelegramBot(
                 telegramUsername = surveyData?.telegramUsername
             )
 
-            val newRandomCoffeeIdNote = if (!randomCoffeeRepository.isRandomCoffeeModelExist(userId!!)) {
-                randomCoffeeRepository.saveBlock(newRandomCoffee).idNote!!
+            val newRandomCoffeeIdNote: Int
+            if (!randomCoffeeRepository.isRandomCoffeeModelExist(userId!!)) {
+                newRandomCoffeeIdNote = randomCoffeeRepository.saveBlock(newRandomCoffee).idNote!!
             } else {
-                randomCoffeeRepository.updateBlock(newRandomCoffee)
+                newRandomCoffeeIdNote = randomCoffeeRepository.updateBlock(newRandomCoffee)
+                randomCoffeeVariantsRepository.deleteAllVariantsByRandomCoffeeId(newRandomCoffeeIdNote)
+
             }
 
 
@@ -411,14 +418,12 @@ class TelegramBot(
             }
 
             userMatchesMap[userId]?.compatibleUsers = matchedUserIds.toMutableList()
-            userMatchesMap[userId]?.viewedUsers = mutableListOf()
+            userMatchesMap[userId]?.viewedUsers = userMatchesMap[userId]?.viewedUsers ?: mutableListOf()
             matchingService.saveAllMatchesInDB()
-
-            sendMessage(chatId, RANDOM_COFFEE_SAVING_FORM_SUCCESS)
 
             // Запуск фоновой задачи для пересчета вероятностей и обновления userMatchesMap
             GlobalScope.launch {
-                recalculateAllMatches()
+                asyncMatchingService.recalculateAllMatches()
             }
         }
 
@@ -501,6 +506,21 @@ class TelegramBot(
             message.replyMarkup = inlineKeyboardMarkup
 
             execute(message)
+
+//            val buttons = allHobbiesOptions.map { hobby ->
+//                InlineKeyboardButton(hobby).apply { callbackData = hobby }
+//            }.toMutableList()
+//            buttons.add(InlineKeyboardButton(RANDOM_COFFEE_CALLBACK_MESSAGE_DONE_RUSSIA).apply { callbackData = RANDOM_COFFEE_CALLBACK_MESSAGE_DONE })
+//
+//            val inlineKeyboardMarkup = InlineKeyboardMarkup()
+//            inlineKeyboardMarkup.keyboard = listOf(buttons)
+//
+//            val message = SendMessage()
+//            message.chatId = chatId.toString()
+//            message.text = "Выберите ваши хобби (нажимайте по одному, потом 'Готово'):"
+//            message.replyMarkup = inlineKeyboardMarkup
+//
+//            execute(message)
         }
 
         private fun sendVisitSelection(chatId: Long) {
@@ -535,7 +555,7 @@ class TelegramBot(
             execute(message)
         }
 
-        private fun handleCallbackQuery(chatId: Long, data: String, telegramUsername: String?) {
+        private fun handleCallbackQuery(chatId: Long, data: String) {
             val state = userStates[chatId] ?: return
 
             when (state) {
@@ -557,16 +577,16 @@ class TelegramBot(
                         sendVisitSelection(chatId)
                     } else {
                         userSurveyData[chatId]?.hobbies?.add(data)
-                        sendHobbiesSelection(chatId) // Пользователь может выбрать еще одно хобби или нажать "Готово"
+//                        sendHobbiesSelection(chatId) // Пользователь может выбрать еще одно хобби или нажать "Готово"
                     }
                 }
 
                 SurveyState.ASK_VISIT -> {
                     if (data == RANDOM_COFFEE_CALLBACK_MESSAGE_DONE) {
-                        completeSurvey(chatId, telegramUsername)
+                        completeSurvey(chatId)
                     } else {
                         userSurveyData[chatId]?.visit?.add(data)
-                        sendVisitSelection(chatId) // Пользователь может выбрать еще одно место или нажать "Готово"
+//                        sendVisitSelection(chatId) // Пользователь может выбрать еще одно место или нажать "Готово"
                     }
                 }
 
@@ -629,28 +649,6 @@ class TelegramBot(
 
         } else {
             sendMessage(chatId, "Нет больше анкет для просмотра.")
-        }
-    }
-
-    private suspend fun recalculateAllMatches() {
-        withContext(Dispatchers.IO) {
-            val allUsers = randomCoffeeRepository.getAllRandomCoffeeAccountsBlock()
-            allUsers.forEach { user ->
-                val matches = matchingService.findMatches(user.userId!!)
-                val matchedUserIds = matches.map { it.userId }
-
-                // Сохраняем текущие значения viewedUsers
-                val currentViewedUsers = userMatchesMap[user.userId]?.viewedUsers ?: mutableListOf()
-
-                // Обновляем compatibleUsers
-                val fullUserMatches = FullUserMatches(
-                    compatibleUsers = matchedUserIds.toMutableList(),
-                    viewedUsers = currentViewedUsers
-                )
-                userMatchesMap[user.userId!!] = fullUserMatches
-            }
-
-            matchingService.saveAllMatchesInDB()
         }
     }
 

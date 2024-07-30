@@ -4,7 +4,7 @@ import by.sf.bot.component.TelegramBot
 import by.sf.bot.jooq.tables.UserMatches.Companion.USER_MATCHES
 import by.sf.bot.jooq.tables.pojos.RandomCoffee
 import by.sf.bot.models.Match
-import by.sf.bot.repository.impl.RandomCoffeeRepository
+import by.sf.bot.repository.blocking.RandomCoffeeBlockingRepository
 import by.sf.bot.repository.impl.RandomCoffeeVariantsRepository
 import org.jooq.DSLContext
 import org.springframework.stereotype.Service
@@ -12,10 +12,12 @@ import java.time.LocalDate
 
 @Service
 class MatchingService(
-    private val randomCoffeeRepository: RandomCoffeeRepository,
     private val randomCoffeeVariantsRepository: RandomCoffeeVariantsRepository,
+    private val randomCoffeeBlockingRepository: RandomCoffeeBlockingRepository,
     private val dsl: DSLContext
     ) {
+
+
 
     fun saveAllMatchesInDB() {
         TelegramBot.userMatchesMap.forEach { (userId, matches) ->
@@ -36,8 +38,8 @@ class MatchingService(
     }
 
     fun findMatches(userId: Int): List<Match> {
-        val user = randomCoffeeRepository.getRandomCoffeeModelById(userId)
-        val allUsers = randomCoffeeRepository.getAllRandomCoffeeAccountsBlock().filter { it.userId != userId }
+        val user = randomCoffeeBlockingRepository.getRandomCoffeeModelById(userId)
+        val allUsers = randomCoffeeBlockingRepository.getAllRandomCoffeeAccounts().filter { it.userId != userId }
 
         return allUsers.map { otherUser ->
             val compatibility = calculateCompatibility(user, otherUser)

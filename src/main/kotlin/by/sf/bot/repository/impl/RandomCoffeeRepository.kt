@@ -9,8 +9,13 @@ import by.sf.bot.jooq.tables.RandomCoffeeAge.Companion.RANDOM_COFFEE_AGE
 import by.sf.bot.jooq.tables.RandomCoffeeHobby.Companion.RANDOM_COFFEE_HOBBY
 import by.sf.bot.jooq.tables.RandomCoffeeOccupation.Companion.RANDOM_COFFEE_OCCUPATION
 import by.sf.bot.jooq.tables.RandomCoffeePlace.Companion.RANDOM_COFFEE_PLACE
+import by.sf.bot.jooq.tables.UserMatches.Companion.USER_MATCHES
 import by.sf.bot.jooq.tables.pojos.RandomCoffee
 import by.sf.bot.models.FullUserDataModel
+import by.sf.bot.service.AsyncMatchingService
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
@@ -20,7 +25,8 @@ import java.time.LocalDate
 
 @Repository
 class RandomCoffeeRepository(
-    private val dsl: DSLContext
+    private val dsl: DSLContext,
+    private val asyncMatchingService: AsyncMatchingService
 ) {
 
     fun getFullUserData(userId: Int): FullUserDataModel? {
@@ -61,11 +67,6 @@ class RandomCoffeeRepository(
             .where(RANDOM_COFFEE.USER_ID.eq(userId))
             .first()
             .map { it.into(RandomCoffee::class.java) }
-    }
-
-    fun getAllRandomCoffeeAccountsBlock(): List<RandomCoffee> {
-        return dsl.select(RANDOM_COFFEE.asterisk()).from(RANDOM_COFFEE)
-                .map { it.into(RandomCoffee::class.java) }
     }
 
     fun getAllRandomCoffeeAccounts(): Flux<RandomCoffee> {
@@ -130,8 +131,10 @@ class RandomCoffeeRepository(
         }else throw Exception("Не удалось обновить random coffee с idNote: ${oldRandomCoffeeModel.idNote}")
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun delete(idNote: Int): Mono<Boolean> {
         return Mono.fromSupplier {
+
             val result1  = dsl.deleteFrom(RANDOM_COFFEE_AGE)
                 .where(RANDOM_COFFEE_AGE.RANDOM_COFFEE_ID.eq(idNote))
                 .execute() == 1
@@ -147,6 +150,18 @@ class RandomCoffeeRepository(
             val result4  = dsl.deleteFrom(RANDOM_COFFEE_PLACE)
                 .where(RANDOM_COFFEE_PLACE.RANDOM_COFFEE_ID.eq(idNote))
                 .execute()
+
+            val result5 = dsl.deleteFrom(USER_MATCHES)
+                .where(USER_MATCHES.USER_ID.eq(
+                    dsl.select(RANDOM_COFFEE.USER_ID).from(RANDOM_COFFEE)
+                        .where(RANDOM_COFFEE.ID_NOTE.eq(idNote))
+                        .first().map { it.into(Int::class.java) }
+                ))
+                .execute()
+
+            GlobalScope.launch {
+                asyncMatchingService.recalculateAllMatches()
+            }
 
             return@fromSupplier dsl.deleteFrom(RANDOM_COFFEE)
                 .where(RANDOM_COFFEE.ID_NOTE.eq(idNote))
