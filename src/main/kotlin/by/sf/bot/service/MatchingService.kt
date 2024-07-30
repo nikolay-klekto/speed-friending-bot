@@ -1,16 +1,39 @@
 package by.sf.bot.service
 
+import by.sf.bot.component.TelegramBot
+import by.sf.bot.jooq.tables.UserMatches.Companion.USER_MATCHES
 import by.sf.bot.jooq.tables.pojos.RandomCoffee
 import by.sf.bot.models.Match
 import by.sf.bot.repository.impl.RandomCoffeeRepository
 import by.sf.bot.repository.impl.RandomCoffeeVariantsRepository
+import org.jooq.DSLContext
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
 class MatchingService(
     private val randomCoffeeRepository: RandomCoffeeRepository,
-    private val randomCoffeeVariantsRepository: RandomCoffeeVariantsRepository
+    private val randomCoffeeVariantsRepository: RandomCoffeeVariantsRepository,
+    private val dsl: DSLContext
     ) {
+
+    fun saveAllMatchesInDB() {
+        TelegramBot.userMatchesMap.forEach { (userId, matches) ->
+            val compatibleUsersString = matches.compatibleUsers.joinToString(",")
+            val viewedUsersString = matches.viewedUsers.joinToString(",")
+
+            dsl.insertInto(USER_MATCHES)
+                .set(USER_MATCHES.USER_ID, userId)
+                .set(USER_MATCHES.COMPATIBLE_USERS, compatibleUsersString)
+                .set(USER_MATCHES.VIEWED_USERS, viewedUsersString)
+                .set(USER_MATCHES.DATE_CREATED, LocalDate.now())
+                .onDuplicateKeyUpdate()
+                .set(USER_MATCHES.COMPATIBLE_USERS, compatibleUsersString)
+                .set(USER_MATCHES.VIEWED_USERS, viewedUsersString)
+                .set(USER_MATCHES.DATE_CREATED, LocalDate.now())
+                .execute()
+        }
+    }
 
     fun findMatches(userId: Int): List<Match> {
         val user = randomCoffeeRepository.getRandomCoffeeModelById(userId)

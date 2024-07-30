@@ -14,11 +14,10 @@ import java.util.concurrent.TimeUnit
 
 @Service
 class NotificationService(
-    private val eventRepository: EventInfoRepository,
     private val remindDateRepository: RemindDatesRepository,
     private val userRepository: UserBlockingRepository,
     private val telegramBot: TelegramBot,
-    private val dsl: DSLContext
+    private val matchingService: MatchingService
 ) {
 
     @Scheduled(cron = "0 0 8 * * *")  // Срабатывает каждый день в 8 утра
@@ -47,20 +46,7 @@ class NotificationService(
 
     @Scheduled(fixedRate = 6 * 60 * 60 * 1000) // каждые 6 часов
     fun syncUserMatchesWithDatabase() {
-        TelegramBot.userMatchesMap.forEach { (userId, matches) ->
-            val compatibleUsersString = matches.compatibleUsers.joinToString(",")
-            val viewedUsersString = matches.viewedUsers.joinToString(",")
-
-            dsl.insertInto(USER_MATCHES)
-                .set(USER_MATCHES.USER_ID, userId)
-                .set(USER_MATCHES.COMPATIBLE_USERS, compatibleUsersString)
-                .set(USER_MATCHES.VIEWED_USERS, viewedUsersString)
-                .onDuplicateKeyUpdate()
-                .set(USER_MATCHES.COMPATIBLE_USERS, compatibleUsersString)
-                .set(USER_MATCHES.VIEWED_USERS, viewedUsersString)
-                .set(USER_MATCHES.DATE_CREATED, LocalDate.now())
-                .execute()
-        }
+        matchingService.saveAllMatchesInDB()
     }
 
     companion object{

@@ -8,8 +8,15 @@ import by.sf.bot.models.SurveyState
 import by.sf.bot.repository.blocking.MenuInfoBlockingRepository
 import by.sf.bot.repository.blocking.UserBlockingRepository
 import by.sf.bot.repository.impl.*
+import by.sf.bot.service.MatchingService
+import by.sf.bot.service.NotificationService
 import jakarta.annotation.PostConstruct
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
@@ -26,7 +33,8 @@ class TelegramBot(
     private val userBlockingRepository: UserBlockingRepository,
     private val randomCoffeeRepository: RandomCoffeeRepository,
     private val randomCoffeeVariantsRepository: RandomCoffeeVariantsRepository,
-    private val matchRepository: MatchRepository
+    private val matchRepository: MatchRepository,
+    private val matchingService: MatchingService
 ) : TelegramLongPollingBot() {
 
     private var botUsername: String = ""
@@ -66,15 +74,20 @@ class TelegramBot(
 
         allUserMatches.forEach { currentUser ->
             val userId = currentUser.userId
-            val compatibleUsers =
-                currentUser.compatibleUsers?.split(",")?.map { it.toInt() }?.toMutableList() ?: mutableListOf()
-            val viewedUsers =
-                currentUser.viewedUsers?.split(",")?.map { it.toInt() }?.toMutableList() ?: mutableListOf()
+            var compatibleUsers: MutableList<Int> = mutableListOf()
+            var viewedUsers: MutableList<Int> = mutableListOf()
 
+            if(!currentUser.compatibleUsers.isNullOrEmpty()){
+                try {
+                    compatibleUsers = currentUser.compatibleUsers?.split(",")?.map { it.toInt() }?.toMutableList() ?: mutableListOf()
+                    viewedUsers = currentUser.viewedUsers?.split(",")?.map { it.toInt() }?.toMutableList() ?: mutableListOf()
+                }catch (e: NumberFormatException){
+                    viewedUsers = mutableListOf()
+                }
+
+            }
             userMatchesMap[userId!!] = FullUserMatches(compatibleUsers, viewedUsers)
         }
-
-
 
             allAgeOptions = randomCoffeeVariantsRepository.getAllAgeVariants()
             allVisitOptions = randomCoffeeVariantsRepository.getAllPlacesVariants()
@@ -92,6 +105,9 @@ class TelegramBot(
                 val callbackData = callbackQuery.data
                 val callbackChatId = callbackQuery.message.chatId
 
+                answerCallbackQuery(callbackQuery.id)
+
+
                 when (callbackData) {
                     REMINDER_MESSAGE_ALL -> {
                         sendReminderOptions(callbackChatId, MESSAGE_ALL)
@@ -108,6 +124,7 @@ class TelegramBot(
                     CALLBACK_DATA_MENU_ID_10 -> sendMenuInfo(callbackChatId, 10)
                     CALLBACK_DATA_MENU_ID_11 -> sendMenuInfo(callbackChatId, 11)
                     CALLBACK_DATA_MENU_ID_13 -> startSurvey(callbackChatId)
+                    CALLBACK_DATA_SHOW_MATCHES, CALLBACK_DATA_NEXT_MATCH -> showNextMatch(callbackChatId)
 
                     else -> {
                         if (callbackData.startsWith(REMINDER_MESSAGE_YES)) {
@@ -135,6 +152,12 @@ class TelegramBot(
                 else -> handleUserResponse(chatId, message.text, message.from.userName)
             }
         }
+
+    private fun answerCallbackQuery(callbackQueryId: String) {
+        val answer = AnswerCallbackQuery()
+        answer.callbackQueryId = callbackQueryId
+        execute(answer)
+    }
 
         fun sendMessage(chatId: Long, text: String) {
             val message = SendMessage(chatId.toString(), text)
@@ -295,6 +318,7 @@ class TelegramBot(
 
                 SurveyState.ASK_VISIT -> {
                     if (response == RANDOM_COFFEE_CALLBACK_MESSAGE_DONE) {
+
                         completeSurvey(chatId, telegramUsername)
                     } else {
                         userSurveyData[chatId]?.visit?.add(response)
@@ -323,9 +347,7 @@ class TelegramBot(
                 telegramUsername = surveyData?.telegramUsername
             )
 
-            var newRandomCoffeeIdNote: Int = 0
-
-            newRandomCoffeeIdNote = if (!randomCoffeeRepository.isRandomCoffeeModelExist(userId)) {
+            val newRandomCoffeeIdNote = if (!randomCoffeeRepository.isRandomCoffeeModelExist(userId!!)) {
                 randomCoffeeRepository.saveBlock(newRandomCoffee).idNote!!
             } else {
                 randomCoffeeRepository.updateBlock(newRandomCoffee)
@@ -380,7 +402,24 @@ class TelegramBot(
                 }
             }
 
+            val matches = matchingService.findMatches(userId)
+            val matchedUserIds = matches.map { it.userId }
+
+            // Инициализация FullUserMatches, если записи не существует
+            if (userMatchesMap[userId] == null) {
+                userMatchesMap[userId] = FullUserMatches()
+            }
+
+            userMatchesMap[userId]?.compatibleUsers = matchedUserIds.toMutableList()
+            userMatchesMap[userId]?.viewedUsers = mutableListOf()
+            matchingService.saveAllMatchesInDB()
+
             sendMessage(chatId, RANDOM_COFFEE_SAVING_FORM_SUCCESS)
+
+            // Запуск фоновой задачи для пересчета вероятностей и обновления userMatchesMap
+            GlobalScope.launch {
+                recalculateAllMatches()
+            }
         }
 
         private fun sendAgeSelection(chatId: Long) {
@@ -538,16 +577,20 @@ class TelegramBot(
         }
 
     private fun sendUserSurvey(chatId: Long, user: FullUserDataModel?) {
+
+        val hobbies = user?.hobbies?.joinToString(", ") ?: "Неизвестно"
+        val visit = user?.visit?.joinToString(", ") ?: "Неизвестно"
+
         val messageText = """
         Имя: ${user?.name?:"Неизвестно"}
         Возраст: ${user?.age?:"Неизвестно"}
         Сфера деятельности: ${user?.occupation?:"Неизвестно"}
-        Хобби: ${user?.hobbies?:"Неизвестно"}
-        Хочу посетить: ${user?.visit?:"Неизвестно"}
+        Хобби: $hobbies
+        Хочу посетить: $visit
         Контакты: ${user?.telegramUsername?:"Неизвестно"}
     """.trimIndent()
 
-        sendMessage(chatId, messageText)
+//        sendMessage(chatId, messageText)
 
         val nextButton = InlineKeyboardButton()
         nextButton.text = "Просмотреть следующую"
@@ -564,9 +607,9 @@ class TelegramBot(
         execute(message)
     }
 
-    fun showNextMatch(chatId: Long) {
+    private fun showNextMatch(chatId: Long) {
         val userId = userBlockingRepository.getUserIdByChatId(chatId)
-        val matches = userMatchesMap[userId] ?: return sendMessage(chatId, "Нет данных для пользователя.")
+        val matches = userMatchesMap[userId] ?: return sendMessage(chatId, "Пожалуйста, заполните сначала анкету.")
 
         val remainingUsers = matches.compatibleUsers.filterNot { matches.viewedUsers.contains(it) }
 
@@ -581,11 +624,36 @@ class TelegramBot(
 
             // Обновляем список просмотренных анкет
             matches.viewedUsers.add(nextUserId)
-            userMatchesMap[userId] = matches
+            userMatchesMap[userId!!] = matches
+            matchingService.saveAllMatchesInDB()
+
         } else {
             sendMessage(chatId, "Нет больше анкет для просмотра.")
         }
     }
+
+    private suspend fun recalculateAllMatches() {
+        withContext(Dispatchers.IO) {
+            val allUsers = randomCoffeeRepository.getAllRandomCoffeeAccountsBlock()
+            allUsers.forEach { user ->
+                val matches = matchingService.findMatches(user.userId!!)
+                val matchedUserIds = matches.map { it.userId }
+
+                // Сохраняем текущие значения viewedUsers
+                val currentViewedUsers = userMatchesMap[user.userId]?.viewedUsers ?: mutableListOf()
+
+                // Обновляем compatibleUsers
+                val fullUserMatches = FullUserMatches(
+                    compatibleUsers = matchedUserIds.toMutableList(),
+                    viewedUsers = currentViewedUsers
+                )
+                userMatchesMap[user.userId!!] = fullUserMatches
+            }
+
+            matchingService.saveAllMatchesInDB()
+        }
+    }
+
 
         companion object {
             val userStates = mutableMapOf<Long, SurveyState>()
@@ -607,6 +675,8 @@ class TelegramBot(
             private const val CALLBACK_DATA_MENU_ID_10 = "menu_id:10"
             private const val CALLBACK_DATA_MENU_ID_11 = "menu_id:11"
             private const val CALLBACK_DATA_MENU_ID_13 = "menu_id:13"
+            private const val CALLBACK_DATA_SHOW_MATCHES = "show_matches"
+            private const val CALLBACK_DATA_NEXT_MATCH = "next_survey"
             private const val ACTION_TYPE_URL = "url"
             private const val ACTION_TYPE_CALLBACK = "callback"
             private const val REMIND_MESSAGE_STATUS_SUCCESS = "Напоминание установлено!"

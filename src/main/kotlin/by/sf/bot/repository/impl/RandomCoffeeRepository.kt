@@ -29,8 +29,8 @@ class RandomCoffeeRepository(
             RANDOM_COFFEE.TELEGRAM_USERNAME,
             AGES.AGE_RANGE,
             OCCUPATIONS.OCCUPATION,
-            DSL.field("STRING_AGG(${HOBBIES.HOBBY}, ',')").`as`("hobbies"),
-            DSL.field("STRING_AGG(${PLACES_TO_VISIT.PLACE}, ',')").`as`("visit")
+            DSL.field("STRING_AGG(DISTINCT ${HOBBIES.HOBBY}, ',')").`as`("hobbies"),
+            DSL.field("STRING_AGG(DISTINCT ${PLACES_TO_VISIT.PLACE}, ',')").`as`("visit")
         )
             .from(RANDOM_COFFEE)
             .leftJoin(RANDOM_COFFEE_AGE).on(RANDOM_COFFEE.ID_NOTE.eq(RANDOM_COFFEE_AGE.RANDOM_COFFEE_ID))
@@ -40,8 +40,8 @@ class RandomCoffeeRepository(
             .leftJoin(RANDOM_COFFEE_HOBBY).on(RANDOM_COFFEE.ID_NOTE.eq(RANDOM_COFFEE_HOBBY.RANDOM_COFFEE_ID))
             .leftJoin(HOBBIES).on(RANDOM_COFFEE_HOBBY.HOBBY_ID.eq(HOBBIES.HOBBY_ID))
             .leftJoin(RANDOM_COFFEE_PLACE).on(RANDOM_COFFEE.ID_NOTE.eq(RANDOM_COFFEE_PLACE.RANDOM_COFFEE_ID))
-            .leftJoin(PLACES_TO_VISIT).on(RANDOM_COFFEE_PLACE.PLACE_ID.eq(RANDOM_COFFEE_PLACE.PLACE_ID))
-            .where(RANDOM_COFFEE.ID_NOTE.eq(userId))
+            .leftJoin(PLACES_TO_VISIT).on(RANDOM_COFFEE_PLACE.PLACE_ID.eq(PLACES_TO_VISIT.PLACE_ID))
+            .where(RANDOM_COFFEE.USER_ID.eq(userId))
             .groupBy(RANDOM_COFFEE.USERNAME, RANDOM_COFFEE.TELEGRAM_USERNAME, AGES.AGE_RANGE, OCCUPATIONS.OCCUPATION)
             .fetchOne() ?: return null
 
@@ -50,8 +50,8 @@ class RandomCoffeeRepository(
             telegramUsername = result.getValue(RANDOM_COFFEE.TELEGRAM_USERNAME),
             age = result.getValue(AGES.AGE_RANGE),
             occupation = result.getValue(OCCUPATIONS.OCCUPATION),
-            hobbies = result.getValue("hobbies").toString().split(",").toMutableList(),
-            visit = result.getValue("visit").toString().split(",").toMutableList()
+            hobbies = result.getValue("hobbies")?.toString()?.split(",")?.toMutableList() ?: mutableListOf(),
+            visit = result.getValue("visit")?.toString()?.split(",")?.toMutableList() ?: mutableListOf()
         )
     }
 

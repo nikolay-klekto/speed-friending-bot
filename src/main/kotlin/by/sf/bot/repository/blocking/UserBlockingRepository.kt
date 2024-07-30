@@ -28,11 +28,11 @@ class UserBlockingRepository(
         
     }
 
-    fun getUserIdByChatId(chatId: Long): Int{
+    fun getUserIdByChatId(chatId: Long): Int?{
         return dsl.select(USERS.USER_ID)
             .from(USERS).where(USERS.TELEGRAM_ID.eq(chatId))
-            .first()
-            .map { it.into(Int::class.java) }
+            .firstOrNull()
+            ?.map { it.into(Int::class.java) }
 
     }
 

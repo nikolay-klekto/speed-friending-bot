@@ -21,7 +21,7 @@ data class UserMatches(
 
 
     override fun toString(): String {
-        val sb = StringBuilder("FullUserMatches (")
+        val sb = StringBuilder("UserMatches (")
 
         sb.append(userId)
         sb.append(", ").append(compatibleUsers)

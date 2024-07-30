@@ -4,6 +4,8 @@ import by.sf.bot.component.TelegramBot
 import by.sf.bot.repository.blocking.MenuInfoBlockingRepository
 import by.sf.bot.repository.blocking.UserBlockingRepository
 import by.sf.bot.repository.impl.*
+import by.sf.bot.service.MatchingService
+import by.sf.bot.service.NotificationService
 import org.jooq.DSLContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -33,7 +35,8 @@ class BotConfig {
         userBlockingRepository: UserBlockingRepository,
         randomCoffeeRepository: RandomCoffeeRepository,
         randomCoffeeVariantsRepository: RandomCoffeeVariantsRepository,
-        matchRepository: MatchRepository
+        matchRepository: MatchRepository,
+        matchingService: MatchingService,
     ): TelegramBot {
         return TelegramBot(
             mainBotInfoRepository,
@@ -42,7 +45,8 @@ class BotConfig {
             userBlockingRepository,
             randomCoffeeRepository,
             randomCoffeeVariantsRepository,
-            matchRepository
+            matchRepository,
+            matchingService
         )
     }
 }

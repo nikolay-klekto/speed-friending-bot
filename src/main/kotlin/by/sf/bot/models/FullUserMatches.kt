@@ -1,6 +1,6 @@
 package by.sf.bot.models
 
 data class FullUserMatches(
-    val compatibleUsers: MutableList<Int> = mutableListOf(),
-    val viewedUsers: MutableList<Int> = mutableListOf()
+    var compatibleUsers: MutableList<Int> = mutableListOf(),
+    var viewedUsers: MutableList<Int> = mutableListOf()
 )
