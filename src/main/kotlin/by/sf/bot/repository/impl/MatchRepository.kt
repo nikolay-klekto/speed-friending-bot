@@ -25,7 +25,6 @@ open class MatchRepository(
             .onDuplicateKeyUpdate()
             .set(USER_MATCHES.COMPATIBLE_USERS, compatibleUsersString)
             .set(USER_MATCHES.VIEWED_USERS, viewedUsersString)
-            .set(USER_MATCHES.DATE_CREATED, LocalDate.now())
             .execute()
     }
 

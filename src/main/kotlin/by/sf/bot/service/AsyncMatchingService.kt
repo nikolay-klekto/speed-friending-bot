@@ -15,20 +15,20 @@ class AsyncMatchingService(
 
     suspend fun recalculateAllMatches() {
         withContext(Dispatchers.IO) {
-            val allUsers = randomCoffeeBlockingRepository.getAllRandomCoffeeAccounts()
-            allUsers.forEach { user ->
-                val matches = matchingService.findMatches(user.userId!!)
+            val allUsersId = randomCoffeeBlockingRepository.getAllRandomCoffeeAccountsUsersId()
+            allUsersId.forEach { userId ->
+                val matches = matchingService.findMatches(userId)
                 val matchedUserIds = matches.map { it.userId }
 
                 // Сохраняем текущие значения viewedUsers
-                val currentViewedUsers = TelegramBot.userMatchesMap[user.userId]?.viewedUsers ?: mutableListOf()
+                val currentViewedUsers = TelegramBot.userMatchesMap[userId]?.viewedUsers ?: mutableListOf()
 
                 // Обновляем compatibleUsers
                 val fullUserMatches = FullUserMatches(
                     compatibleUsers = matchedUserIds.toMutableList(),
                     viewedUsers = currentViewedUsers
                 )
-                TelegramBot.userMatchesMap[user.userId!!] = fullUserMatches
+                TelegramBot.userMatchesMap[userId] = fullUserMatches
             }
 
             matchingService.saveAllMatchesInDB()

@@ -5,7 +5,6 @@ package by.sf.bot.jooq.tables.pojos
 
 
 import java.io.Serializable
-import java.time.LocalDate
 
 
 /**
@@ -15,8 +14,7 @@ import java.time.LocalDate
 data class UserMatches(
     var userId: Int? = null,
     var compatibleUsers: String? = null,
-    var viewedUsers: String? = null,
-    var dateCreated: LocalDate? = null
+    var viewedUsers: String? = null
 ): Serializable {
 
 
@@ -26,7 +24,6 @@ data class UserMatches(
         sb.append(userId)
         sb.append(", ").append(compatibleUsers)
         sb.append(", ").append(viewedUsers)
-        sb.append(", ").append(dateCreated)
 
         sb.append(")")
         return sb.toString()

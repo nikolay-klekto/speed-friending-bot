@@ -7,6 +7,7 @@ package by.sf.bot.jooq.tables.records
 import by.sf.bot.jooq.tables.RandomCoffeeOccupation
 
 import org.jooq.Field
+import org.jooq.Record1
 import org.jooq.Record2
 import org.jooq.Row2
 import org.jooq.impl.UpdatableRecordImpl
@@ -30,7 +31,7 @@ open class RandomCoffeeOccupationRecord() : UpdatableRecordImpl<RandomCoffeeOccu
     // Primary key information
     // -------------------------------------------------------------------------
 
-    override fun key(): Record2<Int?, Int?> = super.key() as Record2<Int?, Int?>
+    override fun key(): Record1<Int?> = super.key() as Record1<Int?>
 
     // -------------------------------------------------------------------------
     // Record2 type implementation

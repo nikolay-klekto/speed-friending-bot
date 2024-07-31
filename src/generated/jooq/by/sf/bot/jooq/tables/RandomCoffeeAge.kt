@@ -5,7 +5,7 @@ package by.sf.bot.jooq.tables
 
 
 import by.sf.bot.jooq.Public
-import by.sf.bot.jooq.keys.RANDOM_COFFEE_AGE_PKEY
+import by.sf.bot.jooq.keys.PK_RANDOM_COFFEE_AGE
 import by.sf.bot.jooq.keys.RANDOM_COFFEE_AGE__RANDOM_COFFEE_AGE_AGE_ID_FKEY
 import by.sf.bot.jooq.keys.RANDOM_COFFEE_AGE__RANDOM_COFFEE_AGE_RANDOM_COFFEE_ID_FKEY
 import by.sf.bot.jooq.tables.records.RandomCoffeeAgeRecord
@@ -91,7 +91,7 @@ open class RandomCoffeeAge(
 
     constructor(child: Table<out Record>, key: ForeignKey<out Record, RandomCoffeeAgeRecord>): this(Internal.createPathAlias(child, key), child, key, RANDOM_COFFEE_AGE, null)
     override fun getSchema(): Schema? = if (aliased()) null else Public.PUBLIC
-    override fun getPrimaryKey(): UniqueKey<RandomCoffeeAgeRecord> = RANDOM_COFFEE_AGE_PKEY
+    override fun getPrimaryKey(): UniqueKey<RandomCoffeeAgeRecord> = PK_RANDOM_COFFEE_AGE
     override fun getReferences(): List<ForeignKey<RandomCoffeeAgeRecord, *>> = listOf(RANDOM_COFFEE_AGE__RANDOM_COFFEE_AGE_RANDOM_COFFEE_ID_FKEY, RANDOM_COFFEE_AGE__RANDOM_COFFEE_AGE_AGE_ID_FKEY)
 
     private lateinit var _randomCoffee: RandomCoffee

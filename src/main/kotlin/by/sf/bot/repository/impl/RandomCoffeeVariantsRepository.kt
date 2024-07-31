@@ -8,10 +8,7 @@ import by.sf.bot.jooq.tables.RandomCoffeeAge.Companion.RANDOM_COFFEE_AGE
 import by.sf.bot.jooq.tables.RandomCoffeeHobby.Companion.RANDOM_COFFEE_HOBBY
 import by.sf.bot.jooq.tables.RandomCoffeeOccupation.Companion.RANDOM_COFFEE_OCCUPATION
 import by.sf.bot.jooq.tables.RandomCoffeePlace.Companion.RANDOM_COFFEE_PLACE
-import by.sf.bot.jooq.tables.pojos.RandomCoffeeAge
-import by.sf.bot.jooq.tables.pojos.RandomCoffeeHobby
-import by.sf.bot.jooq.tables.pojos.RandomCoffeeOccupation
-import by.sf.bot.jooq.tables.pojos.RandomCoffeePlace
+import by.sf.bot.jooq.tables.pojos.*
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 
@@ -20,24 +17,24 @@ class RandomCoffeeVariantsRepository(
     private val dsl: DSLContext
 ) {
 
-    fun getAllAgeVariants(): List<String> {
-        return dsl.select(AGES.AGE_RANGE).from(AGES)
-            .map { it.into(String::class.java) }
+    fun getAllAgeVariants(): List<Ages> {
+        return dsl.select(AGES.asterisk()).from(AGES)
+            .map { it.into(Ages::class.java) }
     }
 
-    fun getAllOccupationsVariants(): List<String> {
-        return dsl.select(OCCUPATIONS.OCCUPATION).from(OCCUPATIONS)
-            .map { it.into(String::class.java) }
+    fun getAllOccupationsVariants(): List<Occupations> {
+        return dsl.select(OCCUPATIONS.asterisk()).from(OCCUPATIONS)
+            .map { it.into(Occupations::class.java) }
     }
 
-    fun getAllHobbyVariants(): List<String> {
-        return dsl.select(HOBBIES.HOBBY).from(HOBBIES)
-            .map { it.into(String::class.java) }
+    fun getAllHobbyVariants(): List<Hobbies> {
+        return dsl.select(HOBBIES.asterisk()).from(HOBBIES)
+            .map { it.into(Hobbies::class.java) }
     }
 
-    fun getAllPlacesVariants(): List<String> {
-        return dsl.select(PLACES_TO_VISIT.PLACE).from(PLACES_TO_VISIT)
-            .map { it.into(String::class.java) }
+    fun getAllPlacesVariants(): List<PlacesToVisit> {
+        return dsl.select(PLACES_TO_VISIT.asterisk()).from(PLACES_TO_VISIT)
+            .map { it.into(PlacesToVisit::class.java) }
     }
 
     fun getAgeIdByRange(ageRange: String): Int? {

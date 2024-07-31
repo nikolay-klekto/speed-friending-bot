@@ -9,15 +9,13 @@ import by.sf.bot.jooq.keys.USER_MATCHES_PKEY
 import by.sf.bot.jooq.keys.USER_MATCHES__USER_MATCHES_USER_ID_FKEY
 import by.sf.bot.jooq.tables.records.UserMatchesRecord
 
-import java.time.LocalDate
-
 import kotlin.collections.List
 
 import org.jooq.Field
 import org.jooq.ForeignKey
 import org.jooq.Name
 import org.jooq.Record
-import org.jooq.Row4
+import org.jooq.Row3
 import org.jooq.Schema
 import org.jooq.Table
 import org.jooq.TableField
@@ -77,11 +75,6 @@ open class UserMatches(
      */
     val VIEWED_USERS: TableField<UserMatchesRecord, String?> = createField(DSL.name("viewed_users"), SQLDataType.CLOB, this, "")
 
-    /**
-     * The column <code>public.user_matches.date_created</code>.
-     */
-    val DATE_CREATED: TableField<UserMatchesRecord, LocalDate?> = createField(DSL.name("date_created"), SQLDataType.LOCALDATE, this, "")
-
     private constructor(alias: Name, aliased: Table<UserMatchesRecord>?): this(alias, null, null, aliased, null)
     private constructor(alias: Name, aliased: Table<UserMatchesRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
 
@@ -130,7 +123,7 @@ open class UserMatches(
     override fun rename(name: Name): UserMatches = UserMatches(name, null)
 
     // -------------------------------------------------------------------------
-    // Row4 type methods
+    // Row3 type methods
     // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row4<Int?, String?, String?, LocalDate?> = super.fieldsRow() as Row4<Int?, String?, String?, LocalDate?>
+    override fun fieldsRow(): Row3<Int?, String?, String?> = super.fieldsRow() as Row3<Int?, String?, String?>
 }

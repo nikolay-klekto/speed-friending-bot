@@ -14,11 +14,16 @@ class RandomCoffeeBlockingRepository(
             .map { it.into(RandomCoffee::class.java) }
     }
 
-    fun getRandomCoffeeModelById(userId: Int): RandomCoffee {
-        return dsl.select(RANDOM_COFFEE.asterisk()).from(RANDOM_COFFEE)
+    fun getAllRandomCoffeeAccountsUsersId(): List<Int> {
+        return dsl.select(RANDOM_COFFEE.USER_ID).from(RANDOM_COFFEE)
+            .map { it.into(Int::class.java) }
+    }
+
+    fun getRandomCoffeeModelIdNoteByUserId(userId: Int): Int {
+        return dsl.select(RANDOM_COFFEE.ID_NOTE).from(RANDOM_COFFEE)
             .where(RANDOM_COFFEE.USER_ID.eq(userId))
             .first()
-            .map { it.into(RandomCoffee::class.java) }
+            .map { it.into(Int::class.java) }
     }
 
 }
