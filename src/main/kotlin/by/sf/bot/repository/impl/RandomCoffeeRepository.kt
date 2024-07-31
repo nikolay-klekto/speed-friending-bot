@@ -10,6 +10,7 @@ import by.sf.bot.jooq.tables.RandomCoffeeHobby.Companion.RANDOM_COFFEE_HOBBY
 import by.sf.bot.jooq.tables.RandomCoffeeOccupation.Companion.RANDOM_COFFEE_OCCUPATION
 import by.sf.bot.jooq.tables.RandomCoffeePlace.Companion.RANDOM_COFFEE_PLACE
 import by.sf.bot.jooq.tables.UserMatches.Companion.USER_MATCHES
+import by.sf.bot.jooq.tables.Users.Companion.USERS
 import by.sf.bot.jooq.tables.pojos.RandomCoffee
 import by.sf.bot.models.FullUserDataModel
 import by.sf.bot.service.AsyncMatchingService
@@ -59,6 +60,15 @@ class RandomCoffeeRepository(
             hobbies = result.getValue("hobbies")?.toString()?.split(",")?.toMutableList() ?: mutableListOf(),
             visit = result.getValue("visit")?.toString()?.split(",")?.toMutableList() ?: mutableListOf()
         )
+    }
+
+    fun getIdNoteByChatId(chatId: Long): Int?{
+        return dsl.select(RANDOM_COFFEE.ID_NOTE).from(RANDOM_COFFEE
+        ).where(RANDOM_COFFEE.USER_ID.eq(
+            dsl.select(USERS.USER_ID).from(USERS)
+                .where(USERS.TELEGRAM_ID.eq(chatId))
+        )).firstOrNull()
+            ?.map { it.into(Int::class.java) }
     }
 
 
@@ -160,13 +170,17 @@ class RandomCoffeeRepository(
                 ))
                 .execute()
 
+            val result6 = dsl.deleteFrom(RANDOM_COFFEE)
+                .where(RANDOM_COFFEE.ID_NOTE.eq(idNote))
+                .execute() == 1
+
             GlobalScope.launch {
                 asyncMatchingService.recalculateAllMatches()
             }
 
-            return@fromSupplier dsl.deleteFrom(RANDOM_COFFEE)
-                .where(RANDOM_COFFEE.ID_NOTE.eq(idNote))
-                .execute() == 1 && result1
+
+
+            return@fromSupplier result6 && result1
         }
     }
 }

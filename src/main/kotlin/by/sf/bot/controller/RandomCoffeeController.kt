@@ -32,7 +32,7 @@ class RandomCoffeeController(
     }
 
     @MutationMapping
-    open fun deleteRandomCoffeeModelById(@Argument idNote: Int): Mono<Boolean> {
+    open fun deleteRandomCoffeeModelById(@Argument idNote: Int): Boolean {
         return randomCoffeeRepository.delete(idNote)
     }
 }
