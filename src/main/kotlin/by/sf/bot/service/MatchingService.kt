@@ -6,6 +6,10 @@ import by.sf.bot.jooq.tables.pojos.RandomCoffee
 import by.sf.bot.models.Match
 import by.sf.bot.repository.blocking.RandomCoffeeBlockingRepository
 import by.sf.bot.repository.impl.RandomCoffeeVariantsRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.withContext
 import org.jooq.DSLContext
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -20,29 +24,33 @@ class MatchingService(
 
 
     fun saveAllMatchesInDB() {
-        TelegramBot.userMatchesMap.forEach { (userId, matches) ->
-            val compatibleUsersString = matches.compatibleUsers.joinToString(",")
-            val viewedUsersString = matches.viewedUsers.joinToString(",")
+        val batch = dsl.batch(
+            TelegramBot.userMatchesMap.map { (userId, matches) ->
+                val compatibleUsersString = matches.compatibleUsers.joinToString(",")
+                val viewedUsersString = matches.viewedUsers.joinToString(",")
 
-            dsl.insertInto(USER_MATCHES)
-                .set(USER_MATCHES.USER_ID, userId)
-                .set(USER_MATCHES.COMPATIBLE_USERS, compatibleUsersString)
-                .set(USER_MATCHES.VIEWED_USERS, viewedUsersString)
-                .onDuplicateKeyUpdate()
-                .set(USER_MATCHES.COMPATIBLE_USERS, compatibleUsersString)
-                .set(USER_MATCHES.VIEWED_USERS, viewedUsersString)
-                .execute()
-        }
+                dsl.insertInto(USER_MATCHES)
+                    .set(USER_MATCHES.USER_ID, userId)
+                    .set(USER_MATCHES.COMPATIBLE_USERS, compatibleUsersString)
+                    .set(USER_MATCHES.VIEWED_USERS, viewedUsersString)
+                    .onDuplicateKeyUpdate()
+                    .set(USER_MATCHES.COMPATIBLE_USERS, compatibleUsersString)
+                    .set(USER_MATCHES.VIEWED_USERS, viewedUsersString)
+            }
+        )
+        batch.execute()
     }
 
-    fun findMatches(userId: Int): List<Match> {
+    suspend fun findMatches(userId: Int): List<Match> = withContext(Dispatchers.Default) {
         val randomCoffeeIdNote = randomCoffeeBlockingRepository.getRandomCoffeeModelIdNoteByUserId(userId)
         val allUsers = randomCoffeeBlockingRepository.getAllRandomCoffeeAccounts().filter { it.userId != userId }
 
-        return allUsers.map { otherUser ->
-            val compatibility = calculateCompatibility(randomCoffeeIdNote, otherUser)
-            Match(otherUser.userId!!, compatibility)
-        }.sortedByDescending { it.compatibility }
+        allUsers.map { otherUser ->
+            async {
+                val compatibility = calculateCompatibility(randomCoffeeIdNote, otherUser)
+                Match(otherUser.userId!!, compatibility)
+            }
+        }.awaitAll().sortedByDescending { it.compatibility }
     }
 
     private fun calculateCompatibility(user1IdNote: Int, user2: RandomCoffee): Double {

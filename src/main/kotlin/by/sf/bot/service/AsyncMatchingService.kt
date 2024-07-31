@@ -4,6 +4,8 @@ import by.sf.bot.component.TelegramBot
 import by.sf.bot.models.FullUserMatches
 import by.sf.bot.repository.blocking.RandomCoffeeBlockingRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import org.springframework.stereotype.Service
 
@@ -16,21 +18,23 @@ class AsyncMatchingService(
     suspend fun recalculateAllMatches() {
         withContext(Dispatchers.IO) {
             val allUsersId = randomCoffeeBlockingRepository.getAllRandomCoffeeAccountsUsersId()
-            allUsersId.forEach { userId ->
-                val matches = matchingService.findMatches(userId)
-                val matchedUserIds = matches.map { it.userId }
+            val deferredResults = allUsersId.map { userId ->
+                async {
+                    val matches = matchingService.findMatches(userId)
+                    val matchedUserIds = matches.map { it.userId }
 
-                // Сохраняем текущие значения viewedUsers
-                val currentViewedUsers = TelegramBot.userMatchesMap[userId]?.viewedUsers ?: mutableListOf()
+                    // Сохраняем текущие значения viewedUsers
+                    val currentViewedUsers = TelegramBot.userMatchesMap[userId]?.viewedUsers ?: mutableListOf()
 
-                // Обновляем compatibleUsers
-                val fullUserMatches = FullUserMatches(
-                    compatibleUsers = matchedUserIds.toMutableList(),
-                    viewedUsers = currentViewedUsers
-                )
-                TelegramBot.userMatchesMap[userId] = fullUserMatches
+                    // Обновляем compatibleUsers
+                    val fullUserMatches = FullUserMatches(
+                        compatibleUsers = matchedUserIds.toMutableList(),
+                        viewedUsers = currentViewedUsers
+                    )
+                    TelegramBot.userMatchesMap[userId] = fullUserMatches
+                }
             }
-
+            deferredResults.awaitAll()
             matchingService.saveAllMatchesInDB()
         }
     }
