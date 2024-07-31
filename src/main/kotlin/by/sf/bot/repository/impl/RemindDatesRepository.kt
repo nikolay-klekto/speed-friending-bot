@@ -12,7 +12,7 @@ class RemindDatesRepository(
     private val dsl: DSLContext
 ) {
 
-    fun getAllRemindDatesForToday(): List<RemindDates>{
+    fun getAllRemindDatesForToday(): List<RemindDates> {
         return dsl.select(REMIND_DATES.asterisk()).from(REMIND_DATES)
             .where(REMIND_DATES.REMIND_DATE.eq(LocalDate.now()))
             .map { it.into(RemindDates::class.java) }

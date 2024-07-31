@@ -1,15 +1,11 @@
 package by.sf.bot.repository.impl
 
 import by.sf.bot.jooq.tables.MenuInfo.Companion.MENU_INFO
-import by.sf.bot.jooq.tables.pojos.MainBotInfo
 import by.sf.bot.jooq.tables.pojos.MenuInfo
 import by.sf.bot.jooq.tables.references.BUTTONS
 import by.sf.bot.repository.blocking.MenuInfoBlockingRepository
 import org.jooq.DSLContext
-import org.springframework.cache.annotation.CacheConfig
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Repository
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.LocalDate
 
@@ -19,7 +15,6 @@ class MenuInfoRepository(
     private val menuInfoBlockingRepository: MenuInfoBlockingRepository,
     private val dsl: DSLContext
 ) {
-//    @Cacheable(key = "#menuId", sync = true)
     fun getMenuInfo(menuId: Int): Mono<MenuInfo?> {
         return Mono.fromSupplier {
             dsl.select(MENU_INFO.MENU_ID, MENU_INFO.DESCRIPTION).from(MENU_INFO)
@@ -53,7 +48,7 @@ class MenuInfoRepository(
         }
     }
 
-    fun delete(menuId: Int): Mono<Boolean>{
+    fun delete(menuId: Int): Mono<Boolean> {
         return Mono.fromSupplier {
             dsl.deleteFrom(BUTTONS)
                 .where(BUTTONS.MENU_ID.eq(menuId))
@@ -61,7 +56,7 @@ class MenuInfoRepository(
 
             dsl.deleteFrom(MENU_INFO)
                 .where(MENU_INFO.MENU_ID.eq(menuId))
-                .execute() ==1
+                .execute() == 1
         }
     }
 }

@@ -71,7 +71,6 @@ class UserBlockingRepository(
             }
         }
 
-
          return dsl.update(USERS)
                 .set(USERS.REMINDERS, newReminders)
                 .set(USERS.DATE_CREATED, LocalDate.now())

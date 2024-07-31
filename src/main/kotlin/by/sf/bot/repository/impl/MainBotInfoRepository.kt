@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono
 
 @Repository
-open class MainBotInfoRepository(
+class MainBotInfoRepository(
     private val dsl: DSLContext
 ) {
 
@@ -21,7 +21,7 @@ open class MainBotInfoRepository(
         }
     }
 
-    fun getMainBotInfoByKey(key: String): Mono<MainBotInfo>{
+    fun getMainBotInfoByKey(key: String): Mono<MainBotInfo> {
         return Mono.fromSupplier {
             dsl.select(MAIN_BOT_INFO.asterisk())
                 .from(MAIN_BOT_INFO)

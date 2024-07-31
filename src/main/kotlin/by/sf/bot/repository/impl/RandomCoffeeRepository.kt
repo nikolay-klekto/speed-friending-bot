@@ -62,12 +62,15 @@ class RandomCoffeeRepository(
         )
     }
 
-    fun getIdNoteByChatId(chatId: Long): Int?{
-        return dsl.select(RANDOM_COFFEE.ID_NOTE).from(RANDOM_COFFEE
-        ).where(RANDOM_COFFEE.USER_ID.eq(
-            dsl.select(USERS.USER_ID).from(USERS)
-                .where(USERS.TELEGRAM_ID.eq(chatId))
-        )).firstOrNull()
+    fun getIdNoteByChatId(chatId: Long): Int? {
+        return dsl.select(RANDOM_COFFEE.ID_NOTE).from(
+            RANDOM_COFFEE
+        ).where(
+            RANDOM_COFFEE.USER_ID.eq(
+                dsl.select(USERS.USER_ID).from(USERS)
+                    .where(USERS.TELEGRAM_ID.eq(chatId))
+            )
+        ).firstOrNull()
             ?.map { it.into(Int::class.java) }
     }
 
@@ -86,7 +89,7 @@ class RandomCoffeeRepository(
         }
     }
 
-    fun isRandomCoffeeModelExist(userId: Int): Boolean{
+    fun isRandomCoffeeModelExist(userId: Int): Boolean {
         return dsl.selectCount().from(RANDOM_COFFEE)
             .where(RANDOM_COFFEE.USER_ID.eq(userId))
             .map { it.into(Int::class.java) }
@@ -128,37 +131,40 @@ class RandomCoffeeRepository(
 
     fun updateBlock(randomCoffeeModel: RandomCoffee): Int {
 
-            val oldRandomCoffeeModel: RandomCoffee = getRandomCoffeeModelById(randomCoffeeModel.userId!!)
+        val oldRandomCoffeeModel: RandomCoffee = getRandomCoffeeModelById(randomCoffeeModel.userId!!)
 
-            val result =  dsl.update(RANDOM_COFFEE)
-                .set(RANDOM_COFFEE.USERNAME, randomCoffeeModel.username ?: oldRandomCoffeeModel.username)
-                .set(RANDOM_COFFEE.TELEGRAM_USERNAME, randomCoffeeModel.telegramUsername?: oldRandomCoffeeModel.telegramUsername)
-                .set(RANDOM_COFFEE.DATE_CREATED, LocalDate.now())
-                .where(RANDOM_COFFEE.USER_ID.eq(randomCoffeeModel.userId))
-                .execute() == 1
+        val result = dsl.update(RANDOM_COFFEE)
+            .set(RANDOM_COFFEE.USERNAME, randomCoffeeModel.username ?: oldRandomCoffeeModel.username)
+            .set(
+                RANDOM_COFFEE.TELEGRAM_USERNAME,
+                randomCoffeeModel.telegramUsername ?: oldRandomCoffeeModel.telegramUsername
+            )
+            .set(RANDOM_COFFEE.DATE_CREATED, LocalDate.now())
+            .where(RANDOM_COFFEE.USER_ID.eq(randomCoffeeModel.userId))
+            .execute() == 1
 
-        if(result){
+        if (result) {
             return oldRandomCoffeeModel.idNote!!
-        }else throw Exception("Не удалось обновить random coffee с idNote: ${oldRandomCoffeeModel.idNote}")
+        } else throw Exception("Не удалось обновить random coffee с idNote: ${oldRandomCoffeeModel.idNote}")
     }
 
     @OptIn(DelicateCoroutinesApi::class)
     fun delete(idNote: Int): Mono<Boolean> {
         return Mono.fromSupplier {
 
-            val result1  = dsl.deleteFrom(RANDOM_COFFEE_AGE)
+            val result1 = dsl.deleteFrom(RANDOM_COFFEE_AGE)
                 .where(RANDOM_COFFEE_AGE.RANDOM_COFFEE_ID.eq(idNote))
                 .execute() == 1
 
-            val result2  = dsl.deleteFrom(RANDOM_COFFEE_HOBBY)
+            val result2 = dsl.deleteFrom(RANDOM_COFFEE_HOBBY)
                 .where(RANDOM_COFFEE_HOBBY.RANDOM_COFFEE_ID.eq(idNote))
                 .execute()
 
-            val result3  = dsl.deleteFrom(RANDOM_COFFEE_OCCUPATION)
+            val result3 = dsl.deleteFrom(RANDOM_COFFEE_OCCUPATION)
                 .where(RANDOM_COFFEE_OCCUPATION.RANDOM_COFFEE_ID.eq(idNote))
                 .execute()
 
-            val result4  = dsl.deleteFrom(RANDOM_COFFEE_PLACE)
+            val result4 = dsl.deleteFrom(RANDOM_COFFEE_PLACE)
                 .where(RANDOM_COFFEE_PLACE.RANDOM_COFFEE_ID.eq(idNote))
                 .execute()
 

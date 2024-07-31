@@ -12,15 +12,13 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import org.jooq.DSLContext
 import org.springframework.stereotype.Service
-import java.time.LocalDate
 
 @Service
 class MatchingService(
     private val randomCoffeeVariantsRepository: RandomCoffeeVariantsRepository,
     private val randomCoffeeBlockingRepository: RandomCoffeeBlockingRepository,
     private val dsl: DSLContext
-    ) {
-
+) {
 
 
     fun saveAllMatchesInDB() {
@@ -58,12 +56,14 @@ class MatchingService(
 
         // Calculate age compatibility (40%)
         val ageCompatibility = if (randomCoffeeVariantsRepository.getAgeRange(user1IdNote) ==
-            randomCoffeeVariantsRepository.getAgeRange(user2.idNote!!)) 40.0 else 0.0
+            randomCoffeeVariantsRepository.getAgeRange(user2.idNote!!)
+        ) 40.0 else 0.0
         compatibility += ageCompatibility
 
         // Calculate occupation compatibility (10%)
         val occupationCompatibility = if (randomCoffeeVariantsRepository.getOccupation(user1IdNote) ==
-            randomCoffeeVariantsRepository.getOccupation(user2.idNote!!)) 10.0 else 0.0
+            randomCoffeeVariantsRepository.getOccupation(user2.idNote!!)
+        ) 10.0 else 0.0
         compatibility += occupationCompatibility
 
         // Calculate hobby compatibility (25%)
