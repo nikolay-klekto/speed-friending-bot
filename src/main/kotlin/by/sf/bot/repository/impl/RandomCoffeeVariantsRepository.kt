@@ -158,4 +158,15 @@ fun getPlaces(randomCoffeeId: Int): List<String> {
             .execute()
     }
 
+    fun saveAllCoffeeHobbies(randomCoffeeHobbySet: Set<RandomCoffeeHobby>) {
+            val records = randomCoffeeHobbySet.map { dsl.newRecord(RANDOM_COFFEE_HOBBY, it) }
+            dsl.batchInsert(records).execute()
+        }
+
+    fun saveAllCoffeePlaces(randomCoffeePlacesSet: Set<RandomCoffeePlace>) {
+        val records = randomCoffeePlacesSet.map { dsl.newRecord(RANDOM_COFFEE_PLACE, it) }
+        dsl.batchInsert(records).execute()
+    }
+
+
 }

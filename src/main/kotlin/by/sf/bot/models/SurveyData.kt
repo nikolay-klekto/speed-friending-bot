@@ -5,6 +5,6 @@ data class SurveyData(
     var telegramUsername: String = "",
     var age: String = "",
     var occupation: String = "",
-    var hobbies: MutableList<String> = mutableListOf(),
-    var visit: MutableList<String> = mutableListOf()
+    var hobbies: MutableSet<String> = mutableSetOf(),
+    var visit: MutableSet<String> = mutableSetOf()
 )

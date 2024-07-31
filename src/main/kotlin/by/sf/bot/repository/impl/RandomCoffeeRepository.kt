@@ -122,6 +122,7 @@ class RandomCoffeeRepository(
 
             val result =  dsl.update(RANDOM_COFFEE)
                 .set(RANDOM_COFFEE.USERNAME, randomCoffeeModel.username ?: oldRandomCoffeeModel.username)
+                .set(RANDOM_COFFEE.TELEGRAM_USERNAME, randomCoffeeModel.telegramUsername?: oldRandomCoffeeModel.telegramUsername)
                 .set(RANDOM_COFFEE.DATE_CREATED, LocalDate.now())
                 .where(RANDOM_COFFEE.USER_ID.eq(randomCoffeeModel.userId))
                 .execute() == 1

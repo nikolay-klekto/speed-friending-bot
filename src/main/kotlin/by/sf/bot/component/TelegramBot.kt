@@ -383,31 +383,46 @@ class TelegramBot(
                 )
             }
 
-            // Сохранение хобби
-            surveyData?.hobbies?.forEach { hobby ->
-                val hobbyId = randomCoffeeVariantsRepository.getHobbyIdByName(hobby)
-                hobbyId?.let {
-                    randomCoffeeVariantsRepository.saveCoffeeHobby(
-                        RandomCoffeeHobby(
-                            randomCoffeeId = newRandomCoffeeIdNote,
-                            hobbyId = it
-                        )
-                    )
-                }
-            }
+//            // Сохранение хобби
+//            surveyData?.hobbies?.forEach { hobby ->
+//                val hobbyId = randomCoffeeVariantsRepository.getHobbyIdByName(hobby)
+//                hobbyId?.let {
+//                    randomCoffeeVariantsRepository.saveCoffeeHobby(
+//                        RandomCoffeeHobby(
+//                            randomCoffeeId = newRandomCoffeeIdNote,
+//                            hobbyId = it
+//                        )
+//                    )
+//                }
+//            }
+//
+//            // Сохранение мест, которые хотел бы посетить
+//            surveyData?.visit?.forEach { place ->
+//                val placeId = randomCoffeeVariantsRepository.getPlaceIdByName(place)
+//                placeId?.let {
+//                    randomCoffeeVariantsRepository.saveCoffeePlace(
+//                        RandomCoffeePlace(
+//                            randomCoffeeId = newRandomCoffeeIdNote,
+//                            placeId = it
+//                        )
+//                    )
+//                }
+//            }
 
-            // Сохранение мест, которые хотел бы посетить
-            surveyData?.visit?.forEach { place ->
+            // Сохранение хобби и мест для посещения через массовые вставки
+            val hobbies = surveyData?.hobbies?.mapNotNull { hobby ->
+                val hobbyId = randomCoffeeVariantsRepository.getHobbyIdByName(hobby)
+                hobbyId?.let { RandomCoffeeHobby(randomCoffeeId = newRandomCoffeeIdNote, hobbyId = it) }
+            }?.toSet()
+
+            val places = surveyData?.visit?.mapNotNull { place ->
                 val placeId = randomCoffeeVariantsRepository.getPlaceIdByName(place)
-                placeId?.let {
-                    randomCoffeeVariantsRepository.saveCoffeePlace(
-                        RandomCoffeePlace(
-                            randomCoffeeId = newRandomCoffeeIdNote,
-                            placeId = it
-                        )
-                    )
-                }
-            }
+                placeId?.let { RandomCoffeePlace(randomCoffeeId = newRandomCoffeeIdNote, placeId = it) }
+            }?.toSet()
+
+            // Используйте массовые вставки
+            hobbies?.let { randomCoffeeVariantsRepository.saveAllCoffeeHobbies(it) }
+            places?.let { randomCoffeeVariantsRepository.saveAllCoffeePlaces(it) }
 
             val matches = matchingService.findMatches(userId)
             val matchedUserIds = matches.map { it.userId }
