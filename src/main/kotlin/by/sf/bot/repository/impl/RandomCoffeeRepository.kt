@@ -152,6 +152,11 @@ class RandomCoffeeRepository(
     fun delete(idNote: Int): Mono<Boolean> {
         return Mono.fromSupplier {
 
+            val userId = dsl.select(RANDOM_COFFEE.USER_ID).from(RANDOM_COFFEE)
+                .where(RANDOM_COFFEE.ID_NOTE.eq(idNote))
+                .first()
+                .map { it.into(Int::class.java) }
+
             val result1 = dsl.deleteFrom(RANDOM_COFFEE_AGE)
                 .where(RANDOM_COFFEE_AGE.RANDOM_COFFEE_ID.eq(idNote))
                 .execute() == 1
@@ -169,11 +174,7 @@ class RandomCoffeeRepository(
                 .execute()
 
             val result5 = dsl.deleteFrom(USER_MATCHES)
-                .where(USER_MATCHES.USER_ID.eq(
-                    dsl.select(RANDOM_COFFEE.USER_ID).from(RANDOM_COFFEE)
-                        .where(RANDOM_COFFEE.ID_NOTE.eq(idNote))
-                        .first().map { it.into(Int::class.java) }
-                ))
+                .where(USER_MATCHES.USER_ID.eq(userId))
                 .execute()
 
             val result6 = dsl.deleteFrom(RANDOM_COFFEE)
@@ -189,4 +190,45 @@ class RandomCoffeeRepository(
             return@fromSupplier result6 && result1
         }
     }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    fun deleteBlocking(idNote: Int):Boolean {
+
+
+            val userId = dsl.select(RANDOM_COFFEE.USER_ID).from(RANDOM_COFFEE)
+                .where(RANDOM_COFFEE.ID_NOTE.eq(idNote))
+                .first()
+                .map { it.into(Int::class.java) }
+
+            val result1 = dsl.deleteFrom(RANDOM_COFFEE_AGE)
+                .where(RANDOM_COFFEE_AGE.RANDOM_COFFEE_ID.eq(idNote))
+                .execute() == 1
+
+            val result2 = dsl.deleteFrom(RANDOM_COFFEE_HOBBY)
+                .where(RANDOM_COFFEE_HOBBY.RANDOM_COFFEE_ID.eq(idNote))
+                .execute()
+
+            val result3 = dsl.deleteFrom(RANDOM_COFFEE_OCCUPATION)
+                .where(RANDOM_COFFEE_OCCUPATION.RANDOM_COFFEE_ID.eq(idNote))
+                .execute()
+
+            val result4 = dsl.deleteFrom(RANDOM_COFFEE_PLACE)
+                .where(RANDOM_COFFEE_PLACE.RANDOM_COFFEE_ID.eq(idNote))
+                .execute()
+
+            val result5 = dsl.deleteFrom(USER_MATCHES)
+                .where(USER_MATCHES.USER_ID.eq(userId))
+                .execute()
+
+            val result6 = dsl.deleteFrom(RANDOM_COFFEE)
+                .where(RANDOM_COFFEE.ID_NOTE.eq(idNote))
+                .execute() == 1
+
+            GlobalScope.launch {
+                asyncMatchingService.recalculateAllMatches()
+            }
+
+            return result6 && result1
+        }
+
 }

@@ -163,7 +163,13 @@ class TelegramBot(
             text = RANDOM_COFFEE_DELETE_PROFILE_ERROR_MESSAGE
         } else {
             text = RANDOM_COFFEE_DELETE_PROFILE_MESSAGE
-            randomCoffeeRepository.delete(idNote).block()
+            randomCoffeeRepository.deleteBlocking(idNote)
+            // Получаем userId пользователя по callbackChatId
+            val userId = userBlockingRepository.getUserIdByChatId(callbackChatId)
+            userId?.let {
+                // Удаляем пользователя из userMatchesMap
+                userMatchesMap.remove(it)
+            }
         }
         val message = SendMessage(callbackChatId.toString(), text)
         execute(message)
