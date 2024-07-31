@@ -671,7 +671,7 @@ class TelegramBot(
         private const val RANDOM_COFFEE_INPUT_MESSAGE_TELEGRAM_USERNAME =
             "Введите информацию, по которой с вами можно связаться: ссылка на инстаграмм/телеграмм"
         private const val RANDOM_COFFEE_CALLBACK_MESSAGE_DONE = "done"
-        private const val RANDOM_COFFEE_CALLBACK_MESSAGE_DONE_RUSSIA = "Готово"
+        private const val RANDOM_COFFEE_CALLBACK_MESSAGE_DONE_RUSSIA = "✅ Готово"
         private const val RANDOM_COFFEE_SAVING_FORM_SUCCESS = "Спасибо! Ваша анкета сохранена."
         private const val RANDOM_COFFEE_INPUT_MESSAGE_AGE = "Ваш возраст:"
         private const val RANDOM_COFFEE_INPUT_MESSAGE_OCCUPATION = "Сфера деятельности:"
