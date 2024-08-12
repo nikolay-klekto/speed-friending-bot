@@ -18,7 +18,7 @@ import org.jooq.ForeignKey
 import org.jooq.Identity
 import org.jooq.Name
 import org.jooq.Record
-import org.jooq.Row4
+import org.jooq.Row5
 import org.jooq.Schema
 import org.jooq.Table
 import org.jooq.TableField
@@ -86,6 +86,11 @@ open class MenuInfo(
      */
     val DATE_CREATED: TableField<MenuInfoRecord, LocalDate?> = createField(DSL.name("date_created"), SQLDataType.LOCALDATE, this, "Дата создания записи")
 
+    /**
+     * The column <code>public.menu_info.photo_name</code>.
+     */
+    val PHOTO_NAME: TableField<MenuInfoRecord, String?> = createField(DSL.name("photo_name"), SQLDataType.VARCHAR, this, "")
+
     private constructor(alias: Name, aliased: Table<MenuInfoRecord>?): this(alias, null, null, aliased, null)
     private constructor(alias: Name, aliased: Table<MenuInfoRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
 
@@ -135,7 +140,7 @@ open class MenuInfo(
     override fun rename(name: Name): MenuInfo = MenuInfo(name, null)
 
     // -------------------------------------------------------------------------
-    // Row4 type methods
+    // Row5 type methods
     // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row4<Int?, String?, Int?, LocalDate?> = super.fieldsRow() as Row4<Int?, String?, Int?, LocalDate?>
+    override fun fieldsRow(): Row5<Int?, String?, Int?, LocalDate?, String?> = super.fieldsRow() as Row5<Int?, String?, Int?, LocalDate?, String?>
 }

@@ -16,7 +16,8 @@ data class MenuInfo(
     var menuId: Int? = null,
     var description: String? = null,
     var parentId: Int? = null,
-    var dateCreated: LocalDate? = null
+    var dateCreated: LocalDate? = null,
+    var photoName: String? = null
 ): Serializable {
 
 
@@ -27,6 +28,7 @@ data class MenuInfo(
         sb.append(", ").append(description)
         sb.append(", ").append(parentId)
         sb.append(", ").append(dateCreated)
+        sb.append(", ").append(photoName)
 
         sb.append(")")
         return sb.toString()

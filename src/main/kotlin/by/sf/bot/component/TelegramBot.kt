@@ -17,11 +17,14 @@ import kotlinx.coroutines.launch
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto
+import org.telegram.telegrambots.meta.api.objects.InputFile
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow
+import java.io.File
 import java.time.LocalDate
 
 
@@ -45,6 +48,15 @@ class TelegramBot(
     private var allVisitOptions = listOf<PlacesToVisit>()
     private var allOccupationsOptions = listOf<Occupations>()
     private var allHobbiesOptions = listOf<Hobbies>()
+    private lateinit var aboutProjectImage: InputFile
+    private lateinit var ourAimsAndMissionImage: InputFile
+    private lateinit var wantToSignUpImage: InputFile
+    private lateinit var howEventsWorksImage: InputFile
+    private lateinit var nearestEventsImage: InputFile
+    private lateinit var capybaraMatchImage: InputFile
+    private lateinit var setNotificationImage: InputFile
+    private lateinit var purposeIdeaImage: InputFile
+    private var allPhotos: HashMap<String, InputFile> = hashMapOf()
 
     @PostConstruct
     fun init() {
@@ -96,6 +108,40 @@ class TelegramBot(
         allOccupationsOptions = randomCoffeeVariantsRepository.getAllOccupationsVariants()
         allHobbiesOptions = randomCoffeeVariantsRepository.getAllHobbyVariants()
 
+        aboutProjectImage = loadImage("photos/aboutProjectImage.jpg")
+        wantToSignUpImage = loadImage("photos/wantToSignUpImage.jpg")
+        howEventsWorksImage = loadImage("photos/howEventsWorksImage.jpg")
+        nearestEventsImage = loadImage("photos/nearestEventsImage.jpg")
+        capybaraMatchImage = loadImage("photos/capybaraMatchImage.jpg")
+        setNotificationImage = loadImage("photos/setNotificationImage.jpg")
+        purposeIdeaImage = loadImage("photos/purposeIdeaImage.jpg")
+        ourAimsAndMissionImage = loadImage("photos/ourAimsAndMissionImage.jpg")
+
+        allPhotos = hashMapOf(
+            "aboutProjectImage" to loadImage("photos/aboutProjectImage.jpg"),
+            "wantToSignUpImage" to loadImage("photos/wantToSignUpImage.jpg"),
+            "howEventsWorksImage" to loadImage("photos/howEventsWorksImage.jpg"),
+            "nearestEventsImage" to loadImage("photos/nearestEventsImage.jpg"),
+            "capybaraMatchImage" to loadImage("photos/capybaraMatchImage.jpg"),
+            "setNotificationImage" to loadImage("photos/setNotificationImage.jpg"),
+            "purposeIdeaImage" to loadImage("photos/purposeIdeaImage.jpg"),
+            "ourAimsAndMissionImage" to loadImage("photos/ourAimsAndMissionImage.jpg")
+        )
+
+    }
+
+    private fun loadImage(resourcePath: String): InputFile {
+        val resourceStream = this::class.java.classLoader.getResourceAsStream(resourcePath)
+            ?: throw IllegalArgumentException("Image not found: $resourcePath")
+
+        val tempFile = File.createTempFile("temp", ".jpg")
+        resourceStream.use { input ->
+            tempFile.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+
+        return InputFile(tempFile)
     }
 
     override fun getBotUsername(): String = botUsername
@@ -252,17 +298,70 @@ class TelegramBot(
         if (keyboard.isNotEmpty()) {
             inlineKeyboardMarkup.keyboard = keyboard
         }
-        val message = SendMessage()
-        message.chatId = chatId.toString()
-        message.text = text
 
-// Устанавливаем разметку клавиатуры только если она есть
-        if (keyboard.isNotEmpty()) {
-            message.replyMarkup = inlineKeyboardMarkup
+        val maxCaptionLength = 1024
+
+        fun splitTextIntoParts(text: String, maxLength: Int): List<String> {
+            if (text.length <= maxLength) return listOf(text)
+
+            // Ищем последний знак конца предложения в пределах maxLength
+            val breakpoint = text.substring(0, maxLength)
+                .lastIndexOfAny(listOf(".", "!", "?"))
+
+            // Если не найдено знаков окончания предложения, разделяем текст по максимальной длине
+            val splitPoint = if (breakpoint != -1) breakpoint + 1 else maxLength
+
+            val firstPart = text.substring(0, splitPoint).trim()
+            val secondPart = text.substring(splitPoint).trim()
+
+            return listOf(firstPart, secondPart)
         }
 
-        execute(message)
+        val captionParts = splitTextIntoParts(text, maxCaptionLength)
+
+        // Проверяем наличие фото для отправки
+        val possiblePhotoName: String? = currentMenuModel.photoName
+        if (!possiblePhotoName.isNullOrEmpty() && allPhotos.containsKey(possiblePhotoName)) {
+            val imageMessage = SendPhoto()
+            imageMessage.chatId = chatId.toString()
+            imageMessage.caption = captionParts[0]
+            imageMessage.photo = allPhotos[possiblePhotoName]!!
+
+            // Устанавливаем разметку клавиатуры только если она есть
+            if (keyboard.isNotEmpty()) {
+                imageMessage.replyMarkup = inlineKeyboardMarkup
+            }
+
+            // Отправляем первое сообщение с фото
+            execute(imageMessage)
+
+            // Если есть вторая часть текста, отправляем её как отдельное сообщение
+            if (captionParts.size > 1) {
+                val textMessage = SendMessage()
+                textMessage.chatId = chatId.toString()
+                textMessage.text = captionParts[1]
+
+                // Отправляем второе сообщение
+                execute(textMessage)
+            }
+        } else {
+            // Если фото нет, отправляем текстовое сообщение
+            captionParts.forEach { part ->
+                val textMessage = SendMessage()
+                textMessage.chatId = chatId.toString()
+                textMessage.text = part
+
+                // Устанавливаем разметку клавиатуры только если она есть
+                if (keyboard.isNotEmpty()) {
+                    textMessage.replyMarkup = inlineKeyboardMarkup
+                }
+
+                // Отправляем текстовое сообщение
+                execute(textMessage)
+            }
+        }
     }
+
 
     private fun sendReminderOptions(chatId: Long, reminders: String?) {
 

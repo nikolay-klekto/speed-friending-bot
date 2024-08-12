@@ -10,8 +10,8 @@ import java.time.LocalDate
 
 import org.jooq.Field
 import org.jooq.Record1
-import org.jooq.Record4
-import org.jooq.Row4
+import org.jooq.Record5
+import org.jooq.Row5
 import org.jooq.impl.UpdatableRecordImpl
 
 
@@ -19,7 +19,7 @@ import org.jooq.impl.UpdatableRecordImpl
  * Таблица для хранения информации о меню
  */
 @Suppress("UNCHECKED_CAST")
-open class MenuInfoRecord() : UpdatableRecordImpl<MenuInfoRecord>(MenuInfo.MENU_INFO), Record4<Int?, String?, Int?, LocalDate?> {
+open class MenuInfoRecord() : UpdatableRecordImpl<MenuInfoRecord>(MenuInfo.MENU_INFO), Record5<Int?, String?, Int?, LocalDate?, String?> {
 
     var menuId: Int?
         set(value): Unit = set(0, value)
@@ -37,6 +37,10 @@ open class MenuInfoRecord() : UpdatableRecordImpl<MenuInfoRecord>(MenuInfo.MENU_
         set(value): Unit = set(3, value)
         get(): LocalDate? = get(3) as LocalDate?
 
+    var photoName: String?
+        set(value): Unit = set(4, value)
+        get(): String? = get(4) as String?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -44,23 +48,26 @@ open class MenuInfoRecord() : UpdatableRecordImpl<MenuInfoRecord>(MenuInfo.MENU_
     override fun key(): Record1<Int?> = super.key() as Record1<Int?>
 
     // -------------------------------------------------------------------------
-    // Record4 type implementation
+    // Record5 type implementation
     // -------------------------------------------------------------------------
 
-    override fun fieldsRow(): Row4<Int?, String?, Int?, LocalDate?> = super.fieldsRow() as Row4<Int?, String?, Int?, LocalDate?>
-    override fun valuesRow(): Row4<Int?, String?, Int?, LocalDate?> = super.valuesRow() as Row4<Int?, String?, Int?, LocalDate?>
+    override fun fieldsRow(): Row5<Int?, String?, Int?, LocalDate?, String?> = super.fieldsRow() as Row5<Int?, String?, Int?, LocalDate?, String?>
+    override fun valuesRow(): Row5<Int?, String?, Int?, LocalDate?, String?> = super.valuesRow() as Row5<Int?, String?, Int?, LocalDate?, String?>
     override fun field1(): Field<Int?> = MenuInfo.MENU_INFO.MENU_ID
     override fun field2(): Field<String?> = MenuInfo.MENU_INFO.DESCRIPTION
     override fun field3(): Field<Int?> = MenuInfo.MENU_INFO.PARENT_ID
     override fun field4(): Field<LocalDate?> = MenuInfo.MENU_INFO.DATE_CREATED
+    override fun field5(): Field<String?> = MenuInfo.MENU_INFO.PHOTO_NAME
     override fun component1(): Int? = menuId
     override fun component2(): String? = description
     override fun component3(): Int? = parentId
     override fun component4(): LocalDate? = dateCreated
+    override fun component5(): String? = photoName
     override fun value1(): Int? = menuId
     override fun value2(): String? = description
     override fun value3(): Int? = parentId
     override fun value4(): LocalDate? = dateCreated
+    override fun value5(): String? = photoName
 
     override fun value1(value: Int?): MenuInfoRecord {
         this.menuId = value
@@ -82,22 +89,29 @@ open class MenuInfoRecord() : UpdatableRecordImpl<MenuInfoRecord>(MenuInfo.MENU_
         return this
     }
 
-    override fun values(value1: Int?, value2: String?, value3: Int?, value4: LocalDate?): MenuInfoRecord {
+    override fun value5(value: String?): MenuInfoRecord {
+        this.photoName = value
+        return this
+    }
+
+    override fun values(value1: Int?, value2: String?, value3: Int?, value4: LocalDate?, value5: String?): MenuInfoRecord {
         this.value1(value1)
         this.value2(value2)
         this.value3(value3)
         this.value4(value4)
+        this.value5(value5)
         return this
     }
 
     /**
      * Create a detached, initialised MenuInfoRecord
      */
-    constructor(menuId: Int? = null, description: String? = null, parentId: Int? = null, dateCreated: LocalDate? = null): this() {
+    constructor(menuId: Int? = null, description: String? = null, parentId: Int? = null, dateCreated: LocalDate? = null, photoName: String? = null): this() {
         this.menuId = menuId
         this.description = description
         this.parentId = parentId
         this.dateCreated = dateCreated
+        this.photoName = photoName
     }
 
     /**
@@ -109,6 +123,7 @@ open class MenuInfoRecord() : UpdatableRecordImpl<MenuInfoRecord>(MenuInfo.MENU_
             this.description = value.description
             this.parentId = value.parentId
             this.dateCreated = value.dateCreated
+            this.photoName = value.photoName
         }
     }
 }
