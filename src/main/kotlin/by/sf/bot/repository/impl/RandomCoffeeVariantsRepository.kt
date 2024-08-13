@@ -20,6 +20,7 @@ class RandomCoffeeVariantsRepository(
     fun getAllAgeVariants(): List<Ages> {
         return dsl.select(AGES.asterisk()).from(AGES)
             .map { it.into(Ages::class.java) }
+            .sortedBy { it.ageRange }
     }
 
     fun getAllOccupationsVariants(): List<Occupations> {
