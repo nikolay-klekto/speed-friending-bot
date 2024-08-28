@@ -6,6 +6,12 @@ type Query{
     getButtonsByMenuId(menuId: ID): [ButtonModel]
 
     getAllRandomCoffeeAccounts:[RandomCoffeeModel]
+
+    getAllEvents:[EventsModel]
+
+    getAllUsers:[UserModel]
+
+    getUsersCountFromRandomCoffee: ID
 }
 
 type Mutation {
@@ -23,6 +29,7 @@ type Mutation {
 
     addEvent(eventModel: EventsInput!): EventsModel
     deleteEvent(eventId: Int!): Boolean
+    updateEvent(oldEventDate: String!, event: EventsInput!):Boolean
 
     addRandomCoffeeModel(randomCoffee: RandomCoffeeModelInput!): RandomCoffeeModel
     updateRandomCoffeeModel(randomCoffee: RandomCoffeeModelInput!): Boolean
@@ -41,6 +48,14 @@ type MainBotInfoModel{
     idInfo: Int
     key: String
     value: String
+}
+
+type UserModel{
+     userId: ID
+     telegramId: ID
+     username: String
+     dateCreated: String
+     reminders: String
 }
 
 type ButtonModel{
@@ -64,8 +79,9 @@ type RemindDatesModel{
 type EventsModel {
     eventId: Int
     eventDate: String
-    description: String
+    eventDateText: String
     dateCreated: String
+    googleFormUrl: String
 }
 
 type RandomCoffeeModel {
@@ -110,8 +126,9 @@ input RemindDatesInput{
 input EventsInput {
     eventId: Int
     eventDate: String
-    description: String
+    eventDateText: String
     dateCreated: String
+    googleFormUrl: String
 }
 
 input RandomCoffeeModelInput {

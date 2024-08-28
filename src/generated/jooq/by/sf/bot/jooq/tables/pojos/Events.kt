@@ -15,8 +15,9 @@ import java.time.LocalDate
 data class Events(
     var eventId: Int? = null,
     var eventDate: LocalDate? = null,
-    var description: String? = null,
-    var dateCreated: LocalDate? = null
+    var eventDateText: String? = null,
+    var dateCreated: LocalDate? = null,
+    var googleFormUrl: String? = null
 ): Serializable {
 
 
@@ -25,8 +26,9 @@ data class Events(
 
         sb.append(eventId)
         sb.append(", ").append(eventDate)
-        sb.append(", ").append(description)
+        sb.append(", ").append(eventDateText)
         sb.append(", ").append(dateCreated)
+        sb.append(", ").append(googleFormUrl)
 
         sb.append(")")
         return sb.toString()

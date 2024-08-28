@@ -15,7 +15,7 @@ import org.jooq.ForeignKey
 import org.jooq.Identity
 import org.jooq.Name
 import org.jooq.Record
-import org.jooq.Row4
+import org.jooq.Row5
 import org.jooq.Schema
 import org.jooq.Table
 import org.jooq.TableField
@@ -71,14 +71,19 @@ open class Events(
     val EVENT_DATE: TableField<EventsRecord, LocalDate?> = createField(DSL.name("event_date"), SQLDataType.LOCALDATE, this, "")
 
     /**
-     * The column <code>public.events.description</code>.
+     * The column <code>public.events.event_date_text</code>.
      */
-    val DESCRIPTION: TableField<EventsRecord, String?> = createField(DSL.name("description"), SQLDataType.VARCHAR, this, "")
+    val EVENT_DATE_TEXT: TableField<EventsRecord, String?> = createField(DSL.name("event_date_text"), SQLDataType.VARCHAR, this, "")
 
     /**
      * The column <code>public.events.date_created</code>.
      */
     val DATE_CREATED: TableField<EventsRecord, LocalDate?> = createField(DSL.name("date_created"), SQLDataType.LOCALDATE, this, "")
+
+    /**
+     * The column <code>public.events.google_form_url</code>.
+     */
+    val GOOGLE_FORM_URL: TableField<EventsRecord, String?> = createField(DSL.name("google_form_url"), SQLDataType.VARCHAR, this, "")
 
     private constructor(alias: Name, aliased: Table<EventsRecord>?): this(alias, null, null, aliased, null)
     private constructor(alias: Name, aliased: Table<EventsRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
@@ -116,7 +121,7 @@ open class Events(
     override fun rename(name: Name): Events = Events(name, null)
 
     // -------------------------------------------------------------------------
-    // Row4 type methods
+    // Row5 type methods
     // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row4<Int?, LocalDate?, String?, LocalDate?> = super.fieldsRow() as Row4<Int?, LocalDate?, String?, LocalDate?>
+    override fun fieldsRow(): Row5<Int?, LocalDate?, String?, LocalDate?, String?> = super.fieldsRow() as Row5<Int?, LocalDate?, String?, LocalDate?, String?>
 }
