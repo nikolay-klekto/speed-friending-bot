@@ -60,6 +60,7 @@ class TelegramBot(
 
     @PostConstruct
     fun init() {
+        //some changes to be deleted
         botUsername = mainBotInfoRepository.getMainBotInfoByKey(BOT_USERNAME).block()?.value!!
         botToken = mainBotInfoRepository.getMainBotInfoByKey(BOT_TOKEN).block()?.value!!
         menuInfoList = menuInfoBlockingRepository.getAllMenuModels()
