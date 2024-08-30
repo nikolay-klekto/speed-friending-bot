@@ -52,6 +52,4 @@ class BotConfig {
             asyncMatchingService
         )
     }
-
-    //some changes to save
 }
