@@ -54,4 +54,6 @@ class BotConfig {
     }
 
     //some changes not to be here
+
+    //and something else
 }
