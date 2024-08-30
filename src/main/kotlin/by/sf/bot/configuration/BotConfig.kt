@@ -52,7 +52,5 @@ class BotConfig {
             asyncMatchingService
         )
     }
-
-    //unneccessary
     //and something else
 }
