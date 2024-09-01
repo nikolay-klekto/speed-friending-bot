@@ -13,7 +13,8 @@ import java.io.Serializable
 @Suppress("UNCHECKED_CAST")
 data class Ages(
     var ageId: Int? = null,
-    var ageRange: String? = null
+    var ageRange: String? = null,
+    var freshStatus: Boolean? = null
 ): Serializable {
 
 
@@ -22,6 +23,7 @@ data class Ages(
 
         sb.append(ageId)
         sb.append(", ").append(ageRange)
+        sb.append(", ").append(freshStatus)
 
         sb.append(")")
         return sb.toString()

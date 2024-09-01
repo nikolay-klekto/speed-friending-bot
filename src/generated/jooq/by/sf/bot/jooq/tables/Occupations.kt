@@ -13,7 +13,7 @@ import org.jooq.ForeignKey
 import org.jooq.Identity
 import org.jooq.Name
 import org.jooq.Record
-import org.jooq.Row2
+import org.jooq.Row3
 import org.jooq.Schema
 import org.jooq.Table
 import org.jooq.TableField
@@ -68,6 +68,11 @@ open class Occupations(
      */
     val OCCUPATION: TableField<OccupationsRecord, String?> = createField(DSL.name("occupation"), SQLDataType.VARCHAR, this, "")
 
+    /**
+     * The column <code>public.occupations.fresh_status</code>.
+     */
+    val FRESH_STATUS: TableField<OccupationsRecord, Boolean?> = createField(DSL.name("fresh_status"), SQLDataType.BOOLEAN.defaultValue(DSL.field("true", SQLDataType.BOOLEAN)), this, "")
+
     private constructor(alias: Name, aliased: Table<OccupationsRecord>?): this(alias, null, null, aliased, null)
     private constructor(alias: Name, aliased: Table<OccupationsRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
 
@@ -104,7 +109,7 @@ open class Occupations(
     override fun rename(name: Name): Occupations = Occupations(name, null)
 
     // -------------------------------------------------------------------------
-    // Row2 type methods
+    // Row3 type methods
     // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row2<Int?, String?> = super.fieldsRow() as Row2<Int?, String?>
+    override fun fieldsRow(): Row3<Int?, String?, Boolean?> = super.fieldsRow() as Row3<Int?, String?, Boolean?>
 }

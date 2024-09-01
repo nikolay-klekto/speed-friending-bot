@@ -13,7 +13,8 @@ import java.io.Serializable
 @Suppress("UNCHECKED_CAST")
 data class Hobbies(
     var hobbyId: Int? = null,
-    var hobby: String? = null
+    var hobby: String? = null,
+    var freshStatus: Boolean? = null
 ): Serializable {
 
 
@@ -22,6 +23,7 @@ data class Hobbies(
 
         sb.append(hobbyId)
         sb.append(", ").append(hobby)
+        sb.append(", ").append(freshStatus)
 
         sb.append(")")
         return sb.toString()

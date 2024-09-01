@@ -12,6 +12,12 @@ type Query{
     getAllUsers:[UserModel]
 
     getUsersCountFromRandomCoffee: ID
+
+    getAllAgeVariants: [AgesModel]
+    getAllOccupationsVariants: [OccupationsModel]
+    getAllHobbyVariants: [HobbiesModel]
+    getAllPlacesVariants: [PlacesToVisitModel]
+
 }
 
 type Mutation {
@@ -34,6 +40,16 @@ type Mutation {
     addRandomCoffeeModel(randomCoffee: RandomCoffeeModelInput!): RandomCoffeeModel
     updateRandomCoffeeModel(randomCoffee: RandomCoffeeModelInput!): Boolean
     deleteRandomCoffeeModelById(idNote: ID!): Boolean
+
+    createAgeVariant(ageVariant: AgesModelInput!): Boolean
+    deleteAgeVariant(ageId: Int!): Boolean
+    createOccupationsVariant(occupationsVariant: OccupationsModelInput!): Boolean
+    deleteOccupationsVariant(occupationsId: Int!): Boolean
+    createHobbyVariant(hobbyVariant: HobbiesModelInput!): Boolean
+    deleteHobbyVariant(hobbyId: Int!): Boolean
+    createPlaceVariant(placeVariant: PlacesToVisitModelInput!): Boolean
+    deletePlaceVariant(placeId: Int!): Boolean
+
 
 }
 
@@ -93,6 +109,54 @@ type RandomCoffeeModel {
      hobby: String
      wouldLikeToVisit: String
      dateCreated: String
+}
+
+type AgesModel {
+    ageId: Int
+    ageRange: String
+    freshStatus: Boolean
+}
+
+type OccupationsModel {
+    occupationId: Int
+    occupation: String
+    freshStatus: Boolean
+}
+
+type HobbiesModel {
+    hobbyId: Int
+    hobby: String
+    freshStatus: Boolean
+}
+
+type PlacesToVisitModel {
+    placeId: Int
+    place: String
+    freshStatus: Boolean
+}
+
+input AgesModelInput {
+    ageId: Int
+    ageRange: String
+    freshStatus: Boolean
+}
+
+input OccupationsModelInput {
+    occupationId: Int
+    occupation: String
+    freshStatus: Boolean
+}
+
+input HobbiesModelInput {
+    hobbyId: Int
+    hobby: String
+    freshStatus: Boolean
+}
+
+input PlacesToVisitModelInput {
+    placeId: Int
+    place: String
+    freshStatus: Boolean
 }
 
 input MainBotInfoInput{

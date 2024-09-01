@@ -1,6 +1,7 @@
 package by.sf.bot.repository.impl
 
 import by.sf.bot.jooq.tables.Ages.Companion.AGES
+import by.sf.bot.jooq.tables.Buttons
 import by.sf.bot.jooq.tables.Hobbies.Companion.HOBBIES
 import by.sf.bot.jooq.tables.Occupations.Companion.OCCUPATIONS
 import by.sf.bot.jooq.tables.PlacesToVisit.Companion.PLACES_TO_VISIT
@@ -10,32 +11,148 @@ import by.sf.bot.jooq.tables.RandomCoffeeOccupation.Companion.RANDOM_COFFEE_OCCU
 import by.sf.bot.jooq.tables.RandomCoffeePlace.Companion.RANDOM_COFFEE_PLACE
 import by.sf.bot.jooq.tables.pojos.*
 import org.jooq.DSLContext
+import org.jooq.Table
+import org.jooq.TableField
+import org.jooq.impl.DSL
+import org.jooq.impl.DSL.coalesce
+import org.jooq.impl.DSL.min
 import org.springframework.stereotype.Repository
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
 @Repository
 class RandomCoffeeVariantsRepository(
     private val dsl: DSLContext
 ) {
 
-    fun getAllAgeVariants(): List<Ages> {
+    fun getAllAgeVariantsBlocking(): List<Ages> {
         return dsl.select(AGES.asterisk()).from(AGES)
+            .where(AGES.FRESH_STATUS.eq(true))
             .map { it.into(Ages::class.java) }
-            .sortedBy { it.ageRange }
+            .sortedBy { it.ageRange?.split("-")?.first()?.toIntOrNull() ?: Int.MAX_VALUE }
     }
 
-    fun getAllOccupationsVariants(): List<Occupations> {
+    fun getAllAgeVariants(): Flux<Ages>{
+        return Flux.fromIterable(
+            dsl.select(AGES.asterisk()).from(AGES)
+                .map { it.into(Ages::class.java) }
+                .sortedBy { it.ageRange?.split("-")?.first()?.toIntOrNull() ?: Int.MAX_VALUE }
+        )
+    }
+
+    fun createAgeVariant(ageVariant: Ages): Mono<Boolean>{
+        return Mono.fromSupplier {
+            val nextAgeId = getNextTableID(AGES, AGES.AGE_ID)
+            ageVariant.ageId = nextAgeId
+            val record = dsl.newRecord(AGES, ageVariant)
+
+            return@fromSupplier dsl.insertInto(AGES).set(record)
+                .execute() == 1
+        }
+    }
+
+    fun deleteAgeVariant(ageId: Int): Mono<Boolean>{
+        return Mono.fromSupplier {
+            return@fromSupplier dsl.deleteFrom(AGES)
+                .where(AGES.FRESH_STATUS.eq(false))
+                .execute() == 1
+        }
+    }
+
+    fun getAllOccupationsVariantsBlocking(): List<Occupations> {
         return dsl.select(OCCUPATIONS.asterisk()).from(OCCUPATIONS)
+            .where(OCCUPATIONS.FRESH_STATUS.eq(true))
             .map { it.into(Occupations::class.java) }
     }
 
-    fun getAllHobbyVariants(): List<Hobbies> {
+    fun getAllOccupationsVariants(): Flux<Occupations>{
+        return Flux.fromIterable(
+            dsl.select(OCCUPATIONS.asterisk()).from(OCCUPATIONS)
+                .map { it.into(Occupations::class.java) }
+        )
+    }
+
+    fun createOccupationsVariant(occupationsVariant: Occupations): Mono<Boolean>{
+        return Mono.fromSupplier {
+            val nextOccupationsId = getNextTableID(OCCUPATIONS, OCCUPATIONS.OCCUPATION_ID)
+            occupationsVariant.occupationId = nextOccupationsId
+            val record = dsl.newRecord(OCCUPATIONS, occupationsVariant)
+
+            return@fromSupplier dsl.insertInto(OCCUPATIONS).set(record)
+                .execute() == 1
+        }
+    }
+
+    fun deleteOccupationsVariant(occupationsId: Int): Mono<Boolean>{
+        return Mono.fromSupplier {
+            return@fromSupplier dsl.deleteFrom(OCCUPATIONS)
+                .where(OCCUPATIONS.FRESH_STATUS.eq(false))
+                .execute() == 1
+        }
+    }
+
+    fun getAllHobbyVariantsBlocking(): List<Hobbies> {
         return dsl.select(HOBBIES.asterisk()).from(HOBBIES)
+            .where(HOBBIES.FRESH_STATUS.eq(true))
             .map { it.into(Hobbies::class.java) }
     }
 
-    fun getAllPlacesVariants(): List<PlacesToVisit> {
+    fun getAllHobbyVariants(): Flux<Hobbies>{
+        return Flux.fromIterable(
+            dsl.select(HOBBIES.asterisk()).from(HOBBIES)
+                .map { it.into(Hobbies::class.java) }
+        )
+    }
+
+    fun createHobbyVariant(hobbyVariant: Hobbies): Mono<Boolean>{
+        return Mono.fromSupplier {
+            val nextHobbyId = getNextTableID(HOBBIES, HOBBIES.HOBBY_ID)
+            hobbyVariant.hobbyId = nextHobbyId
+            val record = dsl.newRecord(HOBBIES, hobbyVariant)
+
+            return@fromSupplier dsl.insertInto(HOBBIES).set(record)
+                .execute() == 1
+        }
+    }
+
+    fun deleteHobbyVariant(hobbyId: Int): Mono<Boolean>{
+        return Mono.fromSupplier {
+            return@fromSupplier dsl.deleteFrom(HOBBIES)
+                .where(HOBBIES.FRESH_STATUS.eq(false))
+                .execute() == 1
+        }
+    }
+
+    fun getAllPlacesVariantsBlocking(): List<PlacesToVisit> {
         return dsl.select(PLACES_TO_VISIT.asterisk()).from(PLACES_TO_VISIT)
+            .where(PLACES_TO_VISIT.FRESH_STATUS.eq(true))
             .map { it.into(PlacesToVisit::class.java) }
+    }
+
+    fun getAllPlacesVariants(): Flux<PlacesToVisit>{
+        return Flux.fromIterable(
+            dsl.select(PLACES_TO_VISIT.asterisk()).from(PLACES_TO_VISIT)
+                .map { it.into(PlacesToVisit::class.java) }
+        )
+    }
+
+    fun createPlaceVariant(placeVariant: PlacesToVisit): Mono<Boolean>{
+        return Mono.fromSupplier {
+            val nextPlaceId = getNextTableID(PLACES_TO_VISIT, PLACES_TO_VISIT.PLACE_ID)
+            placeVariant.placeId= nextPlaceId
+            val record = dsl.newRecord(PLACES_TO_VISIT, placeVariant)
+
+            return@fromSupplier dsl.insertInto(PLACES_TO_VISIT).set(record)
+                .execute() == 1
+        }
+    }
+
+    fun deletePlaceVariant(placeId: Int): Mono<Boolean>{
+        return Mono.fromSupplier {
+            return@fromSupplier dsl.deleteFrom(PLACES_TO_VISIT)
+                .where(PLACES_TO_VISIT.FRESH_STATUS.eq(false))
+                .execute() == 1
+        }
     }
 
     fun saveCoffeeAge(randomCoffeeAge: RandomCoffeeAge) {
@@ -112,6 +229,18 @@ class RandomCoffeeVariantsRepository(
     fun saveAllCoffeePlaces(randomCoffeePlacesSet: Set<RandomCoffeePlace>) {
         val records = randomCoffeePlacesSet.map { dsl.newRecord(RANDOM_COFFEE_PLACE, it) }
         dsl.batchInsert(records).execute()
+    }
+
+    fun getNextTableID(table: Table<*>, idField: TableField<*, Int?>): Int? {
+        val t1 = table.`as`("t1")
+        val t2 = table.`as`("t2")
+
+        return dsl.select(coalesce(min(t1.field(idField)?.add(1)), 1))
+            .from(t1)
+            .leftJoin(t2)
+            .on(t1.field(idField)?.add(1)?.eq(t2.field(idField)))
+            .where(t2.field(idField)?.isNull)
+            .fetchOneInto(Int::class.java)
     }
 
 

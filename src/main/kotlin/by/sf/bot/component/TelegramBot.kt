@@ -105,10 +105,10 @@ class TelegramBot(
             userMatchesMap[userId!!] = FullUserMatches(compatibleUsers, viewedUsers)
         }
 
-        allAgeOptions = randomCoffeeVariantsRepository.getAllAgeVariants()
-        allVisitOptions = randomCoffeeVariantsRepository.getAllPlacesVariants()
-        allOccupationsOptions = randomCoffeeVariantsRepository.getAllOccupationsVariants()
-        allHobbiesOptions = randomCoffeeVariantsRepository.getAllHobbyVariants()
+        allAgeOptions = randomCoffeeVariantsRepository.getAllAgeVariantsBlocking()
+        allVisitOptions = randomCoffeeVariantsRepository.getAllPlacesVariantsBlocking()
+        allOccupationsOptions = randomCoffeeVariantsRepository.getAllOccupationsVariantsBlocking()
+        allHobbiesOptions = randomCoffeeVariantsRepository.getAllHobbyVariantsBlocking()
 
         aboutProjectImage = loadImage("photos/aboutProjectImage.jpg")
         wantToSignUpImage = loadImage("photos/wantToSignUpImage.jpg")

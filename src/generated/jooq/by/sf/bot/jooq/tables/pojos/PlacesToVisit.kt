@@ -13,7 +13,8 @@ import java.io.Serializable
 @Suppress("UNCHECKED_CAST")
 data class PlacesToVisit(
     var placeId: Int? = null,
-    var place: String? = null
+    var place: String? = null,
+    var freshStatus: Boolean? = null
 ): Serializable {
 
 
@@ -22,6 +23,7 @@ data class PlacesToVisit(
 
         sb.append(placeId)
         sb.append(", ").append(place)
+        sb.append(", ").append(freshStatus)
 
         sb.append(")")
         return sb.toString()
