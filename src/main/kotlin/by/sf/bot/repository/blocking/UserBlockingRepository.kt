@@ -55,10 +55,10 @@ class UserBlockingRepository(
     }
 
     fun getAllUsersByEventIdListNotIncludedStatusAll(eventsId: List<Int?>): List<Users>{
-        val resultList = listOf<Users>()
+        var resultList = listOf<Users>()
 
         eventsId.forEach { currentEventId ->
-            resultList.plus(
+            resultList = resultList.plus(
                 dsl.select(USERS.asterisk()).from(USERS)
                     .where(USERS.REMINDERS.like("%,${currentEventId.toString()},%")
                         .or(USERS.REMINDERS.like("${currentEventId.toString()},%"))

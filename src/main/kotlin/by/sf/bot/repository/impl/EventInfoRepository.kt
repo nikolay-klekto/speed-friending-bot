@@ -56,11 +56,11 @@ class EventInfoRepository(
                 .first()
                 .map { it.into(String::class.java) }
 
+            val result2 = remindDatesRepository.deleteRemindDateByEventId(eventId)
+
             val result = dsl.deleteFrom(EVENTS)
                 .where(EVENTS.EVENT_ID.eq(eventId))
                 .execute() == 1
-
-            val result2 = remindDatesRepository.deleteRemindDateByEventId(eventId)
 
             if(result && result2){
                 buttonBlockingRepository.deleteFromDeletingEvent(eventDateText)

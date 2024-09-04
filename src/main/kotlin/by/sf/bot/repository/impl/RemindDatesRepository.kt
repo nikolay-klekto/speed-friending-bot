@@ -46,7 +46,11 @@ class RemindDatesRepository(
                 reminderIds.remove(eventId)
 
                 // Преобразуем список обратно в строку
-                val newReminders = reminderIds.joinToString(",")
+                val newReminders = if(reminderIds.isEmpty()){
+                    null
+                }else{
+                    reminderIds.joinToString(",")
+                }
 
                 dsl.update(USERS)
                     .set(USERS.REMINDERS, newReminders)
