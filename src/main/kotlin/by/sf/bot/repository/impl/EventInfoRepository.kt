@@ -1,6 +1,7 @@
 package by.sf.bot.repository.impl
 
 import by.sf.bot.jooq.tables.Events.Companion.EVENTS
+import by.sf.bot.jooq.tables.RemindDates.Companion.REMIND_DATES
 import by.sf.bot.jooq.tables.pojos.Events
 import by.sf.bot.jooq.tables.pojos.MenuInfo
 import by.sf.bot.repository.blocking.ButtonBlockingRepository
@@ -16,11 +17,12 @@ import java.time.LocalDate
 class EventInfoRepository(
     private val dsl: DSLContext,
     private val eventBlockingRepository: EventBlockingRepository,
-    private val buttonBlockingRepository: ButtonBlockingRepository
+    private val buttonBlockingRepository: ButtonBlockingRepository,
+    private val remindDatesRepository: RemindDatesRepository
 ) {
 
     fun getAllEvents(): Flux<Events> {
-        return Flux.from(
+        return Flux.fromIterable(
             dsl.select(EVENTS.asterisk()).from(EVENTS)
         ).map { it.into(Events::class.java) }
     }
@@ -57,7 +59,10 @@ class EventInfoRepository(
             val result = dsl.deleteFrom(EVENTS)
                 .where(EVENTS.EVENT_ID.eq(eventId))
                 .execute() == 1
-            if(result){
+
+            val result2 = remindDatesRepository.deleteRemindDateByEventId(eventId)
+
+            if(result && result2){
                 buttonBlockingRepository.deleteFromDeletingEvent(eventDateText)
             }
             return@fromCallable result

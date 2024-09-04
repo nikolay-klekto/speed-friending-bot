@@ -49,6 +49,14 @@ class UserBlockingRepository(
             .where(USERS.REMINDERS.eq(REMIND_STATUS_FOR_ALL_EVENTS))
             .map { it.into(Users::class.java) }
 
+        resultList.plus(getAllUsersByEventIdListNotIncludedStatusAll(eventsId))
+
+        return resultList
+    }
+
+    fun getAllUsersByEventIdListNotIncludedStatusAll(eventsId: List<Int?>): List<Users>{
+        val resultList = listOf<Users>()
+
         eventsId.forEach { currentEventId ->
             resultList.plus(
                 dsl.select(USERS.asterisk()).from(USERS)
@@ -61,6 +69,7 @@ class UserBlockingRepository(
         }
         return resultList
     }
+
 
     fun update(chatId: Long, reminders: String?): Boolean {
         val pastUserReminders = getUserRemindersByChatId(chatId)

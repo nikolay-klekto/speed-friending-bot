@@ -13,7 +13,7 @@ class UserRepository(
     private val dsl: DSLContext
 ) {
     fun getAllUsers(): Flux<Users>{
-        return Flux.from(
+        return Flux.fromIterable(
             dsl.select(USERS.asterisk()).from(USERS)
         ).map { it.into(Users::class.java) }
     }
