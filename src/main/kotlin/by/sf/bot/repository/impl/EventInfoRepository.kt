@@ -62,10 +62,12 @@ class EventInfoRepository(
                 .where(EVENTS.EVENT_ID.eq(eventId))
                 .execute() == 1
 
-            if(result && result2){
-                buttonBlockingRepository.deleteFromDeletingEvent(eventDateText)
+            var result3 = false
+
+            if(result){
+                result3 = buttonBlockingRepository.deleteFromDeletingEvent(eventDateText)
             }
-            return@fromCallable result
+            return@fromCallable result && result2 && result3
         }.subscribeOn(Schedulers.boundedElastic())
     }
 

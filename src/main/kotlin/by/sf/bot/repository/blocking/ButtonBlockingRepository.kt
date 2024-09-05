@@ -70,8 +70,8 @@ class ButtonBlockingRepository(
         save(buttonForSetReminder)
     }
 
-    fun deleteFromDeletingEvent(eventDateText: String) {
-        dsl.deleteFrom(BUTTONS).where(BUTTONS.LABEL.like("%$eventDateText%")).execute()
+    fun deleteFromDeletingEvent(eventDateText: String): Boolean {
+        return dsl.deleteFrom(BUTTONS).where(BUTTONS.LABEL.like("%$eventDateText%")).execute() == 1
     }
 
     fun updateFromUpdatingEvent(oldEvent: Events, newEvent: Events) {
