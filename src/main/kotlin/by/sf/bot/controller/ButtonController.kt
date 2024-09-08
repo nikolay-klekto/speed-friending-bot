@@ -6,12 +6,19 @@ import org.springframework.graphql.data.method.annotation.Argument
 import org.springframework.graphql.data.method.annotation.MutationMapping
 import org.springframework.graphql.data.method.annotation.QueryMapping
 import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @RestController
 class ButtonController(
     private val buttonRepository: ButtonRepository
 ) {
+
+    @QueryMapping
+    fun getAllButtonsInfo(): Flux<Buttons> {
+        return buttonRepository.getAllButtonsInfo()
+    }
+
     @QueryMapping
     fun getButtonsByMenuId(@Argument menuId: Int): List<Buttons> {
         return buttonRepository.getAllButtonsByMenuId(menuId)

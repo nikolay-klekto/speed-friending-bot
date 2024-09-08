@@ -6,6 +6,7 @@ import by.sf.bot.jooq.tables.pojos.RemindDates
 import by.sf.bot.repository.blocking.UserBlockingRepository
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.LocalDate
 
@@ -14,6 +15,13 @@ class RemindDatesRepository(
     private val dsl: DSLContext,
     private val userBlockingRepository: UserBlockingRepository
 ) {
+
+    fun getAllReminders(): Flux<RemindDates>{
+        return Flux.fromIterable(
+            dsl.select(REMIND_DATES.asterisk()).from(REMIND_DATES)
+                .map { it.into(RemindDates::class.java) }
+        )
+    }
 
     fun getAllRemindDatesForToday(): List<RemindDates> {
         return dsl.select(REMIND_DATES.asterisk()).from(REMIND_DATES)

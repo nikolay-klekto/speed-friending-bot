@@ -6,6 +6,7 @@ import by.sf.bot.jooq.tables.pojos.Buttons
 import by.sf.bot.repository.blocking.ButtonBlockingRepository
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.LocalDate
 
@@ -14,6 +15,14 @@ class ButtonRepository(
     private val dsl: DSLContext,
     private val buttonBlockingRepository: ButtonBlockingRepository
 ) {
+    fun getAllButtonsInfo(): Flux<Buttons>{
+        return Flux.fromIterable(
+            dsl.select(BUTTONS.asterisk())
+                .from(BUTTONS)
+                .map { it.into(Buttons::class.java) }
+        )
+    }
+
     fun getAllButtonsByMenuId(menuId: Int): List<Buttons> {
         return dsl.select(BUTTONS.asterisk())
             .from(BUTTONS)

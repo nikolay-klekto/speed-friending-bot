@@ -243,5 +243,41 @@ class RandomCoffeeVariantsRepository(
             .fetchOneInto(Int::class.java)
     }
 
+    fun updateAgeVariantStatus(updateModel: Ages):Mono<Boolean>{
+        return Mono.fromSupplier {
+            dsl.update(AGES)
+                .set(AGES.FRESH_STATUS, updateModel.freshStatus)
+                .where(AGES.AGE_ID.eq(updateModel.ageId))
+                .execute() == 1
+        }
+    }
+
+    fun updateOccupationVariantStatus(updateModel: Occupations):Mono<Boolean>{
+        return Mono.fromSupplier {
+            dsl.update(OCCUPATIONS)
+                .set(OCCUPATIONS.FRESH_STATUS, updateModel.freshStatus)
+                .where(OCCUPATIONS.OCCUPATION_ID.eq(updateModel.occupationId))
+                .execute() == 1
+        }
+    }
+
+    fun updateHobbyVariantStatus(updateModel: Hobbies):Mono<Boolean>{
+        return Mono.fromSupplier {
+            dsl.update(HOBBIES)
+                .set(HOBBIES.FRESH_STATUS, updateModel.freshStatus)
+                .where(HOBBIES.HOBBY_ID.eq(updateModel.hobbyId))
+                .execute() == 1
+        }
+    }
+
+    fun updatePlaceVariantStatus(updateModel: PlacesToVisit):Mono<Boolean>{
+        return Mono.fromSupplier {
+            dsl.update(PLACES_TO_VISIT)
+                .set(PLACES_TO_VISIT.FRESH_STATUS, updateModel.freshStatus)
+                .where(PLACES_TO_VISIT.PLACE_ID.eq(updateModel.placeId))
+                .execute() == 1
+        }
+    }
+
 
 }

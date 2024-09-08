@@ -6,6 +6,7 @@ import by.sf.bot.jooq.tables.references.BUTTONS
 import by.sf.bot.repository.blocking.MenuInfoBlockingRepository
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.LocalDate
 
@@ -15,6 +16,14 @@ class MenuInfoRepository(
     private val menuInfoBlockingRepository: MenuInfoBlockingRepository,
     private val dsl: DSLContext
 ) {
+
+    fun getAllMenuInfo(): Flux<MenuInfo>{
+        return Flux.fromIterable(
+            dsl.select(MENU_INFO.asterisk())
+                .from(MENU_INFO)
+                .map { it.into(MenuInfo::class.java) }
+        )
+    }
     fun getMenuInfo(menuId: Int): Mono<MenuInfo?> {
         return Mono.fromSupplier {
             dsl.select(MENU_INFO.MENU_ID, MENU_INFO.DESCRIPTION).from(MENU_INFO)

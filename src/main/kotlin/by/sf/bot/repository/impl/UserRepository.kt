@@ -12,10 +12,12 @@ import reactor.core.publisher.Mono
 class UserRepository(
     private val dsl: DSLContext
 ) {
-    fun getAllUsers(): Flux<Users>{
-        return Flux.fromIterable(
-            dsl.select(USERS.asterisk()).from(USERS)
-        ).map { it.into(Users::class.java) }
+    fun getAllUsersCount(): Mono<Long>{
+        return Mono.fromSupplier {
+            dsl.selectCount().from(USERS)
+                .first()
+                .map { it.into(Long::class.java) }
+        }
     }
 
     fun getUsersCountFromRandomCoffee(): Mono<Int>{

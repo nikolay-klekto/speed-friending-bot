@@ -17,6 +17,11 @@ class MenuInfoController(
 ) {
 
     @QueryMapping
+    fun getAllMenuInfo(): Flux<MenuInfo> {
+        return menuInfoService.getAllMenuInfo()
+    }
+
+    @QueryMapping
     fun getMenuInfoById(@Argument menuId: Int): Mono<MenuInfo?> {
         return menuInfoService.getMenuInfo(menuId)
     }

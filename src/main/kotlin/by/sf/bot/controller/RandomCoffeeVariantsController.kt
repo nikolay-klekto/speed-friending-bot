@@ -76,4 +76,24 @@ class RandomCoffeeVariantsController(
         return randomCoffeeVariantsRepository.deletePlaceVariant(placeId)
     }
 
+    @MutationMapping
+    fun updateAgeVariantStatus(@Argument ageVariant: Ages): Mono<Boolean>{
+        return randomCoffeeVariantsRepository.updateAgeVariantStatus(ageVariant)
+    }
+
+    @MutationMapping
+    fun updateOccupationVariantStatus(@Argument occupationsVariant: Occupations): Mono<Boolean>{
+        return randomCoffeeVariantsRepository.updateOccupationVariantStatus(occupationsVariant)
+    }
+
+    @MutationMapping
+    fun updateHobbyVariantStatus(@Argument hobbyVariant: Hobbies): Mono<Boolean>{
+        return randomCoffeeVariantsRepository.updateHobbyVariantStatus(hobbyVariant)
+    }
+
+    @MutationMapping
+    fun updatePlaceVariantStatus(@Argument placeVariant: PlacesToVisit): Mono<Boolean>{
+        return randomCoffeeVariantsRepository.updatePlaceVariantStatus(placeVariant)
+    }
+
 }

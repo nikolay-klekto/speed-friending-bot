@@ -1,15 +1,19 @@
 type Query{
     getMenuInfoById(menuId: ID!): MenuInfoModel
+    getAllMenuInfo: [MenuInfoModel]
 
     getMainBotInfoByKey(key: String!): MainBotInfoModel
 
     getButtonsByMenuId(menuId: ID): [ButtonModel]
+    getAllButtonsInfo: [ButtonModel]
 
     getAllRandomCoffeeAccounts:[RandomCoffeeModel]
 
     getAllEvents:[EventsModel]
 
-    getAllUsers:[UserModel]
+    getAllUsersCount:ID
+
+    getAllReminders: [RemindDatesModel]
 
     getUsersCountFromRandomCoffee: ID
 
@@ -49,8 +53,10 @@ type Mutation {
     deleteHobbyVariant(hobbyId: Int!): Boolean
     createPlaceVariant(placeVariant: PlacesToVisitModelInput!): Boolean
     deletePlaceVariant(placeId: Int!): Boolean
-
-
+    updateAgeVariantStatus(ageVariant: AgesModelInput): Boolean
+    updateOccupationVariantStatus(occupationsVariant: OccupationsModelInput): Boolean
+    updateHobbyVariantStatus(hobbyVariant: HobbiesModelInput): Boolean
+    updatePlaceVariantStatus(placeVariant: PlacesToVisitModelInput): Boolean
 }
 
 type MenuInfoModel {
