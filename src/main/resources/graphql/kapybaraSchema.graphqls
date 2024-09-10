@@ -57,6 +57,9 @@ type Mutation {
     updateOccupationVariantStatus(occupationsVariant: OccupationsModelInput): Boolean
     updateHobbyVariantStatus(hobbyVariant: HobbiesModelInput): Boolean
     updatePlaceVariantStatus(placeVariant: PlacesToVisitModelInput): Boolean
+
+    restartDocker(containerName: String!): String
+    scheduleDockerRestart(containerName: String!): String
 }
 
 type MenuInfoModel {
