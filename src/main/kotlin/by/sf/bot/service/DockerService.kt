@@ -31,7 +31,7 @@ class DockerService(
     fun restartDockerContainer(containerName: String) {
         checkDocker()
         printPath()
-        val processBuilder = ProcessBuilder("bash", "-c", "sudo docker restart $containerName")
+        val processBuilder = ProcessBuilder("bash", "-c", "sudo /usr/local/bin/docker restart $containerName")
         val process = processBuilder.start()
         val exitCode = process.waitFor()
 
@@ -43,7 +43,7 @@ class DockerService(
     }
 
     fun checkDocker(): Boolean {
-        val processBuilder = ProcessBuilder("bash", "-c", "export PATH=\$PATH:/usr/bin && docker ps")
+        val processBuilder = ProcessBuilder("bash", "-c", "/usr/local/bin/docker ps")
         val process = processBuilder.start()
 
         // Чтение стандартного вывода
