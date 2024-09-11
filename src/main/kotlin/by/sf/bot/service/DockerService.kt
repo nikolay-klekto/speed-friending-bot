@@ -27,7 +27,8 @@ class DockerService(
     }
 
     fun restartDockerContainer(containerName: String) {
-        val processBuilder = ProcessBuilder("bash", "-c", "docker restart $containerName")
+        checkDocker()
+        val processBuilder = ProcessBuilder("bash", "-c", "sudo docker restart $containerName")
         val process = processBuilder.start()
         val exitCode = process.waitFor()
 
@@ -36,5 +37,13 @@ class DockerService(
         } else {
             throw IOException("Failed to restart the container")
         }
+    }
+
+    fun checkDocker(): Boolean {
+        val processBuilder = ProcessBuilder("bash", "-c", "docker ps")
+        val process = processBuilder.start()
+        val exitCode = process.waitFor()
+
+        return exitCode == 0
     }
 }
