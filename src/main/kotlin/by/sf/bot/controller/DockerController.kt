@@ -1,6 +1,6 @@
 package by.sf.bot.controller
 
-import by.sf.bot.service.DockerService
+import DockerService
 import org.springframework.graphql.data.method.annotation.Argument
 import org.springframework.graphql.data.method.annotation.MutationMapping
 import org.springframework.graphql.data.method.annotation.QueryMapping
@@ -13,16 +13,16 @@ class DockerController(
     @MutationMapping
     fun restartDocker(@Argument containerName: String): String {
         return try {
-            dockerService.restartDockerContainer(containerName)
+            dockerService.restartDocker(containerName)
             "Container restarted successfully"
         } catch (e: Exception) {
             "Failed to restart container: ${e.message}"
         }
     }
 
-    @MutationMapping
-    fun scheduleDockerRestart(@Argument containerName: String): String {
-        dockerService.scheduleRestart(containerName)
-        return "Container will be restarted at 2 AM tomorrow"
-    }
+//    @MutationMapping
+//    fun scheduleDockerRestart(@Argument containerName: String): String {
+//        dockerService.scheduleRestart(containerName)
+//        return "Container will be restarted at 2 AM tomorrow"
+//    }
 }
