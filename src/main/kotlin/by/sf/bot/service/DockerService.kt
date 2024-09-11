@@ -8,6 +8,17 @@ import java.io.InputStreamReader
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import org.json.JSONArray
+import org.newsclub.net.unix.AFUNIXSocketAddress
+import org.newsclub.net.unix.AFUNIXSocket
+import java.io.File
+import java.net.InetAddress
+import java.net.InetSocketAddress
+import java.net.Socket
+import javax.net.SocketFactory
 
 @Service
 class DockerService(
@@ -28,9 +39,7 @@ class DockerService(
         }, Date(System.currentTimeMillis() + delay))
     }
 
-    fun restartDockerContainer(containerName: String) {
-        checkDocker()
-        printPath()
+    fun restartContainerByName(containerName: String) {
         val processBuilder = ProcessBuilder("bash", "-c", "sudo /usr/local/bin/docker restart $containerName")
         val process = processBuilder.start()
         val exitCode = process.waitFor()
@@ -42,38 +51,100 @@ class DockerService(
         }
     }
 
-    fun checkDocker(): Boolean {
-        val processBuilder = ProcessBuilder("bash", "-c", "/usr/local/bin/docker ps")
-        val process = processBuilder.start()
+    fun restartDockerContainer(containerName: String): Boolean {
+        val containerId = getContainerIdByName(containerName)
 
-        // Чтение стандартного вывода
-        val reader = BufferedReader(InputStreamReader(process.inputStream))
-        val output = StringBuilder()
-        reader.lines().forEach { line -> output.append(line).append("\n") }
-
-        // Чтение ошибок (если есть)
-        val errorReader = BufferedReader(InputStreamReader(process.errorStream))
-        val errors = StringBuilder()
-        errorReader.lines().forEach { line -> errors.append(line).append("\n") }
-
-        // Ожидание завершения процесса
-        val exitCode = process.waitFor()
-
-        // Выводим логи и ошибки
-        if (exitCode == 0) {
-            println("Command succeeded. Output:\n$output")
+        if (containerId != null) {
+            return restartContainer(containerId)
         } else {
-            println("Command failed with exit code $exitCode. Errors:\n$errors")
+            println("Container with name $containerName not found")
+            return false
+        }
+    }
+
+    fun getContainerIdByName(containerName: String): String? {
+        val client = OkHttpClient.Builder()
+            .socketFactory(UnixDomainSocketFactory(File("/var/run/docker.sock")))  // Используем наш адаптер Unix-сокетов
+            .build()
+
+        val request = Request.Builder()
+            .url("http://localhost/containers/json")
+            .get()
+            .build()
+
+        val response: Response = client.newCall(request).execute()
+
+        if (response.isSuccessful) {
+            val responseBody = response.body?.string() ?: return null
+            val containers = org.json.JSONArray(responseBody)
+
+            for (i in 0 until containers.length()) {
+                val container = containers.getJSONObject(i)
+                val names = container.getJSONArray("Names")
+                for (j in 0 until names.length()) {
+                    if (names.getString(j) == "/$containerName") {
+                        return container.getString("Id")
+                    }
+                }
+            }
+        } else {
+            println("Failed to fetch containers. Response code: ${response.code}")
         }
 
-        return exitCode == 0
+        return null
     }
 
-    fun printPath() {
-        val processBuilder = ProcessBuilder("bash", "-c", "echo \$PATH")
-        val process = processBuilder.start()
-        val reader = BufferedReader(InputStreamReader(process.inputStream))
-        val path = reader.readText()
-        println("Current PATH: $path")
+    fun restartContainer(containerId: String): Boolean {
+        val client = OkHttpClient.Builder()
+            .socketFactory(UnixDomainSocketFactory(File("/var/run/docker.sock")))
+            .build()
+
+        val request = Request.Builder()
+            .url("http://localhost/containers/$containerId/restart")
+            .post(okhttp3.RequestBody.create(null, ByteArray(0)))  // Пустое тело POST-запроса
+            .build()
+
+        val response: Response = client.newCall(request).execute()
+
+        return if (response.isSuccessful) {
+            println("Container $containerId restarted successfully")
+            true
+        } else {
+            println("Failed to restart container $containerId. Response code: ${response.code}")
+            false
+        }
     }
+
+    // Для работы с Unix-сокетом
+    class UnixDomainSocketFactory(private val socketFile: File) : SocketFactory() {
+
+        override fun createSocket(): Socket {
+            // Создание и возврат экземпляра AFUNIXSocket, подключенного к Unix-сокету
+            val socket = AFUNIXSocket.newInstance()
+            socket.connect(AFUNIXSocketAddress(socketFile))
+            return socket
+        }
+
+        override fun createSocket(host: String?, port: Int): Socket {
+            throw UnsupportedOperationException("Unix domain sockets do not support host/port connections")
+        }
+
+        override fun createSocket(host: String?, port: Int, localHost: java.net.InetAddress?, localPort: Int): Socket {
+            throw UnsupportedOperationException("Unix domain sockets do not support host/port connections")
+        }
+
+        override fun createSocket(host: InetAddress?, port: Int): Socket {
+            TODO("Not yet implemented")
+        }
+
+        override fun createSocket(
+            address: InetAddress?,
+            port: Int,
+            localAddress: InetAddress?,
+            localPort: Int
+        ): Socket {
+            TODO("Not yet implemented")
+        }
+    }
+
 }

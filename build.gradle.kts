@@ -37,6 +37,8 @@ dependencies {
 
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.1")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.kohlschutter.junixsocket:junixsocket-core:2.6.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
