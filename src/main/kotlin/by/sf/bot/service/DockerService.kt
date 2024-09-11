@@ -2,7 +2,9 @@ package by.sf.bot.service
 
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.stereotype.Service
+import java.io.BufferedReader
 import java.io.IOException
+import java.io.InputStreamReader
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -42,7 +44,26 @@ class DockerService(
     fun checkDocker(): Boolean {
         val processBuilder = ProcessBuilder("bash", "-c", "docker ps")
         val process = processBuilder.start()
+
+        // Чтение стандартного вывода
+        val reader = BufferedReader(InputStreamReader(process.inputStream))
+        val output = StringBuilder()
+        reader.lines().forEach { line -> output.append(line).append("\n") }
+
+        // Чтение ошибок (если есть)
+        val errorReader = BufferedReader(InputStreamReader(process.errorStream))
+        val errors = StringBuilder()
+        errorReader.lines().forEach { line -> errors.append(line).append("\n") }
+
+        // Ожидание завершения процесса
         val exitCode = process.waitFor()
+
+        // Выводим логи и ошибки
+        if (exitCode == 0) {
+            println("Command succeeded. Output:\n$output")
+        } else {
+            println("Command failed with exit code $exitCode. Errors:\n$errors")
+        }
 
         return exitCode == 0
     }
