@@ -42,7 +42,7 @@ class DockerService(
     }
 
     fun checkDocker(): Boolean {
-        val processBuilder = ProcessBuilder("bash", "-c", "docker ps")
+        val processBuilder = ProcessBuilder("bash", "-c", "export PATH=\$PATH:/usr/bin && docker ps")
         val process = processBuilder.start()
 
         // Чтение стандартного вывода
@@ -66,5 +66,13 @@ class DockerService(
         }
 
         return exitCode == 0
+    }
+
+    fun printPath() {
+        val processBuilder = ProcessBuilder("bash", "-c", "echo \$PATH")
+        val process = processBuilder.start()
+        val reader = BufferedReader(InputStreamReader(process.inputStream))
+        val path = reader.readText()
+        println("Current PATH: $path")
     }
 }
