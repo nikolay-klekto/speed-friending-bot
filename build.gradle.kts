@@ -43,8 +43,6 @@ dependencies {
     implementation("com.kohlschutter.junixsocket:junixsocket-core:2.6.0")
     implementation("org.apache.httpcomponents:httpclient:4.5.13")
     implementation("org.apache.httpcomponents:httpcore:4.4.14")
-    implementation("org.newsclub.net:junixsocket-core:2.4.0")
-    implementation("org.newsclub.net:junixsocket-common:2.4.0")
     implementation("org.json:json:20211205")
     implementation("com.github.docker-java:docker-java:3.2.13")
     implementation("com.github.docker-java:docker-java-transport-httpclient5:3.2.13")
