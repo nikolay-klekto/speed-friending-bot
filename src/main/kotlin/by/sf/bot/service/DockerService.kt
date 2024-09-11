@@ -68,7 +68,7 @@ class DockerService(
             .build()
 
         val request = Request.Builder()
-            .url("http://localhost/containers/json")
+            .url("http://localhost/containers/json")  // Не изменяйте этот URL
             .get()
             .build()
 
@@ -76,7 +76,7 @@ class DockerService(
 
         if (response.isSuccessful) {
             val responseBody = response.body?.string() ?: return null
-            val containers = org.json.JSONArray(responseBody)
+            val containers = JSONArray(responseBody)
 
             for (i in 0 until containers.length()) {
                 val container = containers.getJSONObject(i)
@@ -96,11 +96,11 @@ class DockerService(
 
     fun restartContainer(containerId: String): Boolean {
         val client = OkHttpClient.Builder()
-            .socketFactory(UnixDomainSocketFactory(File("/var/run/docker.sock")))
+            .socketFactory(UnixDomainSocketFactory(File("/var/run/docker.sock")))  // Используем наш адаптер Unix-сокетов
             .build()
 
         val request = Request.Builder()
-            .url("http://localhost/containers/$containerId/restart")
+            .url("http://localhost/containers/$containerId/restart")  // Не изменяйте этот URL
             .post(okhttp3.RequestBody.create(null, ByteArray(0)))  // Пустое тело POST-запроса
             .build()
 
