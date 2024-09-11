@@ -30,6 +30,7 @@ class DockerService(
 
     fun restartDockerContainer(containerName: String) {
         checkDocker()
+        printPath()
         val processBuilder = ProcessBuilder("bash", "-c", "sudo docker restart $containerName")
         val process = processBuilder.start()
         val exitCode = process.waitFor()
