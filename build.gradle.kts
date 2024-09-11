@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "3.0.0"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.7.10"
+    kotlin("jvm") version "1.9.0"
     kotlin("plugin.spring") version "1.7.10"
     id("nu.studer.jooq") version "7.1"
 }
