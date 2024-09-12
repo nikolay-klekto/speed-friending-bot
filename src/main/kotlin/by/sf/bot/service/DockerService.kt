@@ -16,7 +16,8 @@ class DockerService {
 
     fun restartDocker(containerName: String) {
         try {
-            val processBuilder = ProcessBuilder("/home/Nikolay/speedfriendingBot/restart_container.sh", containerName)
+            val processBuilder = ProcessBuilder("bash", "/home/Nikolay/speedfriendingBot/restart_container.sh", containerName)
+
             processBuilder.directory(File("/home/Nikolay/speedfriendingBot"))
             val process = processBuilder.start()
 
