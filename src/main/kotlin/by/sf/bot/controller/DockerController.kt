@@ -1,6 +1,6 @@
 package by.sf.bot.controller
 
-import DockerService
+import by.sf.bot.service.DockerService
 import org.springframework.graphql.data.method.annotation.Argument
 import org.springframework.graphql.data.method.annotation.MutationMapping
 import org.springframework.graphql.data.method.annotation.QueryMapping

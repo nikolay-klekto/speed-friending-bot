@@ -1,29 +1,16 @@
+package by.sf.bot.service
+
+
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.model.Container
 import com.github.dockerjava.core.DefaultDockerClientConfig
 import com.github.dockerjava.core.DockerClientBuilder
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient
 import com.github.dockerjava.transport.DockerHttpClient
+import org.springframework.stereotype.Service
 import java.time.Duration
 
-fun createDockerClient(): DockerClient {
-    // Настройка для подключения к Unix-сокету
-    val config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-        .withDockerHost("unix:///var/run/docker.sock")
-        .build()
-
-    val httpClient: DockerHttpClient = ApacheDockerHttpClient.Builder()
-        .dockerHost(config.dockerHost)
-        .maxConnections(100)
-        .connectionTimeout(Duration.ofSeconds(30))
-        .responseTimeout(Duration.ofSeconds(45))
-        .build()
-
-    return DockerClientBuilder.getInstance(config)
-        .withDockerHttpClient(httpClient)
-        .build()
-}
-
+@Service
 class DockerService {
 
     fun restartDocker(containerName: String) {
@@ -43,5 +30,23 @@ class DockerService {
         } else {
             println("Container with name $containerName not found.")
         }
+    }
+
+    fun createDockerClient(): DockerClient {
+        // Настройка для подключения к Unix-сокету
+        val config = DefaultDockerClientConfig.createDefaultConfigBuilder()
+            .withDockerHost("unix:///var/run/docker.sock")
+            .build()
+
+        val httpClient: DockerHttpClient = ApacheDockerHttpClient.Builder()
+            .dockerHost(config.dockerHost)
+            .maxConnections(100)
+            .connectionTimeout(Duration.ofSeconds(30))
+            .responseTimeout(Duration.ofSeconds(45))
+            .build()
+
+        return DockerClientBuilder.getInstance(config)
+            .withDockerHttpClient(httpClient)
+            .build()
     }
 }
