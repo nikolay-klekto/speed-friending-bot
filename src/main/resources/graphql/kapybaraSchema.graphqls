@@ -60,6 +60,9 @@ type Mutation {
 
     restartDocker(containerName: String!): String
     scheduleDockerRestart(containerName: String!): String
+
+    restartApp: Boolean
+    restartAppAt3AM: Boolean
 }
 
 type MenuInfoModel {

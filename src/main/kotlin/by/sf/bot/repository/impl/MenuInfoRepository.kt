@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono
 import java.time.LocalDate
 
 @Repository
-//@CacheConfig(cacheNames = ["menuInfo"])
 class MenuInfoRepository(
     private val menuInfoBlockingRepository: MenuInfoBlockingRepository,
     private val dsl: DSLContext

@@ -1,6 +1,5 @@
 package by.sf.bot.controller
 
-import by.sf.bot.jooq.tables.pojos.MainBotInfo
 import by.sf.bot.jooq.tables.pojos.MenuInfo
 import by.sf.bot.repository.impl.MenuInfoRepository
 import org.springframework.graphql.data.method.annotation.Argument
